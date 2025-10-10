@@ -49,49 +49,59 @@ Su equipo es el responsable de la implementación de los controles de seguridad 
 
 1. Redes Privadas Virtuales (VPN)
 
-    ○ Deberá implementar la interconexión entre el centro de datos de Montevideo y la infraestructura
+    - Deberá implementar la interconexión entre el centro de datos de Montevideo y la infraestructura
       en nube. Para esta solución no será necesario tener en cuenta la redundancia.
-    ○ Deberá también implementar acceso administrativo seguro para los administradores de red y
+      
+    - Deberá también implementar acceso administrativo seguro para los administradores de red y
       sistemas (usuarios privilegiados).
-       ■ La protección de este canal de acceso deberá tener en cuenta los desafíos y riesgos
+      
+        - La protección de este canal de acceso deberá tener en cuenta los desafíos y riesgos
           actuales de autenticación e identidad digital.
-       ■ Se espera que esta solución permita asignar políticas granulares de acceso
+        - Se espera que esta solución permita asignar políticas granulares de acceso
           dependiendo de la identidad de quien se conecte.
 
-3. Protección de Aplicaciones Web (WAF y API Gateway)
+2. Protección de Aplicaciones Web (WAF y API Gateway)
 
-    ○ Deberá implementar una solución de API Gateway que permita proteger la infraestructura de
+    - Deberá implementar una solución de API Gateway que permita proteger la infraestructura de
       soporte de telemetría y aplicaciones.
-    ○ Deberá configurar una solución WAF que pueda detectar y detener los ataques comunes del
+      
+    - Deberá configurar una solución WAF que pueda detectar y detener los ataques comunes del
       OWASP Top Ten en tiempo real sin afectar la funcionalidad del portal web.
-       ■ Se espera que esta solución se integre con el SIEM
-       ■ Se le pide que configure al menos dos reglas personalizadas
+      
+       - Se espera que esta solución se integre con el SIEM
+       - Se le pide que configure al menos dos reglas personalizadas
 
-5. Monitoreo y Respuesta (SIEM)
+3. Monitoreo y Respuesta (SIEM)
 
-    ○ Deberá desplegar un SIEM para monitoreo, detección y respuesta.
-       ■ Deberá integrarse con el resto de la maqueta, recibiendo alertas de las soluciones de
+    - Deberá desplegar un SIEM para monitoreo, detección y respuesta.
+   
+       - Deberá integrarse con el resto de la maqueta, recibiendo alertas de las soluciones de
           WAF, VPN y la plantilla GNU/Linux endurecida.
-       ■ Deberá configurar 3 casos de uso personalizados, al menos uno de ellos relacionado
+         
+       - Deberá configurar 3 casos de uso personalizados, al menos uno de ellos relacionado
           con autenticación.
 
-7. Gestión de Identidad y Accesos (IAM)
+4. Gestión de Identidad y Accesos (IAM)
 
-    ○ Deberá implementar o configurar un proveedor de identidad centralizado para los usuarios de la
+    - Deberá implementar o configurar un proveedor de identidad centralizado para los usuarios de la
       organización (interno).
-       ■ Deberá poder proveer un punto de autenticación y autorización utilizando protocolos
+      
+       - Deberá poder proveer un punto de autenticación y autorización utilizando protocolos
           estándares (OAuth2 u OpenIDC).
-       ■ Deberá poder integrarse o soportar analítica de comportamiento de usuarios para
+       - Deberá poder integrarse o soportar analítica de comportamiento de usuarios para
           detectar patrones de uso (autenticación) anómalos.
 
-9. Plantilla de Servidor endurecida
+5. Plantilla de Servidor endurecida
 
-    ○ Deberá proponer una forma de estandarizar el proceso de endurecimiento del sistema operativo 
+    - Deberá proponer una forma de estandarizar el proceso de endurecimiento del sistema operativo 
       GNU/Linux utilizado como base para el despliegue de la infraestructura de la organización.
-       ■ Deberá tomar como referencia los CIS CSC Benchmark L1.
-       ■ El entregable deberá poder replicarse con cada despliegue de servidor. Se espera que
+      
+       - Deberá tomar como referencia los CIS CSC Benchmark L1.
+         
+       - El entregable deberá poder replicarse con cada despliegue de servidor. Se espera que
           entregue los scripts asociados, no una plantilla o imagen.
-       ■ Como mínimo, el endurecimiento deberá contemplar:
+         
+       - Como mínimo, el endurecimiento deberá contemplar:
             1. Firewall local
             2. Auditoría del sistema
             3. Acceso administrativo seguro
