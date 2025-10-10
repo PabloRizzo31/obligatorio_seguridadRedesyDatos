@@ -131,6 +131,12 @@ compartir hardware ni direccionamiento IP.
 
 *Guia detallada de configuracion de un firewall PFsense con el servicio de OpenVPN*
 
+Para la implementacion de un acceso seguro a la empresa, por parte de los colaboradores que se encuentran en internet, hemos optado por un firewall PFsense (version 2.7) el cual ya tiene incluido de fabrica el paquete OpenVPN. Dicho paquete OpenVPN nos permitira configurar una VPN Client-Access para dichos colaboradores y como segundo factor de autenticacion hemos optado por un certificado que se instalara en el dispositivo remoto de cada colaborador. 
+
+A los efectos practicos autogeneramos un certificado local, el cual no tiene validez en internet, pero si servira para establecer las VPNs Client-access que nos piden los requerimientos de la empresa. Al momento de llevarlo al ambiente de produccion, la empresa Fosil debera costear dicho certificado con una CA reconocida.
+
+En la topologia de red sugerida existiran 2 tipos de conexiones VPN, una de ellas sera del tipo Client-Access para los colaboradores remotos que necesitan utilizar servicios internos de la empresa, y el segundo tipo de VPN sera site-to-site y sera para unir el sitio central en Montevideo, con los nuevos servicios que la empresa desea levantar en la Cloud de AWS. Solo se mostrara la configuracion de una VPN Client-Access en el firewall PFsense de borde, y si el lector desea, puede consultar la documentacion de OpenVPN/PFsense para obtener los pasos de configuracion de una VPN site-to-site.
+
 ---
 
 ## 5. Proteccion de Aplicaciones Web (WAF y API Gateway)
@@ -167,6 +173,9 @@ compartir hardware ni direccionamiento IP.
 
 *No se incluye licenciamiento de software dado que se opto por software de licenciamiento libre*
 
+- Distribucion Linux Debian 12
+- Wazuh version 4.13.1
+
 ---
 
 ## 11. Troubleshooting
@@ -190,6 +199,9 @@ compartir hardware ni direccionamiento IP.
 ## 14. Referencias bibliograficas
 
 - Documentacion del sitio oficial de Debian (https://www.debian.org/doc/)
+- Documentacion del sitio oficial de OpenVPN (https://openvpn.net/community-docs/)
+- Documentacion del sitio oficial de PFsense (https://docs.netgate.com/pfsense/)
+- Documentacion del sitio oficial de Wazuh (https://documentation.wazuh.com/)
 - Material del curso Seguridad en Redes y Dato disponible en la web Aulas de la Facultad ORT (https://aulas.ort.edu.uy)
 
 
