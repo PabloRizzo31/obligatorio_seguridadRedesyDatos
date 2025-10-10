@@ -159,7 +159,7 @@ compartir hardware ni direccionamiento IP.
 
 *Diagrama de la topologia sugerida*
 
-![Diagrama general de la topologia](images/image2.jpg)
+![Diagrama general de la topologia](images/image1.jpg)
 
 ---
 
