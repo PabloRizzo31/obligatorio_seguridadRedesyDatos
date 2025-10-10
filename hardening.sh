@@ -139,6 +139,7 @@ sed -i 's/^#Banner.*/Banner \/etc\/issue.net/' /etc/ssh/sshd_config
 # Reiniciar el servicio SSH para aplicar los cambios
 systemctl restart sshd
 
+
 ## Requerimiento 4: Integración con el SIEM
 # ---------------------------------
 echo "Instalando y configurando el agente del SIEM..."
