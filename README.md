@@ -115,7 +115,7 @@ Aca faltan aclarar varios temas.......
 **Como resumen tecnico la solución propuesta provee:**
 
 - Un servidor FreeBSD ubicado en el borde entre las zonas DMZ e Internet que cumplira funciones de Firewall (PFsense con OpenVPN)
-- Un servidor Debian ubicado en la zona DMZ que cumplira funciones de WAF (Apache Mod Security)
+- Un servidor Debian ubicado en la zona DMZ que cumplira funciones de WAF (Apache ModSecurity)
 - Un servidor Debian ubicado en la zona DMZ que cumplira funciones de  API Gateway (Kong API Gateway)
 - Un servidor Debian ubicado en la zona SERVIDORES que cumplira funciones de web server (Apache)
 - Un servidor Debian ubicado en la zona SERVIDORES que cumplira funciones de SIEM (Wazuh)
@@ -175,6 +175,10 @@ En la topologia de red sugerida existiran 2 tipos de conexiones VPN, una de ella
 
 - Distribucion Linux Debian 12
 - Wazuh version 4.13.1
+- PFsense version 2.7
+- VirtualBOX version 7.0
+- Apache web server version 2.4
+- Apache ModSecurity version 2.9
 
 ---
 
@@ -202,6 +206,7 @@ En la topologia de red sugerida existiran 2 tipos de conexiones VPN, una de ella
 - Documentacion del sitio oficial de OpenVPN (https://openvpn.net/community-docs/)
 - Documentacion del sitio oficial de PFsense (https://docs.netgate.com/pfsense/)
 - Documentacion del sitio oficial de Wazuh (https://documentation.wazuh.com/)
+- Documentacion de Apache ModSecurity (https://docs.cpanel.net/)
 - Material del curso Seguridad en Redes y Dato disponible en la web Aulas de la Facultad ORT (https://aulas.ort.edu.uy)
 
 
