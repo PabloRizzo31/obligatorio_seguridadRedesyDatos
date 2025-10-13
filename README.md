@@ -164,6 +164,51 @@ En la topologia de red sugerida existiran 2 tipos de conexiones VPN, una de ella
 
 *Guia detallada del hardening de un servidor Debian tomando como referencia los CIS CSC Benchmark L1*
 
+El script de hardening de este repositorio (hardening.sh) cumple con el fortalecimiento de 4 areas criticas de un servidor Debian teniendo como referencia el CIS CSC Benchmark. Una vez finalizada la ejecucion de los distintos comandos en cada area, se procede a reiniciar los servicios involucrados y configurar la ejecucion de los mismos desde el inicio del sistema operativo. 
+
+A nivel de **Firewall local** se configura lo siguiente:
+
+- Instalar el paquete nftables (evolucion del firewall iptables).
+- Limpieza de reglas de firewall existentes.
+- Creacion de regla "Deny all" por defecto si no hay trafico especifico definido.
+- Permitir solamente acceso SSH y puertos del servidor Wazuh (1514 y 1515) en sentido entrante al servidor.
+- Permitir conexiones cuyo estado sea "Established" y "Related", vinculadas a sesiones ya iniciadas desde el servidor.
+- Permitir trafico saliente irrestricto para asegurar actualizaciones del sistema operativo del servidor.
+- Deshabilitar protocolos de red inseguros como DCCP, SCTP, RDS y TIPC bloqueando la carga manual de estos modulos (/bin/true).
+- Desinstalar protocolos de red inseguros (DCCP, SCTP, RDS y TIPC) si estuvieran instalados en el servidor.
+
+A nivel de **Auditorioa del sistema** se configura lo siguiente:
+
+- Instalar el paquete de auditoria auditd y sus plugins audispd-plugins.
+- Habilitar el servicio de auditoria desde el gestor de arranque GRUB.
+- Aplicar reglas de auditoria relativas a cambios de identidad (Usuarios, Grupos y Contrasenias) generando logs ante cualquier cambio.
+- Aplicar reglas de auditoria relativas a comandos de privilegio (sudo y su) generando logs ante cualquier uso de los mismos.
+- Aplicar reglas de auditoria relativas a la configuracion de red (Hostname, dominio y direccionamiento IP) generando logs con los detalles de cada cambio.
+- Configurar politica de retencion de logs de auditoria por tamanio maximo, sin sobreescritura y notificacion via mail al admin si el HDD no tiene espacio fisico.
+- Configurar el modo inmutable para todas las reglas de auditoria creadas para impedir su modificacion o borrado intencional.
+
+A nivel de **Acceso administrativo seguro** se configura lo siguiente:
+
+- Deshabilitar el acceso SSH al servidor utilizando el usuario **root**
+- Deshabilitar el acceso SSH al servidor utilizando usuario y contrasenia, debiendo utilizarse claves publicas SSH para el acceso seguro
+- Forzar SSH version 2
+- Ignorar archivo de **hosts** y deshabilitar acceso SSH basado en dicho archivo
+- Limitar intentos fallidos de acceso SSH al servidor 
+- Configurar timeout de sesiones SSH inactivas
+- Limitar tiempo de login de una sesion SSH
+- Cambiar el nivel de registro de eventos SSH al nivel **Verbose**
+- Deshabilitar el reenvio de interfaces graficas a traves de SSH (X11)
+- Bloquear variables de entorno personalizadas durante el login SSH
+- Limitar conexiones simultaneas en una sesion SSH para evitar un ataque de denegacion de servicio
+- Deshabilitar reenvios de puertos TCP en una sesion SSH
+- Establecer banner informativo legal que se desplegara por pantalla antes de cada login SSH
+
+A nivel de **Integracion con el SIEM** se configura lo siguiente:
+
+- Descargar e instalar agente Wazuh en el servidor
+- En la configuracion del agente Wazuh, editar la direccion IP del servidor Wazuh (SIEM), al cual el agente enviara los logs.
+
+
 ---
 
 ## 9. Diagramas de la infraestructura sugerida
