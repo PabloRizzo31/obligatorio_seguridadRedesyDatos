@@ -169,8 +169,8 @@ El script de hardening de este repositorio (hardening.sh) cumple con el fortalec
 A nivel de **Firewall local** se configura lo siguiente:
 
 - Instalar el paquete nftables (evolucion del firewall iptables).
-- Limpieza de reglas de firewall existentes.
-- Creacion de regla "Deny all" por defecto si no hay trafico especifico definido.
+- Limpiar reglas de firewall existentes.
+- Crear regla "Deny all" por defecto si no hay trafico especifico definido.
 - Permitir solamente acceso SSH y puertos del servidor Wazuh (1514 y 1515) en sentido entrante al servidor.
 - Permitir conexiones cuyo estado sea "Established" y "Related", vinculadas a sesiones ya iniciadas desde el servidor.
 - Permitir trafico saliente irrestricto para asegurar actualizaciones del sistema operativo del servidor.
@@ -190,24 +190,25 @@ A nivel de **Auditorioa del sistema** se configura lo siguiente:
 A nivel de **Acceso administrativo seguro** se configura lo siguiente:
 
 - Deshabilitar el acceso SSH al servidor utilizando el usuario **root**
-- Deshabilitar el acceso SSH al servidor utilizando usuario y contrasenia, debiendo utilizarse claves publicas SSH para el acceso seguro
-- Forzar SSH version 2
-- Ignorar archivo de **hosts** y deshabilitar acceso SSH basado en dicho archivo
-- Limitar intentos fallidos de acceso SSH al servidor 
-- Configurar timeout de sesiones SSH inactivas
-- Limitar tiempo de login de una sesion SSH
+- Deshabilitar el acceso SSH al servidor utilizando usuario y contrasenia, debiendo utilizarse claves publicas SSH para el acceso seguro.
+- Forzar SSH version 2.
+- Ignorar archivo de **hosts** y deshabilitar acceso SSH basado en dicho archivo.
+- Limitar intentos fallidos de acceso SSH al servidor. 
+- Configurar timeout de sesiones SSH inactivas.
+- Limitar tiempo de login de una sesion SSH.
 - Cambiar el nivel de registro de eventos SSH al nivel **Verbose**
-- Deshabilitar el reenvio de interfaces graficas a traves de SSH (X11)
-- Bloquear variables de entorno personalizadas durante el login SSH
-- Limitar conexiones simultaneas en una sesion SSH para evitar un ataque de denegacion de servicio
-- Deshabilitar reenvios de puertos TCP en una sesion SSH
-- Establecer banner informativo legal que se desplegara por pantalla antes de cada login SSH
+- Deshabilitar el reenvio de interfaces graficas a traves de SSH (X11).
+- Bloquear variables de entorno personalizadas durante el login SSH.
+- Limitar conexiones simultaneas en una sesion SSH para evitar un ataque de denegacion de servicio.
+- Deshabilitar reenvios de puertos TCP en una sesion SSH.
+- Establecer banner informativo legal que se desplegara por pantalla antes de cada login SSH.
 
 A nivel de **Integracion con el SIEM** se configura lo siguiente:
 
-- Descargar e instalar agente Wazuh en el servidor
-- En la configuracion del agente Wazuh, editar la direccion IP del servidor Wazuh (SIEM), al cual el agente enviara los logs.
+- Descargar e instalar agente Wazuh en el servidor.
+- En la configuracion del agente Wazuh, configurar la direccion IP del servidor Wazuh (SIEM), al cual el agente enviara los logs.
 
+Cabe destacar que antes de aplicar el script de hardening a un servidor Debian con una instalacion limpia, desde cero, el nivel de seguridad CIS CSC segun el agente Wazuh es del XXX% y una vez aplicado el script de hardening, dicho nivel de seguridad aciende a XXX%. De todos modos, si el lector experimentado decide editar el script de hardening para sumar controles de hardening y asi elevar el nivel de seguridad de un servidor Debian, adjuntamos en este repositorio el documento PDF completo de CIS CSC Benchmark para un servidor Debian 12.
 
 ---
 
