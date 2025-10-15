@@ -1,6 +1,7 @@
 # Obligatorio de Seguridad en Redes de Datos - ORT
 
-## **Fecha de entrega 03/12/2025  -  21Hs**  
+## **Fecha de entrega 03/12/2025  -  21Hs**
+
 **Profesor:** Mauricio Campiglia  
 **Estudiantes:** Federico Morra (143394) – Pablo Rizzo (181374)
 
@@ -217,6 +218,7 @@ En la topologia de red sugerida existiran 2 tipos de conexiones VPN, una de ella
 - Wazuh: controles SCA para Hardening: (https://documentation.wazuh.com/current/getting-started/use-cases/configuration-assessment.html)
 - Documentacion de Apache ModSecurity (https://docs.cpanel.net/)
 - Repositorio de CRS (Core Ruleset) de OWASP para configuracion de reglas de WAF (https://github.com/coreruleset/coreruleset)
+- OWASP TOP 10 2021 (https://owasp.org/Top10/es/)
 - Material del curso Seguridad en Redes y Dato disponible en la web Aulas de la Facultad ORT (https://aulas.ort.edu.uy)
 
 ### Uso de Inteligencia Artificial Generativa
