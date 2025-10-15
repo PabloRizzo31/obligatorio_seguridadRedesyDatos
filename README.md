@@ -139,7 +139,15 @@ En la topologia de red sugerida existiran 2 tipos de conexiones VPN, una de ella
 
 ## 5. Proteccion de Aplicaciones Web (WAF y API Gateway)
 
-*Guia detallada de configuracion de ambos servicios*
+*Guia detallada de configuracion de ambos servicios (y su integracion con el SIEM)* 
+
+### 12.B Pruebas de ataques WEB para deteccion y bloqueo de WAF
+
+*Detallar pruebas realizadas. Por ej: Inyeccion SQL y XSS para deteccion y bloqueo*
+
+### 12.C Reglas personalizadas
+
+*Configuracion y explicacion de las reglas personalizadas, asi como capturas de su funcionamiento*
 
 ---
 
@@ -165,7 +173,7 @@ En la topologia de red sugerida existiran 2 tipos de conexiones VPN, una de ella
 
 *Guia detallada del hardening de un servidor Debian tomando como referencia los CIS CSC Benchmark L1*
 
-El script de hardening de este repositorio (hardening.sh) cumple con el fortalecimiento de 4 areas criticas de un servidor Debian teniendo como referencia el CIS CSC Benchmark. Una vez finalizada la ejecucion de los distintos comandos en cada area, se procede a reiniciar los servicios involucrados y configurar la ejecucion de los mismos desde el inicio del sistema operativo. 
+El script de hardening de este repositorio (hardening.sh) cumple con el fortalecimiento de 4 areas criticas de un servidor Debian teniendo como referencia el CIS CSC Benchmark. Una vez finalizada la ejecucion de los distintos comandos en cada area, se procede a reiniciar los servicios involucrados y configurar la ejecucion de los mismos desde el inicio del sistema operativo.
 
 A nivel de **Firewall local** se configura lo siguiente:
 
@@ -194,7 +202,7 @@ A nivel de **Acceso administrativo seguro** se configura lo siguiente:
 - Deshabilitar el acceso SSH al servidor utilizando usuario y contrasenia, debiendo utilizarse claves publicas SSH para el acceso seguro.
 - Forzar SSH version 2.
 - Ignorar archivo de **hosts** y deshabilitar acceso SSH basado en dicho archivo.
-- Limitar intentos fallidos de acceso SSH al servidor. 
+- Limitar intentos fallidos de acceso SSH al servidor.
 - Configurar timeout de sesiones SSH inactivas.
 - Limitar tiempo de login de una sesion SSH.
 - Cambiar el nivel de registro de eventos SSH al nivel **Verbose**
@@ -207,7 +215,7 @@ A nivel de **Acceso administrativo seguro** se configura lo siguiente:
 A nivel de **Integracion con el SIEM** se configura lo siguiente:
 
 - Descargar e instalar agente Wazuh en el servidor.
-- En la configuracion del agente Wazuh, configurar la direccion IP del servidor Wazuh (SIEM), al cual el agente enviara los logs.
+- En la configuracion del agente Wazuh, establecer la direccion IP del Wazuh Manager (SIEM), al cual el agente enviara los logs.
 
 Cabe destacar que antes de aplicar el script de hardening a un servidor Debian con una instalacion limpia, desde cero, el nivel de seguridad CIS CSC segun el agente Wazuh es del XXX% y una vez aplicado el script de hardening, dicho nivel de seguridad aciende a XXX%. De todos modos, si el lector experimentado decide editar el script de hardening para sumar controles de hardening y asi elevar el nivel de seguridad de un servidor Debian, adjuntamos en este repositorio el documento PDF completo de CIS CSC Benchmark para un servidor Debian 12.
 
@@ -244,13 +252,11 @@ Cabe destacar que antes de aplicar el script de hardening a un servidor Debian c
 
 *En esta seccion se muestran capturas que evidencian el funcionamiento en un entorno virtual*
 
-### 12.B Pruebas de ataques WEB para deteccion y bloqueo de WAF
-
 ---
 
 ## 13. Posibles mejoras de la infraestructura sugerida
 
-*Aqui se detallan posibles mejoras del despliegue que fueron apareciendo durante la creacion del mismo pero no nos dio el tiempo para ponerlos en produccion*
+*Aqui se detallan posibles mejoras del despliegue que fueron apareciendo durante la creacion del mismo, y que de alguna manera no hubo tiempo para ponerlos en produccion.*
 
 ---
 
