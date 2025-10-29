@@ -189,6 +189,7 @@ curl -I http://localhost/test
 
 # Se deberia de obtener un HTTP 403 Forbidden y ver el log de ModSecurity
 # El mensaje: "Acceso bloqueado a /test por regla personalizada"
+```
 
 ### 12.B Pruebas de ataques WEB para deteccion y bloqueo de WAF
 
@@ -225,6 +226,7 @@ sudo chmod -R 0755 /var/www/html/admin
 
 # Recargar Apache
 sudo systemctl reload apache2
+```
 
 ---
 
