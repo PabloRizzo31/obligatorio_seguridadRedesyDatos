@@ -139,15 +139,92 @@ En la topologia de red sugerida existiran 2 tipos de conexiones VPN, una de ella
 
 ## 5. Proteccion de Aplicaciones Web (WAF y API Gateway)
 
-*Guia detallada de configuracion de ambos servicios (y su integracion con el SIEM)* 
+*Guia detallada de configuracion de ambos servicios (y su integracion con el SIEM)*
+
+### 12.C Reglas personalizadas: configuración
+
+```bash
+# Crear directorio de reglas 
+sudo mkdir /etc/modsecurity/local_rules
+
+# Generar archivo de configuracion y agregar:
+sudo nano /etc/modsecurity/local_rules/custom_rules.conf
+
+# Regla custom 1: Bloquear agentes de usuario comunes de herramientas de escaneo
+SecRule REQUEST_HEADERS:User-Agent "(?i:(curl|nikto|sqlmap|fimap|nessus|nmap|acunetix|wpscan|arachni|dirbuster|burpsuite))" \
+    "id:100010,\
+    phase:1,\
+    deny,\
+    log,\
+    msg:'User-Agent sospechoso detectado (posible escaneo o fuzzing)'"
+
+# Regla custom 2: Protección de rutas críticas o administrativas
+# Bloquear acceso a rutas administrativas desde IPs no internas
+SecRule REQUEST_URI "@rx ^/(admin|dashboard|internal|controlpanel)" \
+    "id:100020,\
+    phase:1,\
+    deny,\
+    log,\
+    msg:'Acceso no autorizado a ruta administrativa',\
+    chain"
+    SecRule REMOTE_ADDR "!@ipMatch 192.168.0.0/16,10.0.0.0/8,127.0.0.1"
+
+
+# Inculuir las reglas en la configuracion activa
+sudo nano /etc/modsecurity/modsecurity.conf
+
+# Agregar al final:
+#Incluir reglas personalizadas (luego de las reglas Owasp CRS)
+#asi las reglas se cargan despues y no sobreescriben comportamientos
+IncludeOptional /etc/modsecurity/local_rules/*.conf
+
+# Reiniciar servicio de apache
+sudo systemctl reload apache2
+
+# Verificar que no esté con errores
+sudo systemctl status apache2
+
+# Pruebas de funcionamiento de la regla
+curl -I http://localhost/test
+
+# Se deberia de obtener un HTTP 403 Forbidden y ver el log de ModSecurity
+# El mensaje: "Acceso bloqueado a /test por regla personalizada"
 
 ### 12.B Pruebas de ataques WEB para deteccion y bloqueo de WAF
 
-*Detallar pruebas realizadas. Por ej: Inyeccion SQL y XSS para deteccion y bloqueo*
+#### 1- Regla custom 1: Detección de escaneo o fuzzing (User-Agent sospechoso)
+Esta regla filtra algunos agentes de usuario sospechosos. Por ejemplo: curl, sqlmap ó nikto, los cuales que veces son el primer paso de reconocimiento en un ataque.
 
-### 12.C Reglas personalizadas
+Se ejecuta un curl al sitio y se observa en los logs la regla aplicada:
 
-*Configuracion y explicacion de las reglas personalizadas, asi como capturas de su funcionamiento*
+![Waf custom test user agent](images/waf-custom-test1.png)
+
+#### 2- Regla custom 2: Protección de rutas críticas o administrativas
+
+Se agregan rutas sensibles para la adminsitración del sistema. La regla bloquea intentos de request desde ips externas a ubicaciones sensibles como "/admin" ó "/controlpanel".
+
+Es necesario configurar un sitio "admin" para relaizar esta prueba.
+
+```bash
+# Crear directorio y archivo index
+sudo mkdir -p /var/www/html/admin
+sudo tee /var/www/html/admin/index.html >/dev/null <<'HTML'
+<!doctype html>
+<html>
+  <head><meta charset="utf-8"><title>Admin - Test</title></head>
+  <body>
+    <h1>Zona /admin (prueba)</h1>
+    <p>Esta es la ruta /admin.</p>
+  </body>
+</html>
+HTML
+
+# Ajustar permisos
+sudo chown -R www-data:www-data /var/www/html/admin
+sudo chmod -R 0755 /var/www/html/admin
+
+# Recargar Apache
+sudo systemctl reload apache2
 
 ---
 
@@ -268,7 +345,7 @@ Cabe destacar que antes de aplicar el script de hardening a un servidor Debian c
 - Documentacion del sitio oficial de Wazuh (https://documentation.wazuh.com/)
 - Wazuh: sintaxis para generar reglas: (https://documentation.wazuh.com/current/user-manual/ruleset/ruleset-xml-syntax/rules.html)
 - Wazuh: controles SCA para Hardening: (https://documentation.wazuh.com/current/getting-started/use-cases/configuration-assessment.html)
-- Documentacion de Apache ModSecurity (https://docs.cpanel.net/)
+- Documentacion de Apache ModSecurity (https://www.feistyduck.com/library/modsecurity-handbook-free/online/)
 - Repositorio de CRS (Core Ruleset) de OWASP para configuracion de reglas de WAF (https://github.com/coreruleset/coreruleset)
 - OWASP TOP 10 2021 (https://owasp.org/Top10/es/)
 - Material del curso Seguridad en Redes y Dato disponible en la web Aulas de la Facultad ORT (https://aulas.ort.edu.uy)
