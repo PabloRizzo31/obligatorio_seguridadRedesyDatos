@@ -194,6 +194,7 @@ curl -I http://localhost/test
 ### 12.B Pruebas de ataques WEB para deteccion y bloqueo de WAF
 
 #### 1- Regla custom 1: Detección de escaneo o fuzzing (User-Agent sospechoso)
+
 Esta regla filtra algunos agentes de usuario sospechosos. Por ejemplo: curl, sqlmap ó nikto, los cuales que veces son el primer paso de reconocimiento en un ataque.
 
 Se ejecuta un curl al sitio y se observa en los logs la regla aplicada:
@@ -296,7 +297,30 @@ A nivel de **Integracion con el SIEM** se configura lo siguiente:
 - Descargar e instalar agente Wazuh en el servidor.
 - En la configuracion del agente Wazuh, establecer la direccion IP del Wazuh Manager (SIEM), al cual el agente enviara los logs.
 
-Cabe destacar que antes de aplicar el script de hardening a un servidor Debian con una instalacion limpia, desde cero, el nivel de seguridad CIS CSC segun el agente Wazuh es del XXX% y una vez aplicado el script de hardening, dicho nivel de seguridad aciende a XXX%. De todos modos, si el lector experimentado decide editar el script de hardening para sumar controles de hardening y asi elevar el nivel de seguridad de un servidor Debian, adjuntamos en este repositorio el documento PDF completo de CIS CSC Benchmark para un servidor Debian 12.
+Cabe destacar que antes de aplicar el script de hardening a un servidor Debian con una instalacion limpia, desde cero, el nivel de seguridad CIS CSC segun el agente Wazuh es del 48% y una vez aplicado el script de hardening, dicho nivel de seguridad aciende a 54%. De todos modos, si el lector experimentado decide editar el script de hardening para sumar controles de hardening y asi elevar el nivel de seguridad de un servidor Debian, adjuntamos en este repositorio el documento PDF completo de CIS CSC Benchmark para un servidor Debian 12.
+
+### 8b. Pruebas funcionamiento hardening en SIEM
+
+```bash
+# Instalar agente de wazuh para verificar sca antes de hardening
+wget https://packages.wazuh.com/4.x/apt/pool/main/w/wazuh-agent/wazuh-agent_4.12.0-1_amd64.deb && sudo WAZUH_MANAGER='ip-manager' dpkg -i ./wazuh-agent_4.12.0-1_amd64.deb
+
+sudo systemctl daemon-reload
+sudo systemctl enable wazuh-agent
+sudo systemctl start wazuh-agent
+
+# Hardenizar la vm con script del repositorio
+apt update
+apt install git
+git clone https://github.com/PabloRizzo31/obligatorio_seguridadRedesyDatos.git
+cd obligatorio_seguridadRedesyDatos/hardening
+chmod +x hardening.sh
+./hardening.sh
+
+# Chequear nuevamente sca en wazuh
+```
+
+![Diagrama general de la topologia](images/hardening.png)
 
 ---
 
