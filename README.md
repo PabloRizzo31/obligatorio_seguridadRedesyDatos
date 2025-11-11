@@ -153,6 +153,14 @@ Y finalmente se configuran las redes remotas y del tunel VPN en si mismo
 
 ![Configuracion de las redes del tunel VPN](images/vpn3.jpg)
 
+Luego se crea el servidor FreeIPA el token OTP para los cada usuario que se vaya a loguear a traves de la VPN, y el mismo puede ser valido por el tiempo que las politicas de la empresa requieran.
+
+![Creacion de un OTP para un usuario del servidor FreeIPA](images/OTP.jpg)
+
+Una vez creado el token OTP, debemos habilitarlo en las opciones de inicio de sesion del usuario dado, si solo configuramos la opcion OTP, y el usuario no tiene consigo el dispositivo generador de OTP, el colaborador no podra loguearse por VPN, requisito fundamental de seguridad de la empresa Fosil.
+
+![Configuracion del tipo de autenticacion de un usuario](images/2FA.jpg)
+
 
 ---
 
