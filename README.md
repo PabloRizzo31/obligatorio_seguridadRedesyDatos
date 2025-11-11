@@ -116,12 +116,12 @@ Aca faltan aclarar varios temas.......
 - Un servidor en la zona DMZ que cumplira funciones de  API Gateway (Kong API Gateway)
 - Un servidor en la zona SERVIDORES que cumplira funciones de web server (Apache)
 - Un servidor en la zona SERVIDORES que cumplira funciones de SIEM (Wazuh)
-- Un servidor en la zona SERVIDORES que cumplira funciones de autenticacion (OpenLDAP y Free Radius)
+- Un servidor en la zona SERVIDORES que cumplira funciones de autenticacion (FreeIPA)
 - La solución del Firewall se montará en un servidor con sistema operativo FreeBSD, en los demas servidores se usará la distribución Debian 12.
 
 A los efectos practicos de demostrar el funcionamiento de todos estos servicios, y cumpliendo con los requerimientos de letra,
 la maqueta presentada seran 4 VMs que agruparan varios servicios, pero que claramente en un ambiente de produccion no podrian
-compartir hardware ni direccionamiento IP.
+compartir hardware ni direccionamiento IP. Aquellas VMs que solo demostraran una funcion especifica que no sea el endurecimiento del sistema operativo, tendran un sistema operativo Linux Rocky 10, en cambio la VM a la cual se le aplicara la politica de hardening tendra un sistema operativo Linux Debian 12.
 
 ---
 
@@ -129,11 +129,30 @@ compartir hardware ni direccionamiento IP.
 
 *Guia detallada de configuracion de un firewall PFsense con el servicio de OpenVPN*
 
-Para la implementacion de un acceso seguro a la empresa, por parte de los colaboradores que acceden a traves de internet, hemos optado por un firewall PFsense (version 2.7) el cual ya tiene incluido de fabrica el paquete OpenVPN. Dicho paquete nos permitira configurar una VPN Client-Access para dichos colaboradores y como segundo factor de autenticacion hemos optado por un certificado que se instalara en el dispositivo remoto de cada usuario que la vaya a utilizar.
+Para la implementacion de un acceso seguro a la empresa, por parte de los colaboradores que acceden a traves de internet, hemos optado por un firewall PFsense (version 2.8) el cual ya tiene incluido de fabrica el paquete OpenVPN y el modulo OpenVPN-client-export que nos permitira exportar facilmente las politicas VPN desde el firewall PFsense para instalarla en los clientes VPN de los laptops de los colaboradores remotos. El paquete OpenVPN nos permitira configurar una VPN Client-Access para dichos colaboradores y como segundo factor de autenticacion hemos optado por un certificado que se instalara en el dispositivo remoto de cada usuario que la vaya a utilizar y un codigo OTP que se generara automaticamente en los celulares de los colaboradores mediante el uso de una app del tipo Google Authenticator.
 
 A los efectos practicos, autogeneramos un certificado local, el cual no tiene validez en internet, pero si servira para establecer las VPNs Client-access requeridos por la organizacion. Al momento de llevarlo al ambiente de produccion, la empresa Fosil debera costear dicho certificado con una CA reconocida.
 
-En la topologia de red sugerida existiran 2 tipos de conexiones VPN, una de ellas sera del tipo Client-Access para los colaboradores remotos que necesitan utilizar servicios internos de la empresa, y el segundo tipo de VPN sera site-to-site y sera para unir el sitio central en Montevideo, con los nuevos servicios que la empresa desea levantar en la Cloud de AWS. Solo se mostrara la configuracion de una VPN Client-Access en el firewall PFsense de borde, y si el lector desea, puede consultar la documentacion de OpenVPN/PFsense para obtener los pasos de configuracion de una VPN site-to-site.
+En la topologia de red sugerida existiran 2 tipos de conexiones VPN, una de ellas sera del tipo Client-Access para los colaboradores remotos que necesitan utilizar servicios internos de la empresa, y el segundo tipo de VPN sera site-to-site y sera para unir el sitio central en Montevideo, con los nuevos servicios que la empresa desea levantar en la Cloud de AWS. Solo se mostrara la configuracion de una VPN Client-Access en el firewall PFsense de borde, y si el lector desea, puede consultar la documentacion de OpenVPN/PFsense para obtener los pasos de configuracion de una VPN site-to-site. Como parte de los requisitos de seguridad cada colaborador que se conecte mediante VPN a la empresa, se le asignara una direccion IP especifica de la red 10.0.0.0/24 a los efectos de poder filtrar mediante reglas de firewall, a que recursos puede acceder o no cada colaborador dentro de la red.
+
+Para cumplir los requisitos de gestion de usuarios segura y centralizada, decidimos implementar un servidor FreeIPA que sera alojado en la red interna de servidores, y su proposito sera autenticar a todos aquellos colaboradores que intenten ingresar mediante VPN. Para ello, en el firewall PFsense, vinculamos como servidor de autenticacion al seridor interno FreeIPA utilizando el protocolo LDAP como protocolo de autenticacion entre ambos equipos, pudiendo mejorarse dicha comunicacion si se implemente LDAPS que es mas seguro que LDAP. Cuando el firewall PFsense permite validar las autenticaciones VPN de los colaboradores con el FreeIPA, la base local de usuarios y contrasenas del PFsense queda deshabilitada en la configuracion del servidor OpenVPN y esto asegura un control centralizado de las cuentas de usuarios ya sea de la VPN como de los dispositivos de red.
+
+**Configuracion del servidor OpenVPN en el firewall PFsense**
+
+![PFsense OpenVPN server summary](images/vpn0.jpg)
+
+A continuacion se puede ver mas en detalle como los clientes VPN se autenticaran contra el servidor FreeIPA y no la local database. Tambien seleccionamos la interface (wan) por donde llegaran los intentos de conexion VPN y el puerto que escuchara el servidor Open VPN decidimos cambiarlo a 41194 para no dejarlo en el valor por defecto de OpenVPN.
+
+![Configuracion de la autenticacion, interface y puerto de escucha del servidor](images/vpn1.jpg)
+
+Se habilita la casilla TLS para el uso del certificado (autofirmado por el propio PFsense) al cual le llamamos fosil. Esto es requisito indispensable de seguridad para el acceso seguro de nuestros colaboradores.
+
+![Configuracion del certificado del servidor OpenVPN](images/vpn2.jpg)
+
+Y finalmente se configuran las redes remotas y del tunel VPN en si mismo
+
+![Configuracion de las redes del tunel VPN](images/vpn3.jpg)
+
 
 ---
 
@@ -247,6 +266,10 @@ sudo systemctl reload apache2
 
 ## 7. Gestion de Identidad y Accesos (IAM)
 
+*Guia detallada de configuracion del servidor de gestion de usuarios FreeIPA*
+
+
+
 ---
 
 ## 8. Plantilla de Servidor endurecida
@@ -337,8 +360,10 @@ chmod +x hardening.sh
 *No se incluye licenciamiento de software dado que se opto por software de licenciamiento libre*
 
 - Distribucion Linux Debian 12
+- Distribucion Linux Rocky 10
 - Wazuh version 4.13.1
-- PFsense version 2.7
+- PFsense version 2.8.0
+- FreeIPA version 4.12.2
 - VirtualBOX version 7.0
 - Apache web server version 2.4
 - Apache ModSecurity version 2.9
@@ -355,6 +380,11 @@ chmod +x hardening.sh
 
 *En esta seccion se muestran capturas que evidencian el funcionamiento en un entorno virtual*
 
+A continuacion se muestra la validacion del servidor FreeIPA como servidor de autenticacion para el PFsense, desde la web del PFsense
+
+![Autenticacion externa LDAP exitosa ](images/test-freeipa.jpg)
+
+
 ---
 
 ## 13. Posibles mejoras de la infraestructura sugerida
@@ -366,6 +396,7 @@ chmod +x hardening.sh
 ## 14. Referencias bibliograficas
 
 - Documentacion del sitio oficial de Debian (https://www.debian.org/doc/)
+- Documentacion del sitio oficial de Rocky (https://docs.rockylinux.org/)
 - Documentacion del sitio oficial de OpenVPN (https://openvpn.net/community-docs/)
 - Documentacion del sitio oficial de PFsense (https://docs.netgate.com/pfsense/)
 - Documentacion del sitio oficial de Wazuh (https://documentation.wazuh.com/)
@@ -374,12 +405,13 @@ chmod +x hardening.sh
 - Documentacion de Apache ModSecurity (https://www.feistyduck.com/library/modsecurity-handbook-free/online/)
 - Repositorio de CRS (Core Ruleset) de OWASP para configuracion de reglas de WAF (https://github.com/coreruleset/coreruleset)
 - OWASP TOP 10 2021 (https://owasp.org/Top10/es/)
+- Documentacion del sitio oficial de FreeIPA (https://freeipa.org/page/Quick_Start_Guide)
 - Material del curso Seguridad en Redes y Dato disponible en la web Aulas de la Facultad ORT (https://aulas.ort.edu.uy)
 
 ### Uso de Inteligencia Artificial Generativa
 
 - Prompts puntuales con consultas de errores y troubleshooting de la maqueta en ChatGPT
-- -->
+- --> Error de vinculacion entre PFsense y FeeIPA, error de authenticacion con los formatos de "authentication containers" y "bind credentials"
 - -->
 - -->
 - Prompts de configuracion en Google Gemini
