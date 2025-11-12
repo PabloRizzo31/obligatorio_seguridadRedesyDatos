@@ -1,0 +1,62 @@
+_format_version: "3.0"
+_transform: true
+
+# ---- Upstream a tu Apache con ModSecurity (WAF) ----
+services:
+  - name: apache-site
+    host: host.docker.internal
+    port: 8080
+    protocol: http
+    retries: 3
+    connect_timeout: 5000
+    read_timeout: 60000
+    write_timeout: 60000
+    routes:
+      # Sitio web (pasa por WAF en Apache)
+      - name: site-root
+        paths: ["/"]
+        strip_path: false
+        methods: ["GET","HEAD","POST","PUT","DELETE","OPTIONS"]
+      # API general (rate limit + API key)
+      - name: api-route
+        paths: ["/api"]
+        strip_path: false
+        methods: ["GET","HEAD","POST","PUT","DELETE","OPTIONS"]
+        plugins:
+          - name: rate-limiting
+            config:
+              second: 10        # 10 req/s por IP
+              policy: local
+          - name: key-auth      # exige X-API-Key en /api
+            config:
+              key_names: ["X-Api-Key"]
+              hide_credentials: false
+      # Telemetría (allowlist de redes)
+      - name: telemetry-route
+        paths: ["/telemetry"]
+        strip_path: false
+        methods: ["POST","PUT","OPTIONS"]
+        plugins:
+          - name: ip-restriction
+            config:
+              allow:
+                - "10.0.0.0/8"
+                - "172.16.0.0/12"
+                - "192.168.0.0/16"
+
+# ---- Plugins globales (headers seguros, opcional) ----
+plugins:
+  - name: response-transformer
+    config:
+      add:
+        headers:
+          - "X-Frame-Options: DENY"
+          - "X-Content-Type-Options: nosniff"
+          - "Referrer-Policy: same-origin"
+
+# ---- Consumers + credenciales API Key para la maqueta ----
+consumers:
+  - username: api-client
+    keyauth_credentials:
+      - key: "<colocar-key>"
+

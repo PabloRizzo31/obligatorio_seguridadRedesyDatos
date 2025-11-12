@@ -161,14 +161,17 @@ Una vez creado el token OTP, debemos habilitarlo en las opciones de inicio de se
 
 ![Configuracion del tipo de autenticacion de un usuario](images/2FA.jpg)
 
-
 ---
 
 ## 5. Proteccion de Aplicaciones Web (WAF y API Gateway)
 
 *Guia detallada de configuracion de ambos servicios (y su integracion con el SIEM)*
 
-### 12.C Reglas personalizadas: configuración
+### 5.A Instalación de la solucion de WAF
+
+La instalacion de Mod Security se automatizó mediante el siguiente script: [Instalacion Solución WAF](waf/install.sh) 
+
+#### 5.A.A Reglas personalizadas: configuración
 
 ```bash
 # Crear directorio de reglas 
@@ -218,7 +221,7 @@ curl -I http://localhost/test
 # El mensaje: "Acceso bloqueado a /test por regla personalizada"
 ```
 
-### 12.B Pruebas de ataques WEB para deteccion y bloqueo de WAF
+#### 5.A.B Pruebas de ataques WEB para deteccion y bloqueo de WAF
 
 #### 1- Regla custom 1: Detección de escaneo o fuzzing (User-Agent sospechoso)
 
@@ -256,6 +259,83 @@ sudo chmod -R 0755 /var/www/html/admin
 sudo systemctl reload apache2
 ```
 
+### 5.B Instalacion y configuracíón del API Gateway Kong
+
+Primero es necesario cambiar el puerto de esucha del servicio apache. Se procederá a cambiarlo al puerto 8080. En el archivo /etc/apache2/ports.conf cambiar:
+
+**Listen 8080**
+
+En el VirtualHost dejarlo de la siguiente manera:
+
+```bash
+<VirtualHost *:8080>
+    ServerName localhost
+    # ...
+</VirtualHost>
+```
+
+Con esto se logra que Apache siga atendiendo al sitio y WAF, pero ya no usa el puerto público.
+
+```bash
+# Reiniciar servicio
+systemctl restart apache2
+
+# Probar el sitio dentro del server
+curl http://127.0.0.1:8080
+```
+
+```bash
+# Instalacion y configuracion de Kong
+sudo apt update
+sudo apt install -y ca-certificates curl gnupg lsb-release
+
+# Crear directorio para la key
+sudo install -m 0755 -d /etc/apt/keyrings
+
+# Descargar la clave GPG oficial
+curl -fsSL https://download.docker.com/linux/debian/gpg | \
+  sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+
+# Dar permisos de lectura
+sudo chmod a+r /etc/apt/keyrings/docker.gpg
+
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] \
+  https://download.docker.com/linux/debian \
+  $(lsb_release -cs) stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+sudo apt update
+
+# Instalar docker engine + docker compose
+sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+sudo systemctl enable docker
+sudo systemctl start docker
+sudo systemctl status docker
+
+# Seguridad: correr docker sin root
+sudo usermod -aG docker $USER
+newgrp docker
+```
+
+```bash
+# Levantar Kong
+mkdir -p ~/kong-gateway
+cd ~/kong-gateway
+```
+
+Crear y definir los archivos [docker-compose.yml](api-gateway/docker-compose.yml) y [kong.yml](api-gateway/kong.yml).
+
+```bash
+# Luego levantar el servicio de Api Gateway
+docker compose up -d
+```
+
+#### 5.B.B Pruebas de funcionamiento de API Gateway
+
+TODO: *Capturas de bloqueos del api gateway y las consultas usadas*
+
 ---
 
 ## 6. Monitoreo y Respuesta (SIEM)
@@ -275,8 +355,6 @@ sudo systemctl reload apache2
 ## 7. Gestion de Identidad y Accesos (IAM)
 
 *Guia detallada de configuracion del servidor de gestion de usuarios FreeIPA*
-
-
 
 ---
 
@@ -391,7 +469,6 @@ chmod +x hardening.sh
 A continuacion se muestra la validacion del servidor FreeIPA como servidor de autenticacion para el PFsense, desde la web del PFsense
 
 ![Autenticacion externa LDAP exitosa ](images/test-freeipa.jpg)
-
 
 ---
 
