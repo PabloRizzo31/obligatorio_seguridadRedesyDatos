@@ -116,7 +116,7 @@ Aca faltan aclarar varios temas.......
 - Un servidor en la zona DMZ que cumplira funciones de  API Gateway (Kong API Gateway)
 - Un servidor en la zona SERVIDORES que cumplira funciones de web server (Apache)
 - Un servidor en la zona SERVIDORES que cumplira funciones de SIEM (Wazuh)
-- Un servidor en la zona SERVIDORES que cumplira funciones de autenticacion (FreeIPA)
+- Un servidor en la zona SERVIDORES que cumplira funciones de autenticacion (FreeIPA + Keycloak)
 - La solución del Firewall se montará en un servidor con sistema operativo FreeBSD, en los demas servidores se usará la distribución Debian 12.
 
 A los efectos practicos de demostrar el funcionamiento de todos estos servicios, y cumpliendo con los requerimientos de letra,
@@ -129,27 +129,31 @@ compartir hardware ni direccionamiento IP. Aquellas VMs que solo demostraran una
 
 *Guia detallada de configuracion de un firewall PFsense con el servicio de OpenVPN*
 
-Para la implementacion de un acceso seguro a la empresa, por parte de los colaboradores que acceden a traves de internet, hemos optado por un firewall PFsense (version 2.8) el cual ya tiene incluido de fabrica el paquete OpenVPN y el modulo OpenVPN-client-export que nos permitira exportar facilmente las politicas VPN desde el firewall PFsense para instalarla en los clientes VPN de los laptops de los colaboradores remotos. El paquete OpenVPN nos permitira configurar una VPN Client-Access para dichos colaboradores y como segundo factor de autenticacion hemos optado por un certificado que se instalara en el dispositivo remoto de cada usuario que la vaya a utilizar y un codigo OTP que se generara automaticamente en los celulares de los colaboradores mediante el uso de una app del tipo Google Authenticator.
+Para la implementacion de un acceso seguro a la empresa, por parte de los colaboradores que acceden a traves de internet, hemos optado por un firewall PFsense (version 2.8) el cual ya tiene incluido de fabrica el paquete OpenVPN y el modulo OpenVPN-client-export que nos permitira exportar facilmente las politicas VPN desde el firewall PFsense para instalarla en los clientes VPN de los laptops de los colaboradores remotos. El paquete OpenVPN nos permitira configurar una VPN Client-Access para dichos colaboradores y como segundo factor de autenticacion hemos optado por un certificado que se instalara en el dispositivo remoto de cada usuario que la vaya a utilizar y un codigo OTP que se generara automaticamente en los celulares de los colaboradores mediante el uso de una app del tipo Google Authenticator. 
 
-A los efectos practicos, autogeneramos un certificado local, el cual no tiene validez en internet, pero si servira para establecer las VPNs Client-access requeridos por la organizacion. Al momento de llevarlo al ambiente de produccion, la empresa Fosil debera costear dicho certificado con una CA reconocida.
+En el firewall se crearan 2 perfiles client-access de VPN, uno de ellos para los Administradores de TI a los cuales se les asignara una direccion IP del pool 10.0.1.0/24 y el otro perfil sera para los usuarios basicos, a los cuales se les asignara una direccion IP del pool 10.0.2.0/24. Con esto permitiremos el acceso administrativo granular a distintos recursos de la red utilizando reglas de firewall que filtraran el acceso dependiendo de la direccion IP de origen. Por ejemplo cuando el perfil que se establezca sea el de los Administradores (IPs 10.0.1.0/24) hay una regla en el firewall que les permite acceder a la red 192.169.2.0/24 unicamente y en caso de ser un perfil de Usuario basico (IPs 10.0.2.0/24), hay otra regla que solo les permite acceder a la red 192.168.3.0/24. Cabe destacar que estas reglas se pueden customizar aun mas dependiendo de los requerimientos de acceso a los ecursos por parte de los colaboradores  
 
-En la topologia de red sugerida existiran 2 tipos de conexiones VPN, una de ellas sera del tipo Client-Access para los colaboradores remotos que necesitan utilizar servicios internos de la empresa, y el segundo tipo de VPN sera site-to-site y sera para unir el sitio central en Montevideo, con los nuevos servicios que la empresa desea levantar en la Cloud de AWS. Solo se mostrara la configuracion de una VPN Client-Access en el firewall PFsense de borde, y si el lector desea, puede consultar la documentacion de OpenVPN/PFsense para obtener los pasos de configuracion de una VPN site-to-site. Como parte de los requisitos de seguridad cada colaborador que se conecte mediante VPN a la empresa, se le asignara una direccion IP especifica de la red 10.0.0.0/24 a los efectos de poder filtrar mediante reglas de firewall, a que recursos puede acceder o no cada colaborador dentro de la red.
+A los efectos practicos, autogeneramos un certificado local, el cual no tiene validez en internet, pero si servira para establecer las VPNs Client-access requeridos por la organizacion. Al momento de llevarlo al ambiente de produccion, la empresa Fosil debera costear dicho certificado con una CA reconocida. Para la implementacion de la VPN IPsec site-to-site, hemos optado por utilizar Pre Shared Key aunque puede utilizarse certificados para mayor seguridad de la VPN.
 
-Para cumplir los requisitos de gestion de usuarios segura y centralizada, decidimos implementar un servidor FreeIPA que sera alojado en la red interna de servidores, y su proposito sera autenticar a todos aquellos colaboradores que intenten ingresar mediante VPN. Para ello, en el firewall PFsense, vinculamos como servidor de autenticacion al seridor interno FreeIPA utilizando el protocolo LDAP como protocolo de autenticacion entre ambos equipos, pudiendo mejorarse dicha comunicacion si se implemente LDAPS que es mas seguro que LDAP. Cuando el firewall PFsense permite validar las autenticaciones VPN de los colaboradores con el FreeIPA, la base local de usuarios y contrasenas del PFsense queda deshabilitada en la configuracion del servidor OpenVPN y esto asegura un control centralizado de las cuentas de usuarios ya sea de la VPN como de los dispositivos de red.
+Para cumplir los requisitos de gestion de usuarios segura y centralizada, decidimos implementar un servidor FreeIPA que sera alojado en la red interna de servidores, y su proposito sera autenticar a todos aquellos colaboradores que intenten ingresar mediante VPN. Para ello, en el firewall PFsense central, vinculamos como servidor de autenticacion al servidor interno FreeIPA utilizando el protocolo LDAP como protocolo de autenticacion entre ambos equipos, pudiendo mejorarse dicha comunicacion si se implemente LDAPS que es mas seguro que LDAP. Cuando el firewall PFsense Central permite validar las autenticaciones VPN de los colaboradores con el FreeIPA, la base local de usuarios y contrasenas del PFsense queda deshabilitada en la configuracion del servidor OpenVPN y esto asegura un control centralizado de las cuentas de usuarios ya sea de la VPN como de los dispositivos de red.
 
-**Configuracion del servidor OpenVPN en el firewall PFsense**
+En la topologia de red sugerida existiran 2 tipos de conexiones VPN, una de ellas sera del tipo Client-Access para los colaboradores remotos que necesitan utilizar servicios internos de la empresa, y el segundo tipo de VPN sera site-to-site y sera para unir el sitio central en Montevideo, con los nuevos servicios que la empresa desea levantar en la Cloud de AWS. A continuacion detallaremos la configuracion de ambos tipos de VPNs, la primera de ellas, Client-access, que se demostrara con un laptop (Con el cliente OpenVPN) y un firewall PFsense, y el segundo tipo de VPN, site-to-site se demostrara utilizando dos firewalls PFsense enlazados por sus interfaces WAN y arriba de ellas correra el tunel IPsec correspondiente.
+
+**Configuracion del servidor OpenVPN en el firewall PFsense central**
+
+A continuacion se observa como quedan configurados los 2 perfiles de acceso tipo Client-access para los usuarios basicos y para los administradores de TI. Mas abajo detallamos paso a paso como crear cada perfil y que parametros varian en cada perfil.
 
 ![PFsense OpenVPN server summary](images/vpn0.jpg)
 
-A continuacion se puede ver mas en detalle como los clientes VPN se autenticaran contra el servidor FreeIPA y no la local database. Tambien seleccionamos la interface (wan) por donde llegaran los intentos de conexion VPN y el puerto que escuchara el servidor Open VPN decidimos cambiarlo a 41194 para no dejarlo en el valor por defecto de OpenVPN.
+A continuacion se puede ver mas en detalle como los clientes VPN se autenticaran contra el servidor FreeIPA y no la local database. Tambien seleccionamos la interface (wan) por donde llegaran los intentos de conexion VPN y el puerto que escuchara el servidor Open VPN decidimos cambiarlo a 41194 en el caso del perfil de administradores de TI y 51194 para el perfil de los usuarios basicos, para no dejarlo en el valor por defecto de OpenVPN que es el puerto 1194.
 
-![Configuracion de la autenticacion, interface y puerto de escucha del servidor](images/vpn1.jpg)
+![Configuracion de la autenticacion, interface y puerto de escucha del servidor OpenVPN](images/vpn1.jpg)
 
-Se habilita la casilla TLS para el uso del certificado (autofirmado por el propio PFsense) al cual le llamamos fosil. Esto es requisito indispensable de seguridad para el acceso seguro de nuestros colaboradores.
+Se habilita la casilla TLS para el uso del certificado (autofirmado por el propio PFsense) al cual le llamamos fosil. Esto es requisito indispensable de seguridad para el acceso seguro de nuestros colaboradores indistintamente del perfil de VPN que tenga cada uno.
 
 ![Configuracion del certificado del servidor OpenVPN](images/vpn2.jpg)
 
-Y finalmente se configuran las redes remotas y del tunel VPN en si mismo
+Y finalmente se configuran las redes remotas y del tunel VPN en si mismo. Aqui es donde vamos a aplicar el control de acceso granular para cada perfil, es decir, para el perfil de Administradores de TI, el tunel IP tendra una direccion IP del Pool 10.0.1.0/24 y para el caso de los usuarios basicos, el tunel IP tendra una direccion IP del Pool 10.0.2.0/24. 
 
 ![Configuracion de las redes del tunel VPN](images/vpn3.jpg)
 
@@ -160,6 +164,32 @@ Luego se crea el servidor FreeIPA el token OTP para los cada usuario que se vaya
 Una vez creado el token OTP, debemos habilitarlo en las opciones de inicio de sesion del usuario dado, si solo configuramos la opcion OTP, y el usuario no tiene consigo el dispositivo generador de OTP, el colaborador no podra loguearse por VPN, requisito fundamental de seguridad de la empresa Fosil.
 
 ![Configuracion del tipo de autenticacion de un usuario](images/2FA.jpg)
+
+Una vez finalizada la etapa de generacion de generacion de los perfiles OpenVPN y la autenticacion con 2FA, debemos aplicarle las reglas de acceso granular a los distintos perfiles VPN para que solo puedan acceder a los recursos especificos que correspondan. Esta configuracion de reglas entrantes se realiza en el firewall PFsense central donde tenemos definidos los perfiles de OpenVPN
+
+![Reglas de firewall para acceso granular a la red](images/vpn4.jpg)
+
+Una vez finalizada toda la configuracion VPN en el firewall PFsense, debemos exportar las politicas/perfiles VPN para cada colaborador, sabiendo que en este caso tenemos 2 perfiles definidos, el de Administradores IT y el de usuarios basicos. A continuacion se muestra como podrian quedar cargados ambos perfiles en un mismo PC a los efectos de ver la diferencia de nomenclatura de los perfiles, pero en la practica, ningun colaborador tendra ambos perfiles instalados en el mismo PC remoto.
+
+![Caega de perfiles en el cliente Open VPN de un PC de colaborador](images/vpn5.jpg)
+
+Hasta aqui hemos configurado la VPN client-access para acceso de los colaboradores remotos a la redes internas de la empresa. A continuacion detallaremos la configuracion paso a paso entre los dos firewalls PFsense que levantaran una VPN site-to-site entre las oficinas centrales de Montevideo (PFsense Central utilizado para los accesos client-acces) y la nube de AWS (PFsense Cloud AWS). Como mencionamos anteriormente ambos firewalls estaran enlazados fisicamente por sus interfaces WAN con direccionamiento 172.16.16.0/24 simulando ser una red publica como los es internet, y las redes locales de seran la 192.168.56.0/24 y 192.168.2.0/24 para el PFsense Central y para el PFsense Cloud respectivamente.
+
+..... aca faltan capturas de config site-to-site
+
+Luego de haber configurado ambas fases del tunel IPsec en cada firewall, se configuran las reglas que permitiran el trafico entrante y saliente en el firewall PFsense Central (192.168.56.108)
+
+![Reglas salientes en el PFsense Central](images/fw1.jpg)
+
+![Reglas entrantes en el PFsense Central](images/fw2.jpg)
+
+De forma analoga se configuran las reglas entrantes y saliente en el firewall PFsense Cloud (192;168.2.1) pero con el direccionamiento correspondiente.
+
+![Reglas salientes en el PFsense Cloud](images/fw3.jpg)
+
+![Reglas salientes en el PFsense Cloud](images/fw4.jpg)
+
+En este punto quedan finalizadas las configuraciones de ambos tipos de VPN, dejando las capturas que evidencian el correcto funcionamiento en la seccion #12 Capturas de funcionamiento de la maqueta virtual.
 
 ---
 
