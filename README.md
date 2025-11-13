@@ -175,7 +175,35 @@ Una vez finalizada toda la configuracion VPN en el firewall PFsense, debemos exp
 
 Hasta aqui hemos configurado la VPN client-access para acceso de los colaboradores remotos a la redes internas de la empresa. A continuacion detallaremos la configuracion paso a paso entre los dos firewalls PFsense que levantaran una VPN site-to-site entre las oficinas centrales de Montevideo (PFsense Central utilizado para los accesos client-acces) y la nube de AWS (PFsense Cloud AWS). Como mencionamos anteriormente ambos firewalls estaran enlazados fisicamente por sus interfaces WAN con direccionamiento 172.16.16.0/24 simulando ser una red publica como los es internet, y las redes locales de seran la 192.168.56.0/24 y 192.168.2.0/24 para el PFsense Central y para el PFsense Cloud respectivamente.
 
-..... aca faltan capturas de config site-to-site
+A continuacion configuramos el tunel IPsec en cada firewall PFsense, primero la fase 1 y luego la fase 2.
+
+Configuracion en el firewall Central:
+
+![Tunel IPsec fase 1 en el PFsense Central](images/tunel3.jpg)
+
+![Tunel IPsec fase 1 en el PFsense Central](images/tunel4.jpg)
+
+![Tunel IPsec fase 2 en el PFsense Central](images/tunel5.jpg)
+
+![Tunel IPsec fase 2 en el PFsense Central](images/tunel6.jpg)
+
+Podemos verificar que ambas fases del tunel quedaron configuradas en la seccion VPN/IPsec del PFsense Central
+
+![Tunel IPsec fase 1 y fase 2 status en PFsense Central](images/satus2.jpg)
+
+Configuracion en el firewall Cloud:
+
+![Tunel IPsec fase 1 en el PFsense Cloud](images/tunel7.jpg)
+
+![Tunel IPsec fase 1 en el PFsense Cloud](images/tunel8.jpg)
+
+![Tunel IPsec fase 2 en el PFsense Cloud](images/tunel9.jpg)
+
+![Tunel IPsec fase 2 en el PFsense Cloud](images/tunel10.jpg)
+
+Podemos verificar que ambas fases del tunel quedaron configuradas en la seccion VPN/IPsec del PFsense Cloud
+
+![Tunel IPsec fase 1 y fase 2 status en PFsense Cloud](images/satus3.jpg)
 
 Luego de haber configurado ambas fases del tunel IPsec en cada firewall, se configuran las reglas que permitiran el trafico entrante y saliente en el firewall PFsense Central (192.168.56.108)
 
