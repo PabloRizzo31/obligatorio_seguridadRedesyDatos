@@ -500,6 +500,16 @@ A continuacion se muestra la validacion del servidor FreeIPA como servidor de au
 
 ![Autenticacion externa LDAP exitosa ](images/test-freeipa.jpg)
 
+Demostracion del correcto establecimiento del tunel IPsec para la VPN site-to-site entre ambos firewalls PFsense
+
+![IPsec status desde el firewall PFsense Central](images/tunel1.jpg)
+
+![IPsec status desde el firewall PFsense Cloud](images/tunel2.jpg)
+
+Demostracion de la asignacion de direccion IP de distintos Pools de IP a los colaboradores que se conectan mediante OpenVPN utilizando perfiles VPN distintos.
+
+![OpenVPN client status, 2 perfiles en una misma imagen representando 2 PCs distintos](images/status.jpg)
+
 ---
 
 ## 13. Posibles mejoras de la infraestructura sugerida
