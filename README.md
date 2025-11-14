@@ -435,17 +435,14 @@ docker compose up -d
 
 #### 5.B.B Pruebas de funcionamiento de API Gateway
 
-El endpoint utilizado para las pruebas fue: 
+El endpoint utilizado para las pruebas fue:
 POST http://api.example.com/login
 
 Este endpoint está implementado como un servicio simulado mediante el plugin request-termination, y protegido con:
 
 * API Key Authentication (key-auth)
-
 * Rate Limiting (10 requests/min)
-
 * Validación de método y host
-
 * WAF/ModSecurity en Apache (capa previa a Kong)
 
 ##### 1. Prueba de acceso autorizado — API Key válida
@@ -465,16 +462,17 @@ curl -i -X POST http://api.example.com/login \
 ```
 
 Resultado obtenido (HTTP 200 OK):
-* El encabezado X-RateLimit-Remaining-Minute: 9 confirma que la solicitud fue autenticada correctamente.
 
+* El encabezado X-RateLimit-Remaining-Minute: 9 confirma que la solicitud fue autenticada correctamente.
 * El endpoint devuelve el JSON simulado del login.
 
 ![API Gateway test 1](images/api-gateway2-prueba2.png)
 
 Conclusión:
+
 * El API Gateway permite correctamente el acceso con credenciales válidas.
 
-#### 2. Prueba de acceso SIN API Key — Acceso denegado
+##### 2. Prueba de acceso SIN API Key — Acceso denegado
 
 Objetivo:
 
@@ -492,7 +490,6 @@ curl -i -X POST http://api.example.com/login \
 Resultado obtenido (HTTP 401 Unauthorized):
 
 * El encabezado WWW-Authenticate: Key indica el mecanismo requerido.
-
 * El cuerpo de respuesta especifica que no se encontró una API key.
 
 ![API Gateway test 2](images/api-gateway2-prueba3.png)
@@ -501,12 +498,11 @@ Conclusión:
 
 * El API Gateway impide el acceso cuando la solicitud no contiene la API key requerida.
 
-#### 3. Prueba de Rate Limiting — Exceso de solicitudes
+##### 3. Prueba de Rate Limiting — Exceso de solicitudes
 
 Configuración aplicada:
 
 * Máximo: 10 solicitudes por minuto
-
 * Plugin: rate-limiting (policy: local)
 
 Objetivo:
@@ -526,7 +522,6 @@ curl -i -X POST http://api.example.com/login \
 Resultado obtenido (HTTP 429 Too Many Requests):
 
 * El encabezado Retry-After: 29 indica cuándo volver a intentar.
-
 * X-RateLimit-Remaining-Minute: 0 indica que el límite fue totalmente consumido.
 
 ![API Gateway test 3](images/api-gateway2-prueba4.png)
