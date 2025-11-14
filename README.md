@@ -234,15 +234,16 @@ sudo nano /etc/apache2/sites-available/wp.example.com.conf
 ```
 
 <VirtualHost *:80>
-    ServerName wp.example.com
+ServerName wp.example.com
 
     ProxyPreserveHost On
-
+    
     ProxyPass        / http://127.0.0.1:8080/
     ProxyPassReverse / http://127.0.0.1:8080/
-
+    
     ErrorLog ${APACHE_LOG_DIR}/wp.example.com-error.log
     CustomLog ${APACHE_LOG_DIR}/wp.example.com-access.log combined
+
 </VirtualHost>
 
 ```bash
@@ -434,7 +435,107 @@ docker compose up -d
 
 #### 5.B.B Pruebas de funcionamiento de API Gateway
 
-TODO: *Capturas de bloqueos del api gateway y las consultas usadas*
+El endpoint utilizado para las pruebas fue: 
+POST http://api.example.com/login
+
+Este endpoint está implementado como un servicio simulado mediante el plugin request-termination, y protegido con:
+
+* API Key Authentication (key-auth)
+
+* Rate Limiting (10 requests/min)
+
+* Validación de método y host
+
+* WAF/ModSecurity en Apache (capa previa a Kong)
+
+##### 1. Prueba de acceso autorizado — API Key válida
+
+Objetivo:
+
+Validar que el API Gateway permite el acceso al endpoint solamente cuando el cliente presenta una API key válida.
+
+Request ejecutada:
+
+```bash
+curl -i -X POST http://api.example.com/login \
+  -H "Content-Type: application/json" \
+  -H "apikey: *****" \
+  -d '{"username":"demo-client","password":"***"}'
+
+```
+
+Resultado obtenido (HTTP 200 OK):
+* El encabezado X-RateLimit-Remaining-Minute: 9 confirma que la solicitud fue autenticada correctamente.
+
+* El endpoint devuelve el JSON simulado del login.
+
+![API Gateway test 1](images/api-gateway2-prueba2.png)
+
+Conclusión:
+* El API Gateway permite correctamente el acceso con credenciales válidas.
+
+#### 2. Prueba de acceso SIN API Key — Acceso denegado
+
+Objetivo:
+
+Confirmar que el API Gateway bloquea solicitudes sin API Key (autenticación obligatoria).
+
+Request ejecutada:
+
+```bash
+curl -i -X POST http://api.example.com/login \
+  -H "Content-Type: application/json" \
+  -d '{"username":"demo-client","password":"*****"}'
+
+```
+
+Resultado obtenido (HTTP 401 Unauthorized):
+
+* El encabezado WWW-Authenticate: Key indica el mecanismo requerido.
+
+* El cuerpo de respuesta especifica que no se encontró una API key.
+
+![API Gateway test 2](images/api-gateway2-prueba3.png)
+
+Conclusión:
+
+* El API Gateway impide el acceso cuando la solicitud no contiene la API key requerida.
+
+#### 3. Prueba de Rate Limiting — Exceso de solicitudes
+
+Configuración aplicada:
+
+* Máximo: 10 solicitudes por minuto
+
+* Plugin: rate-limiting (policy: local)
+
+Objetivo:
+
+Verificar que, una vez superado el límite permitido, Kong rechace nuevas solicitudes dentro de la misma ventana temporal.
+
+Request repetida varias veces (mínimo 10):
+
+```bash
+curl -i -X POST http://api.example.com/login \
+  -H "Content-Type: application/json" \
+  -H "apikey: ***" \
+  -d '{"username":"demo-client","password":"***"}'
+
+```
+
+Resultado obtenido (HTTP 429 Too Many Requests):
+
+* El encabezado Retry-After: 29 indica cuándo volver a intentar.
+
+* X-RateLimit-Remaining-Minute: 0 indica que el límite fue totalmente consumido.
+
+![API Gateway test 3](images/api-gateway2-prueba4.png)
+
+Conclusión:
+
+* El API Gateway aplica correctamente la política de rate-limiting, evitando abusos del endpoint.
+
+Este comportamiento garantiza que el endpoint /login está protegido ante abuso, accesos no autorizados y exceso de peticiones, cumpliendo con las mejores prácticas de seguridad para APIs.
 
 ---
 
