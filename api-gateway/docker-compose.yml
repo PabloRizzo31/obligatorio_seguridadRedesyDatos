@@ -1,19 +1,18 @@
 version: "3.9"
+
 services:
   kong:
     image: kong:latest
     container_name: kong
     environment:
-      KONG_DATABASE: "off"
+      KONG_DATABASE: "off"                            # db-less
       KONG_DECLARATIVE_CONFIG: "/usr/local/kong/declarative/kong.yml"
       KONG_PROXY_LISTEN: "0.0.0.0:8000, 0.0.0.0:8443 ssl"
-      KONG_ADMIN_LISTEN: "0.0.0.0:8001"
+      KONG_ADMIN_LISTEN: "127.0.0.1:8001"
       KONG_LOG_LEVEL: "notice"
-    ports:
-      - "8000:8000"
-      - "8443:8443"
-      - "8001:8001"
     volumes:
       - ./kong.yml:/usr/local/kong/declarative/kong.yml:ro
-    network_mode: "host"   # usa red del host (ideal en la misma VM)
+    network_mode: "host"                             # usa la red de la VM
     restart: unless-stopped
+
+

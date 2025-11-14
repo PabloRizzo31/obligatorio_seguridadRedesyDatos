@@ -129,9 +129,9 @@ compartir hardware ni direccionamiento IP. Aquellas VMs que solo demostraran una
 
 *Guia detallada de configuracion de un firewall PFsense con el servicio de OpenVPN*
 
-Para la implementacion de un acceso seguro a la empresa, por parte de los colaboradores que acceden a traves de internet, hemos optado por un firewall PFsense (version 2.8) el cual ya tiene incluido de fabrica el paquete OpenVPN y el modulo OpenVPN-client-export que nos permitira exportar facilmente las politicas VPN desde el firewall PFsense para instalarla en los clientes VPN de los laptops de los colaboradores remotos. El paquete OpenVPN nos permitira configurar una VPN Client-Access para dichos colaboradores y como segundo factor de autenticacion hemos optado por un certificado que se instalara en el dispositivo remoto de cada usuario que la vaya a utilizar y un codigo OTP que se generara automaticamente en los celulares de los colaboradores mediante el uso de una app del tipo Google Authenticator. 
+Para la implementacion de un acceso seguro a la empresa, por parte de los colaboradores que acceden a traves de internet, hemos optado por un firewall PFsense (version 2.8) el cual ya tiene incluido de fabrica el paquete OpenVPN y el modulo OpenVPN-client-export que nos permitira exportar facilmente las politicas VPN desde el firewall PFsense para instalarla en los clientes VPN de los laptops de los colaboradores remotos. El paquete OpenVPN nos permitira configurar una VPN Client-Access para dichos colaboradores y como segundo factor de autenticacion hemos optado por un certificado que se instalara en el dispositivo remoto de cada usuario que la vaya a utilizar y un codigo OTP que se generara automaticamente en los celulares de los colaboradores mediante el uso de una app del tipo Google Authenticator.
 
-En el firewall se crearan 2 perfiles client-access de VPN, uno de ellos para los Administradores de TI a los cuales se les asignara una direccion IP del pool 10.0.1.0/24 y el otro perfil sera para los usuarios basicos, a los cuales se les asignara una direccion IP del pool 10.0.2.0/24. Con esto permitiremos el acceso administrativo granular a distintos recursos de la red utilizando reglas de firewall que filtraran el acceso dependiendo de la direccion IP de origen. Por ejemplo cuando el perfil que se establezca sea el de los Administradores (IPs 10.0.1.0/24) hay una regla en el firewall que les permite acceder a la red 192.169.2.0/24 unicamente y en caso de ser un perfil de Usuario basico (IPs 10.0.2.0/24), hay otra regla que solo les permite acceder a la red 192.168.3.0/24. Cabe destacar que estas reglas se pueden customizar aun mas dependiendo de los requerimientos de acceso a los ecursos por parte de los colaboradores  
+En el firewall se crearan 2 perfiles client-access de VPN, uno de ellos para los Administradores de TI a los cuales se les asignara una direccion IP del pool 10.0.1.0/24 y el otro perfil sera para los usuarios basicos, a los cuales se les asignara una direccion IP del pool 10.0.2.0/24. Con esto permitiremos el acceso administrativo granular a distintos recursos de la red utilizando reglas de firewall que filtraran el acceso dependiendo de la direccion IP de origen. Por ejemplo cuando el perfil que se establezca sea el de los Administradores (IPs 10.0.1.0/24) hay una regla en el firewall que les permite acceder a la red 192.169.2.0/24 unicamente y en caso de ser un perfil de Usuario basico (IPs 10.0.2.0/24), hay otra regla que solo les permite acceder a la red 192.168.3.0/24. Cabe destacar que estas reglas se pueden customizar aun mas dependiendo de los requerimientos de acceso a los ecursos por parte de los colaboradores
 
 A los efectos practicos, autogeneramos un certificado local, el cual no tiene validez en internet, pero si servira para establecer las VPNs Client-access requeridos por la organizacion. Al momento de llevarlo al ambiente de produccion, la empresa Fosil debera costear dicho certificado con una CA reconocida. Para la implementacion de la VPN IPsec site-to-site, hemos optado por utilizar Pre Shared Key aunque puede utilizarse certificados para mayor seguridad de la VPN.
 
@@ -153,7 +153,7 @@ Se habilita la casilla TLS para el uso del certificado (autofirmado por el propi
 
 ![Configuracion del certificado del servidor OpenVPN](images/vpn2.jpg)
 
-Y finalmente se configuran las redes remotas y del tunel VPN en si mismo. Aqui es donde vamos a aplicar el control de acceso granular para cada perfil, es decir, para el perfil de Administradores de TI, el tunel IP tendra una direccion IP del Pool 10.0.1.0/24 y para el caso de los usuarios basicos, el tunel IP tendra una direccion IP del Pool 10.0.2.0/24. 
+Y finalmente se configuran las redes remotas y del tunel VPN en si mismo. Aqui es donde vamos a aplicar el control de acceso granular para cada perfil, es decir, para el perfil de Administradores de TI, el tunel IP tendra una direccion IP del Pool 10.0.1.0/24 y para el caso de los usuarios basicos, el tunel IP tendra una direccion IP del Pool 10.0.2.0/24.
 
 ![Configuracion de las redes del tunel VPN](images/vpn3.jpg)
 
@@ -225,9 +225,37 @@ En este punto quedan finalizadas las configuraciones de ambos tipos de VPN, deja
 
 *Guia detallada de configuracion de ambos servicios (y su integracion con el SIEM)*
 
+Antes de la implementacion de estos componentes, se instala el servidor web con Apache mod_security en modo reverse proxy.
+
+Se configura el siguiente VirtualHost:
+
+```bash
+sudo nano /etc/apache2/sites-available/wp.example.com.conf
+```
+
+<VirtualHost *:80>
+    ServerName wp.example.com
+
+    ProxyPreserveHost On
+
+    ProxyPass        / http://127.0.0.1:8080/
+    ProxyPassReverse / http://127.0.0.1:8080/
+
+    ErrorLog ${APACHE_LOG_DIR}/wp.example.com-error.log
+    CustomLog ${APACHE_LOG_DIR}/wp.example.com-access.log combined
+</VirtualHost>
+
+```bash
+# Activar el sitio y recargar apache2
+a2ensite wp.example.com.conf
+systemctl reload apache2
+```
+
+Para resolver el nombre se optará por agregar la entrada en el /etc/hosts
+
 ### 5.A Instalación de la solucion de WAF
 
-La instalacion de Mod Security se automatizó mediante el siguiente script: [Instalacion Solución WAF](waf/install.sh) 
+La instalacion de Mod Security se automatizó mediante el siguiente script: [Instalacion Solución WAF](waf/install.sh)
 
 #### 5.A.A Reglas personalizadas: configuración
 
@@ -253,9 +281,7 @@ SecRule REQUEST_URI "@rx ^/(admin|dashboard|internal|controlpanel)" \
     phase:1,\
     deny,\
     log,\
-    msg:'Acceso no autorizado a ruta administrativa',\
-    chain"
-    SecRule REMOTE_ADDR "!@ipMatch 192.168.0.0/16,10.0.0.0/8,127.0.0.1"
+    msg:'Acceso no autorizado a ruta administrativa'"
 
 
 # Inculuir las reglas en la configuracion activa
@@ -287,7 +313,9 @@ Esta regla filtra algunos agentes de usuario sospechosos. Por ejemplo: curl, sql
 
 Se ejecuta un curl al sitio y se observa en los logs la regla aplicada:
 
-![Waf custom test user agent](images/waf-custom-test1.png)
+![Waf custom test user agent](images/waf-customRule1a.png)
+
+![Waf custom test user agent](images/waf-customRule1b.png)
 
 #### 2- Regla custom 2: Protección de rutas críticas o administrativas
 
@@ -317,30 +345,44 @@ sudo chmod -R 0755 /var/www/html/admin
 sudo systemctl reload apache2
 ```
 
+![Waf custom test admin site](images/waf-customRule2a.png)
+
+![Waf custom test admin site](images/waf-customRule2b.png)
+
 ### 5.B Instalacion y configuracíón del API Gateway Kong
 
-Primero es necesario cambiar el puerto de esucha del servicio apache. Se procederá a cambiarlo al puerto 8080. En el archivo /etc/apache2/ports.conf cambiar:
+Se procederá a la instalacion y configuracion de Kong y luego, utilizando el plugin request-termination. Este ultimo nos permite realizar un login simulado, devolviendo una respuesta fija en JSON.
 
-**Listen 8080**
-
-En el VirtualHost dejarlo de la siguiente manera:
+Se crea un VirtualHost nuevo en Apache: api.example.com
 
 ```bash
-<VirtualHost *:8080>
-    ServerName localhost
-    # ...
+sudo nano /etc/apache2/sites-available/api.example.com.conf
+```
+
+```bash
+<VirtualHost *:80>
+    ServerName api.example.com
+
+    ProxyPreserveHost On
+
+    # Mandamos TODO a Kong (puerto 8000 en la misma VM)
+    ProxyPass        / http://127.0.0.1:8000/
+    ProxyPassReverse / http://127.0.0.1:8000/
+
+    ErrorLog ${APACHE_LOG_DIR}/api.example.com-error.log
+    CustomLog ${APACHE_LOG_DIR}/api.example.com-access.log combined
 </VirtualHost>
-```
 
-Con esto se logra que Apache siga atendiendo al sitio y WAF, pero ya no usa el puerto público.
+```
 
 ```bash
-# Reiniciar servicio
-systemctl restart apache2
+sudo a2ensite api.example.com.conf
+sudo apachectl configtest
+sudo systemctl reload apache2
 
-# Probar el sitio dentro del server
-curl http://127.0.0.1:8080
 ```
+
+Instalar y configurar API Gateway
 
 ```bash
 # Instalacion y configuracion de Kong

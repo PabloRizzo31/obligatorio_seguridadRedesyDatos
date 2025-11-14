@@ -1,50 +1,41 @@
 _format_version: "3.0"
 _transform: true
 
-# ---- Upstream a tu Apache con ModSecurity (WAF) ----
 services:
-  - name: apache-site
-    host: host.docker.internal
-    port: 8080
-    protocol: http
-    retries: 3
-    connect_timeout: 5000
-    read_timeout: 60000
-    write_timeout: 60000
+  - name: login-mock-service
+    # Destino dummy, nunca se usa porque el plugin corta la respuesta
+    url: http://example.com/
     routes:
-      # Sitio web (pasa por WAF en Apache)
-      - name: site-root
-        paths: ["/"]
+      - name: login-route
+        hosts:
+          - api.example.com
+        paths:
+          - /login
+        methods:
+          - POST
         strip_path: false
-        methods: ["GET","HEAD","POST","PUT","DELETE","OPTIONS"]
-      # API general (rate limit + API key)
-      - name: api-route
-        paths: ["/api"]
-        strip_path: false
-        methods: ["GET","HEAD","POST","PUT","DELETE","OPTIONS"]
-        plugins:
-          - name: rate-limiting
-            config:
-              second: 10        # 10 req/s por IP
-              policy: local
-          - name: key-auth      # exige X-API-Key en /api
-            config:
-              key_names: ["X-Api-Key"]
-              hide_credentials: false
-      # Telemetría (allowlist de redes)
-      - name: telemetry-route
-        paths: ["/telemetry"]
-        strip_path: false
-        methods: ["POST","PUT","OPTIONS"]
-        plugins:
-          - name: ip-restriction
-            config:
-              allow:
-                - "10.0.0.0/8"
-                - "172.16.0.0/12"
-                - "192.168.0.0/16"
+    plugins:
+      - name: request-termination
+        config:
+          status_code: 200
+          content_type: application/json
+          body: |
+            {
+              "status": "ok",
+              "message": "Login simulado exitoso",
+              "token": "TOKEN_DE_EJEMPLO_12345"
+            }
+      - name: key-auth
+      - name: rate-limiting
+        config:
+          minute: 10
+          policy: local
 
-# ---- Plugins globales (headers seguros, opcional) ----
+consumers:
+  - username: demo-client
+    keyauth_credentials:
+      - key: "<api-key>"
+
 plugins:
   - name: response-transformer
     config:
@@ -52,11 +43,6 @@ plugins:
         headers:
           - "X-Frame-Options: DENY"
           - "X-Content-Type-Options: nosniff"
-          - "Referrer-Policy: same-origin"
 
-# ---- Consumers + credenciales API Key para la maqueta ----
-consumers:
-  - username: api-client
-    keyauth_credentials:
-      - key: "<colocar-key>"
+
 
