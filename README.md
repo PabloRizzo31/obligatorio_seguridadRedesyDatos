@@ -600,6 +600,8 @@ Las reglas y decoders de este caso de uso se pueden encontrar en los siguientes 
 - Decoders: [viajero_imposible.xml](siem/decoders/viajero_imposible.xml)
 - Reglas: [viajero_imposible.xml](siem/reglas/viajero_imposible.xml)
 
+TODO: faltan capturas de funcionamiento
+
 #### Caso 2
 
 #### Caso 3
