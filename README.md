@@ -189,7 +189,7 @@ Configuracion en el firewall Central:
 
 Podemos verificar que ambas fases del tunel quedaron configuradas en la seccion VPN/IPsec del PFsense Central
 
-![Tunel IPsec fase 1 y fase 2 status en PFsense Central](images/satus2.jpg)
+![Tunel IPsec fase 1 y fase 2 status en PFsense Central:](images/satus2.jpg)
 
 Configuracion en el firewall Cloud:
 
@@ -203,7 +203,7 @@ Configuracion en el firewall Cloud:
 
 Podemos verificar que ambas fases del tunel quedaron configuradas en la seccion VPN/IPsec del PFsense Cloud
 
-![Tunel IPsec fase 1 y fase 2 status en PFsense Cloud](images/satus3.jpg)
+![Tunel IPsec fase 1 y fase 2 status en PFsense Cloud:](images/satus3.jpg)
 
 Luego de haber configurado ambas fases del tunel IPsec en cada firewall, se configuran las reglas que permitiran el trafico entrante y saliente en el firewall PFsense Central (192.168.56.108)
 
