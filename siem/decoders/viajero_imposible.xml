@@ -1,0 +1,6 @@
+<!-- Decoder para recibir los eventos generados de viajero imposible en JSON -->
+ 
+ <decoder name="impossible_traveller_json">
+    <prematch>"Event ID"</prematch>
+    <plugin_decoder>JSON_Decoder</plugin_decoder>
+  </decoder>

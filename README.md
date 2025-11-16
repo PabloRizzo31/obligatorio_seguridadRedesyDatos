@@ -540,7 +540,65 @@ Este comportamiento garantiza que el endpoint /login está protegido ante abuso,
 
 ### Casos de uso personalizados
 
-#### Caso 1
+#### Caso 1: Viajero Imposible
+
+El caso de uso Impossible Traveller tiene como objetivo detectar inicios de sesión sospechosos en un servicio VPN basándose en la geolocalización de las direcciones IP utilizadas por un mismo usuario.
+
+El sistema registra cada conexión VPN entrante junto con su ubicación estimada (país, ciudad, coordenadas). Cuando un usuario realiza dos conexiones consecutivas desde ubicaciones geográficas incompatibles en el tiempo disponible —por ejemplo, segundos o pocos minutos entre un inicio de sesión desde Uruguay y otro desde Singapur— se considera que el desplazamiento es físicamente imposible.
+
+Este comportamiento suele indicar:
+
+- Uso fraudulento de credenciales
+
+- Secuestro de sesión o robo de cuenta
+
+- Uso compartido de cuentas
+
+- Actividad maliciosa desde IPs anómalas o proxys/VPNS simultáneos
+
+Cuando se detecta una situación de este tipo, el sistema genera una alerta clasificada como Impossible Traveller, con datos enriquecidos de ambas conexiones (tiempos, IPs, países, distancias y ubicación geográfica). Estas alertas permiten a los analistas de seguridad identificar comportamientos anómalos de usuarios y responder rápidamente a potenciales incidentes de seguridad.
+
+##### Ajustes implementados para integrar “Impossible Traveller” en Wazuh
+
+La documentación seguida para implementar el caso de uso se especifica en la sección 14  (Referencias bibliograficas).
+Se describen las correcciones y mejoras realizadas sobre la integración Impossible Traveller basada en la guía original publicada en Medium, permitiendo un funcionamiento correcto dentro de Wazuh.
+
+El objetivo de la integración es:
+
+- Registrar la ubicación de cada inicio de sesión VPN por usuario.
+
+- Detectar inicios de sesión sucesivos desde ubicaciones geográficas incompatibles por tiempo/distancia.
+
+- Generar alertas enriquecidas en formato JSON que puedan ser decodificadas por Wazuh.
+
+1. Problemas detectados en la documentación original
+
+*  Durante la implementación se identificaron varios problemas en el artículo original que impiden que el sistema funcione correctamente:
+
+- 1.1. Inconsistencia en el location del evento
+En el script original, el evento enviado a Wazuh se generaba con: *1:Imposible_traveler_VPN:{json}*, pero la regla esperaba: *<location>Imposible_traveller_VPN</location>* 
+
+- Solución: Unificar todas las referencias a: *Imposible_traveller_VPN*
+
+- 1.2 Colocar el id de regla en ossec.conf: <rule_id>*ID's-VPN-Rules*</rule_id> alli se reemplaza por la/s regla/s que disparan los eventos de conexión VPN. Para este ejemplo se utilizó la rule id *100801* (Login de usuario exitoso en OpenVPN).
+
+- 1.3. Log enviado a Wazuh en formato dict de Python, no JSON válido. En el script original se envía en el siguiente formato: *{'Event': 'The user...', 'User': 'usuario1', ...}*.
+
+- Solución: Convertir el dict a JSON compacto con: 
+  json_msg = json.dumps(msg_dict, ensure_ascii=False, separators=(",", ":"))
+
+- 1.4. La regla buscaba un patrón que ya no existía: La regla *555556* buscaba: *"Event ID": "1"*, y en el formato json se ajustaron los espacios.
+  
+- Solución: Se corrige en la regla: *<match>"Event ID":"1"</match>*
+  
+
+Corregidos estos pasos, es posible generar la integración descrita en la guía.
+
+Los cambios implementados se visualizan en el script: [custom-imposible_traveller.py](siem/casos_de_uso/viajero_imposible/custom-imposible_traveller.py)
+
+Las reglas y decoders de este caso de uso se pueden encontrar en los siguientes archivos: 
+- Decoders: [viajero_imposible.xml](siem/decoders/viajero_imposible.xml)
+- Reglas: [viajero_imposible.xml](siem/reglas/viajero_imposible.xml)
 
 #### Caso 2
 
@@ -649,6 +707,7 @@ chmod +x hardening.sh
 - VirtualBOX version 7.0
 - Apache web server version 2.4
 - Apache ModSecurity version 2.9
+- Kong "latest" - 3.9.1
 
 ---
 
@@ -698,6 +757,7 @@ Demostracion de la asignacion de direccion IP de distintos Pools de IP a los col
 - OWASP TOP 10 2021 (https://owasp.org/Top10/es/)
 - Documentacion del sitio oficial de FreeIPA (https://freeipa.org/page/Quick_Start_Guide)
 - Material del curso Seguridad en Redes y Dato disponible en la web Aulas de la Facultad ORT (https://aulas.ort.edu.uy)
+- Caso de uso Viajero Imposible (https://medium.com/@soc_55904/imposible-traveler-detection-with-wazuh-0b66e45dd9c7)
 
 ### Uso de Inteligencia Artificial Generativa
 

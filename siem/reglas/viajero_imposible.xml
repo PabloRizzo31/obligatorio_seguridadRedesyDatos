@@ -1,0 +1,22 @@
+<!-- Reglas Custom para caso de uso de Viajero Imposible -->
+<group name="vpn_imposible_traveller">
+<rule id="555555" level="0">
+    <location>Imposible_traveller_VPN</location>
+    <description>Imposible traveller rules group</description>
+</rule>
+
+<!-- Imposible traveller -->
+<rule id="555556" level="14">
+    <if_sid>555555</if_sid>
+    <match>"Event ID":"1"</match>
+    <description>VPN Imposible traveller</description>
+</rule>
+
+<!-- Previous connection from a different country to the new event -->
+<rule id="555557" level="3">
+    <if_sid>555555</if_sid>
+    <match>"Event ID":"2"</match>
+    <description>The user established a VPN connection from a country other than the previous one</description>
+</rule>
+
+</group>
