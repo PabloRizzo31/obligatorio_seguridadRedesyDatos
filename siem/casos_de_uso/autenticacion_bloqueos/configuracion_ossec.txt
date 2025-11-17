@@ -1,0 +1,25 @@
+
+
+CONFIGURACION DEL ACTIVE RESPONSE EN EL MANAGER
+
+<!-- Autorizacion bloqueos fuerza bruta -->
+  <active-response>
+    <disabled>no</disabled>
+    <command>firewall-drop</command>
+    <location>local</location>
+    <rules_id>100901,100902</rules_id>
+    <timeout>600</timeout>
+  </active-response>
+
+
+REGLA DE BLOQUEO DE ACTIVE RESPONSE
+rule id 651 - Host Blocked by firewall-drop Active Response
+
+CHEQUEAR IPTABLES EN EL AGENTE
+iptables -L INPUT -n -v
+
+LIBERAR LA IP
+# buscar la linea de la regla
+iptables -L INPUT -n --line-numbers
+
+# iptables -D INPUT <numero_de_linea>

@@ -1,0 +1,24 @@
+<!-- 
+Reglas personalizadas de autenticacion
+id: 100900 - 100950
+-->
+
+<group name="bruteforce,login,">
+
+<rule id="100901" level="12" frequency="3" timeframe="60" ignore="120">
+	<if_matched_sid>5557</if_matched_sid>
+	<description>Login SSH: Multiples intentos de login con usuario intexistente</description>
+        <mitre>
+            <id>T1110</id>
+        </mitre>
+    </rule>
+    
+<rule id="100902" level="12" frequency="3" timeframe="60" ignore="120">
+	<if_matched_sid>5710</if_matched_sid>
+	<description>Login SSH: Multiples intentos de login con usuario existente</description>
+        <mitre>
+            <id>T1110</id>
+        </mitre>
+    </rule>
+    
+</group>
