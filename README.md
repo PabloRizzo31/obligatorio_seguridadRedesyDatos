@@ -189,7 +189,7 @@ Configuracion en el firewall Central:
 
 Podemos verificar que ambas fases del tunel quedaron configuradas en la seccion VPN/IPsec del PFsense Central
 
-![Tunel IPsec fase 1 y fase 2 status en PFsense Central](images/satus2.jpg)
+![Tunel IPsec fase 1 y fase 2 status en PFsense Central](images/status2.jpg)
 
 Configuracion en el firewall Cloud:
 
@@ -203,7 +203,7 @@ Configuracion en el firewall Cloud:
 
 Podemos verificar que ambas fases del tunel quedaron configuradas en la seccion VPN/IPsec del PFsense Cloud
 
-![Tunel IPsec fase 1 y fase 2 status en PFsense Cloud:](images/satus3.jpg)
+![Tunel IPsec fase 1 y fase 2 status en PFsense Cloud:](images/status3.jpg)
 
 Luego de haber configurado ambas fases del tunel IPsec en cada firewall, se configuran las reglas que permitiran el trafico entrante y saliente en el firewall PFsense Central (192.168.56.108)
 
@@ -549,11 +549,8 @@ El sistema registra cada conexión VPN entrante junto con su ubicación estimada
 Este comportamiento suele indicar:
 
 - Uso fraudulento de credenciales
-
 - Secuestro de sesión o robo de cuenta
-
 - Uso compartido de cuentas
-
 - Actividad maliciosa desde IPs anómalas o proxys/VPNS simultáneos
 
 Cuando se detecta una situación de este tipo, el sistema genera una alerta clasificada como Impossible Traveller, con datos enriquecidos de ambas conexiones (tiempos, IPs, países, distancias y ubicación geográfica). Estas alertas permiten a los analistas de seguridad identificar comportamientos anómalos de usuarios y responder rápidamente a potenciales incidentes de seguridad.
@@ -566,37 +563,29 @@ Se describen las correcciones y mejoras realizadas sobre la integración Impossi
 El objetivo de la integración es:
 
 - Registrar la ubicación de cada inicio de sesión VPN por usuario.
-
 - Detectar inicios de sesión sucesivos desde ubicaciones geográficas incompatibles por tiempo/distancia.
-
 - Generar alertas enriquecidas en formato JSON que puedan ser decodificadas por Wazuh.
 
 1. Problemas detectados en la documentación original
 
-*  Durante la implementación se identificaron varios problemas en el artículo original que impiden que el sistema funcione correctamente:
+* Durante la implementación se identificaron varios problemas en el artículo original que impiden que el sistema funcione correctamente:
 
 - 1.1. Inconsistencia en el location del evento
-En el script original, el evento enviado a Wazuh se generaba con: *1:Imposible_traveler_VPN:{json}*, pero la regla esperaba: *<location>Imposible_traveller_VPN</location>* 
-
-- Solución: Unificar todas las referencias a: *Imposible_traveller_VPN*
-
-- 1.2 Colocar el id de regla en ossec.conf: <rule_id>*ID's-VPN-Rules*</rule_id> alli se reemplaza por la/s regla/s que disparan los eventos de conexión VPN. Para este ejemplo se utilizó la rule id *100801* (Login de usuario exitoso en OpenVPN).
-
+   En el script original, el evento enviado a Wazuh se generaba con: _1:Imposible_traveler_VPN:{json}_, pero la regla esperaba: _<location>Imposible_traveller_VPN</location>_
+- Solución: Unificar todas las referencias a: _Imposible_traveller_VPN_
+- 1.2 Colocar el id de regla en ossec.conf: <rule_id>_ID's-VPN-Rules_</rule_id> alli se reemplaza por la/s regla/s que disparan los eventos de conexión VPN. Para este ejemplo se utilizó la rule id _100801_ (Login de usuario exitoso en OpenVPN).
 - 1.3. Log enviado a Wazuh en formato dict de Python, no JSON válido. En el script original se envía en el siguiente formato: *{'Event': 'The user...', 'User': 'usuario1', ...}*.
-
-- Solución: Convertir el dict a JSON compacto con: 
-  json_msg = json.dumps(msg_dict, ensure_ascii=False, separators=(",", ":"))
-
+- Solución: Convertir el dict a JSON compacto con:
+   json_msg = json.dumps(msg_dict, ensure_ascii=False, separators=(",", ":"))
 - 1.4. La regla buscaba un patrón que ya no existía: La regla *555556* buscaba: *"Event ID": "1"*, y en el formato json se ajustaron los espacios.
-  
 - Solución: Se corrige en la regla: *<match>"Event ID":"1"</match>*
-  
 
 Corregidos estos pasos, es posible generar la integración descrita en la guía.
 
 Los cambios implementados se visualizan en el script: [custom-imposible_traveller.py](siem/casos_de_uso/viajero_imposible/custom-imposible_traveller.py)
 
-Las reglas y decoders de este caso de uso se pueden encontrar en los siguientes archivos: 
+Las reglas y decoders de este caso de uso se pueden encontrar en los siguientes archivos:
+
 - Decoders: [viajero_imposible.xml](siem/decoders/viajero_imposible.xml)
 - Reglas: [viajero_imposible.xml](siem/reglas/viajero_imposible.xml)
 
