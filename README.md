@@ -121,7 +121,7 @@ Aca faltan aclarar varios temas.......
 
 A los efectos practicos de demostrar el funcionamiento de todos estos servicios, y cumpliendo con los requerimientos de letra,
 la maqueta presentada seran 4 VMs que agruparan varios servicios, pero que claramente en un ambiente de produccion no podrian
-compartir hardware ni direccionamiento IP. Aquellas VMs que solo demostraran una funcion especifica que no sea el endurecimiento del sistema operativo, tendran un sistema operativo Linux Rocky 10, en cambio la VM a la cual se le aplicara la politica de hardening tendra un sistema operativo Linux Debian 12.
+compartir hardware ni direccionamiento IP. Aquellas VMs que solo demostraran una funcion especifica que no sea el endurecimiento del sistema operativo, tendran un sistema operativo Linux Rocky 9.6, en cambio la VM a la cual se le aplicara la politica de hardening tendra un sistema operativo Linux Debian 12.
 
 ---
 
@@ -549,11 +549,8 @@ El sistema registra cada conexión VPN entrante junto con su ubicación estimada
 Este comportamiento suele indicar:
 
 - Uso fraudulento de credenciales
-
 - Secuestro de sesión o robo de cuenta
-
 - Uso compartido de cuentas
-
 - Actividad maliciosa desde IPs anómalas o proxys/VPNS simultáneos
 
 Cuando se detecta una situación de este tipo, el sistema genera una alerta clasificada como Impossible Traveller, con datos enriquecidos de ambas conexiones (tiempos, IPs, países, distancias y ubicación geográfica). Estas alertas permiten a los analistas de seguridad identificar comportamientos anómalos de usuarios y responder rápidamente a potenciales incidentes de seguridad.
@@ -566,43 +563,137 @@ Se describen las correcciones y mejoras realizadas sobre la integración Impossi
 El objetivo de la integración es:
 
 - Registrar la ubicación de cada inicio de sesión VPN por usuario.
-
 - Detectar inicios de sesión sucesivos desde ubicaciones geográficas incompatibles por tiempo/distancia.
-
 - Generar alertas enriquecidas en formato JSON que puedan ser decodificadas por Wazuh.
 
 1. Problemas detectados en la documentación original
 
-*  Durante la implementación se identificaron varios problemas en el artículo original que impiden que el sistema funcione correctamente:
+* Durante la implementación se identificaron varios problemas en el artículo original que impiden que el sistema funcione correctamente:
 
 - 1.1. Inconsistencia en el location del evento
-En el script original, el evento enviado a Wazuh se generaba con: *1:Imposible_traveler_VPN:{json}*, pero la regla esperaba: *<location>Imposible_traveller_VPN</location>* 
-
-- Solución: Unificar todas las referencias a: *Imposible_traveller_VPN*
-
-- 1.2 Colocar el id de regla en ossec.conf: <rule_id>*ID's-VPN-Rules*</rule_id> alli se reemplaza por la/s regla/s que disparan los eventos de conexión VPN. Para este ejemplo se utilizó la rule id *100801* (Login de usuario exitoso en OpenVPN).
-
+   En el script original, el evento enviado a Wazuh se generaba con: _1:Imposible_traveler_VPN:{json}_, pero la regla esperaba: _<location>Imposible_traveller_VPN</location>_
+- Solución: Unificar todas las referencias a: _Imposible_traveller_VPN_
+- 1.2 Colocar el id de regla en ossec.conf: <rule_id>_ID's-VPN-Rules_</rule_id> alli se reemplaza por la/s regla/s que disparan los eventos de conexión VPN. Para este ejemplo se utilizó la rule id _100801_ (Login de usuario exitoso en OpenVPN).
 - 1.3. Log enviado a Wazuh en formato dict de Python, no JSON válido. En el script original se envía en el siguiente formato: *{'Event': 'The user...', 'User': 'usuario1', ...}*.
-
-- Solución: Convertir el dict a JSON compacto con: 
-  json_msg = json.dumps(msg_dict, ensure_ascii=False, separators=(",", ":"))
-
+- Solución: Convertir el dict a JSON compacto con:
+   json_msg = json.dumps(msg_dict, ensure_ascii=False, separators=(",", ":"))
 - 1.4. La regla buscaba un patrón que ya no existía: La regla *555556* buscaba: *"Event ID": "1"*, y en el formato json se ajustaron los espacios.
-  
 - Solución: Se corrige en la regla: *<match>"Event ID":"1"</match>*
-  
 
 Corregidos estos pasos, es posible generar la integración descrita en la guía.
 
 Los cambios implementados se visualizan en el script: [custom-imposible_traveller.py](siem/casos_de_uso/viajero_imposible/custom-imposible_traveller.py)
 
-Las reglas y decoders de este caso de uso se pueden encontrar en los siguientes archivos: 
+Las reglas y decoders de este caso de uso se pueden encontrar en los siguientes archivos:
+
 - Decoders: [viajero_imposible.xml](siem/decoders/viajero_imposible.xml)
 - Reglas: [viajero_imposible.xml](siem/reglas/viajero_imposible.xml)
 
 TODO: faltan capturas de funcionamiento
 
-#### Caso 2
+#### Caso 2: Detección y Bloqueo de Fuerza Bruta sobre SSH
+
+Este caso de uso tiene como objetivo detectar y bloquear intentos de acceso no autorizados al servicio SSH, identificando comportamientos asociados a ataques de fuerza bruta. Se implementan dos reglas complementarias que permiten diferenciar entre intentos con *usuarios inexistentes* e intentos con *usuarios válidos*, incluyendo condiciones de horario para reforzar la detección de actividad anómala.
+
+El mecanismo se basa en la correlación de eventos generados por el agente, aplicando umbrales de frecuencia y ventanas temporales que permiten identificar múltiples intentos fallidos de autenticación en un corto período.
+
+Objetivo
+
+- Detectar intentos reiterados de autenticación fallida en SSH, tanto con usuarios inexistentes como con usuarios legítimos.
+
+- Incrementar el nivel de criticidad cuando los intentos ocurren fuera del horario laboral, lo que aumenta la probabilidad de que la actividad sea maliciosa.
+
+- Facilitar el posterior bloqueo automático o la generación de alertas críticas para el equipo de seguridad.
+
+##### Reglas implementadas
+
+1. Regla 100901 – *Fuerza bruta con usuario inexistente*
+
+    - ID: 100901
+
+    - Nivel: 12
+
+    - Condición: Correlaciona eventos provenientes de la regla base 5710 (intentos fallidos con usuarios no válidos).
+
+    - Frecuencia: 3 intentos fallidos en 60 segundos.
+
+    - Ignorar (cooldown): 120 segundos.
+
+    - Descripción: “Login SSH: Múltiples intentos de login con usuario inexistente”.
+
+    - [MITRE ATT&CK: T1110 – Brute Force](https://attack.mitre.org/techniques/T1110/)
+
+2. Regla 100902 – *Fuerza bruta con usuario existente (fuera de horario)*
+
+    - ID: 100902
+
+    - Nivel: 12
+
+    - Condición: Correlaciona con la regla base 5760 (intentos fallidos con usuarios válidos).
+
+    - Frecuencia: 3 intentos fallidos en 60 segundos.
+
+    - Horario aplicable: Entre 18:00 y 08:30 (fuera de jornada laboral).
+
+    - Ignorar (cooldown): 120 segundos.
+
+    - Descripción: “Login SSH: Múltiples intentos de login con usuario existente (fuera de hora)”
+
+    - MITRE ATT&CK:
+      - [T1589 – Gather Victim Identity Information](https://attack.mitre.org/techniques/T1589/)
+
+      - [T1592.004 – Gather Infrastructure Information: Credentials](https://attack.mitre.org/techniques/T1592/004/)
+
+      - [Brute Force](https://attack.mitre.org/techniques/T1110/)
+
+Archivo de reglas: [autenticacion_custom.xml](siem/reglas/autenticacion_custom.xml)
+
+Respuesta Activa
+
+Se configura la respuesta activa por defecto de bloqueo de IP: "firewall-drop". 
+
+En el archivo principal de configuracion *ossec.conf* incluir el bloque:
+
+```bash
+<!-- Autorizacion bloqueos fuerza bruta -->
+  <active-response>
+    <disabled>no</disabled>
+    <command>firewall-drop</command>
+    <location>local</location>
+    <rules_id>100901,100902</rules_id>
+    <timeout>600</timeout>
+  </active-response>
+```
+
+Reiniciar el servicio para aplicar los cambios
+
+```bash
+systemctl restart wazuh-manager
+```
+
+##### Funcionamiento
+
+Intentos de login con usuario "test", inexistente
+
+![cu2-1](images/cu2-1.png)
+
+Regla aplicada y respuesta activa, que se observa mediante la regla 651.
+
+![cu2-2](images/cu2-2.png)
+
+Desde el servidor en cuestion (donde se encuentra instalado el agente), se observa la ip bloqueada en el firewall iptables:
+
+![cu2-3](images/cu2-3.png)
+
+Intentos de login con usuario "rocky" existente
+
+![cu2-4](images/cu2-4.png)
+
+En el timestamp de los eventos se observa la hora que coincide con el rango horario configurado para disparar la regla.
+
+![cu2-5](images/cu2-5.png)
+
+El bloqueo se da de la misma manera.
 
 #### Caso 3
 
@@ -617,6 +708,8 @@ TODO: faltan capturas de funcionamiento
 ## 8. Plantilla de Servidor endurecida
 
 *Guia detallada del hardening de un servidor Debian tomando como referencia los CIS CSC Benchmark L1*
+
+El script creado y utilizado para el endurecimiento se puede acceder aqui: [hardening.sh](hardening/hardening.sh)
 
 El script de hardening de este repositorio (hardening.sh) cumple con el fortalecimiento de 4 areas criticas de un servidor Debian teniendo como referencia el CIS CSC Benchmark. Una vez finalizada la ejecucion de los distintos comandos en cada area, se procede a reiniciar los servicios involucrados y configurar la ejecucion de los mismos desde el inicio del sistema operativo.
 
@@ -702,14 +795,14 @@ chmod +x hardening.sh
 *No se incluye licenciamiento de software dado que se opto por software de licenciamiento libre*
 
 - Distribucion Linux Debian 12
-- Distribucion Linux Rocky 10
+- Distribucion Linux Rocky 9.6
 - Wazuh version 4.13.1
 - PFsense version 2.8.0
 - FreeIPA version 4.12.2
 - VirtualBOX version 7.0
 - Apache web server version 2.4
 - Apache ModSecurity version 2.9
-- Kong "latest" - 3.9.1
+- Kong 3.9.1
 
 ---
 
@@ -760,6 +853,7 @@ Demostracion de la asignacion de direccion IP de distintos Pools de IP a los col
 - Documentacion del sitio oficial de FreeIPA (https://freeipa.org/page/Quick_Start_Guide)
 - Material del curso Seguridad en Redes y Dato disponible en la web Aulas de la Facultad ORT (https://aulas.ort.edu.uy)
 - Caso de uso Viajero Imposible (https://medium.com/@soc_55904/imposible-traveler-detection-with-wazuh-0b66e45dd9c7)
+- Matriz de MITRE ATT&CK (https://attack.mitre.org/)
 
 ### Uso de Inteligencia Artificial Generativa
 

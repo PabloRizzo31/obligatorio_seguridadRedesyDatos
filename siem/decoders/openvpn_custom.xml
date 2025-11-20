@@ -1,0 +1,13 @@
+<!-- OPENVPN CUSTOM DECODERS
+Nov 17 20:31:02 openvpn[56460]: openvpn server 'ovpns3' user 'prizzo' address '192.168.56.1:52511' - disconnected
+-->
+
+<decoder name="openvpn">
+  <prematch> openvpn server</prematch>
+</decoder>
+
+<decoder name="openvpn">
+  <parent>openvpn</parent>
+  <regex>openvpn server '(\S+)' user '(\S+)' address '(\S+):(\S+)' -</regex>
+  <order>server, dstuser, srcip, srcport</order>
+</decoder>
