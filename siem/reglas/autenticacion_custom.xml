@@ -6,7 +6,7 @@ id: 100900 - 100950
 <group name="bruteforce,login,">
 
 <rule id="100901" level="12" frequency="3" timeframe="60" ignore="120">
-	<if_matched_sid>5557</if_matched_sid>
+	<if_matched_sid>5710</if_matched_sid>
 	<description>Login SSH: Multiples intentos de login con usuario intexistente</description>
         <mitre>
             <id>T1110</id>
@@ -14,10 +14,12 @@ id: 100900 - 100950
     </rule>
     
 <rule id="100902" level="12" frequency="3" timeframe="60" ignore="120">
-	<if_matched_sid>5710</if_matched_sid>
-	<description>Login SSH: Multiples intentos de login con usuario existente</description>
+	<if_matched_sid>5760</if_matched_sid>
+    <time>6 pm - 8:30 am</time>  
+	<description>Login SSH: Multiples intentos de login </description>
+    <description>con usuario existente (fuera de hora)</description>    
         <mitre>
-            <id>T1110</id>
+            <id>T1589,T1592.004,T1110</id>
         </mitre>
     </rule>
     
