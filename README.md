@@ -169,9 +169,9 @@ Una vez finalizada la etapa de generacion de generacion de los perfiles OpenVPN 
 
 ![Reglas de firewall para acceso granular a la red](images/vpn4.jpg)
 
-Una vez finalizada toda la configuracion VPN en el firewall PFsense, debemos exportar las politicas/perfiles VPN para cada colaborador, sabiendo que en este caso tenemos 2 perfiles definidos, el de Administradores IT y el de usuarios basicos. 
+Una vez finalizada toda la configuracion VPN en el firewall PFsense, debemos exportar las politicas/perfiles VPN para cada colaborador, sabiendo que en este caso tenemos 2 perfiles definidos, el de Administradores IT y el de usuarios basicos.
 
-Aqui se pueden descargar ambos perfiles de OpenVPN configurados y exportados del PFsense [perfil_TI.ovpn](vpn/perfil_TI.ovpn) y [perfil_basico.ovpn](vpn/perfil_basico.ovpn) 
+Aqui se pueden descargar ambos perfiles de OpenVPN configurados y exportados del PFsense [perfil_TI.ovpn](vpn/perfil_TI.ovpn) y [perfil_basico.ovpn](vpn/perfil_basico.ovpn)
 
 A continuacion se muestra como podrian quedar cargados ambos perfiles en un mismo PC a los efectos de ver la diferencia de nomenclatura de los perfiles, pero en la practica, ningun colaborador tendra ambos perfiles instalados en el mismo PC remoto.
 
@@ -334,7 +334,9 @@ Desde los logs se aprecia la regla *941100* aplicada y su correspondiente bloque
 
 ![Waf-xss2](images/waf-crs-xss2.png)
 
-#### 1- Regla custom 1: Detección de escaneo o fuzzing (User-Agent sospechoso)
+#### Pruebas de Reglas Custom
+
+##### 1- Regla custom 1: Detección de escaneo o fuzzing (User-Agent sospechoso)
 
 Esta regla filtra algunos agentes de usuario sospechosos. Por ejemplo: curl, sqlmap ó nikto, los cuales que veces son el primer paso de reconocimiento en un ataque.
 
@@ -344,7 +346,7 @@ Se ejecuta un curl al sitio y se observa en los logs la regla aplicada:
 
 ![Waf custom test user agent](images/waf-customRule1b.png)
 
-#### 2- Regla custom 2: Protección de rutas críticas o administrativas
+##### 2- Regla custom 2: Protección de rutas críticas o administrativas
 
 Se agregan rutas sensibles para la adminsitración del sistema. La regla bloquea intentos de request desde ips externas a ubicaciones sensibles como "/admin" ó "/controlpanel".
 
@@ -719,12 +721,14 @@ TODO: agregar los logs de modsecurity, openvpn y freeip/Keycloak
 
 Para demostrar la correcta gestion de usuarios, hemos optado por configurar un servidor Keycloak junto con un servidor web, el cual tendra alojado el servicio de Wordpress, y loguearemos usuarios del servidor Keycloak en dicho portal de Wordpress. Estas autenticaciones de usuarios seran mediante el protocolo OpenIDC y seran enviadas al SIEM al igual que los demas servidores de la infraestructura.
 
-# Instalacion del Keycloak 26.4.5 en un servidor Rocky 9
+### Instalacion del Keycloak 26.4.5 en un servidor Rocky 9
 
-# Instalacion de Java
+### Instalacion de Java
+
 sudo dnf install -y java-21-openjdk java-21-openjdk-devel
 
-# Instalacion de Keycloak
+### Instalacion de Keycloak
+
 sudo mkdir /opt/keycloak
 cd /opt/keycloak
 sudo dnf install -y wget unzip
@@ -732,10 +736,12 @@ sudo wget https://github.com/keycloak/keycloak/releases/download/26.4.5/keycloak
 sudo unzip keycloak-26.4.5.zip
 cd /opt/keycloak/keycloak-26.4.5
 
-# Configuramos el servicio de Keycloak editando el contenido de su archivo de configuracion
+Configuramos el servicio de Keycloak editando el contenido de su archivo de configuracion
+
 sudo nano /etc/systemd/system/keycloak.service
 
-# Agregamos los parametros de configuracion al archivo keycloak.service y guardamos los cmabios
+Agregamos los parametros de configuracion al archivo keycloak.service y guardamos los cmabios
+
 [Unit]
 Description=Keycloak Server
 After=network.target
@@ -756,10 +762,12 @@ LimitNOFILE=102642
 WantedBy=multi-user.target
 
 # Configuramos el firewall del servidor para que acepte conexiones por el puerto 8080
+
 sudo firewall-cmd --add-port=8080/tcp --permanent
 sudo firewall-cmd --reload
 
 # Probamos el acceso web al portal de keycloak
+
 http://[IP del servidor]:8080/admin/fosil
 
 ACA FALTA IMAGEN DE PORTAL
