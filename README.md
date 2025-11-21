@@ -721,13 +721,13 @@ TODO: agregar los logs de modsecurity, openvpn y freeip/Keycloak
 
 Para demostrar la correcta gestion de usuarios, hemos optado por configurar un servidor Keycloak junto con un servidor web, el cual tendra alojado el servicio de Wordpress, y loguearemos usuarios del servidor Keycloak en dicho portal de Wordpress. Estas autenticaciones de usuarios seran mediante el protocolo OpenIDC y seran enviadas al SIEM al igual que los demas servidores de la infraestructura.
 
-### Instalacion del Keycloak 26.4.5 en un servidor Rocky 9
+# Instalacion del Keycloak 26.4.5 en un servidor Rocky 9
 
-# Instalacion de Java
+### Instalacion de Java
 
 sudo dnf install -y java-21-openjdk java-21-openjdk-devel
 
-# Instalacion de Keycloak
+### Instalacion de Keycloak
 
 sudo mkdir /opt/keycloak
 
@@ -741,11 +741,11 @@ sudo unzip keycloak-26.4.5.zip
 
 cd /opt/keycloak/keycloak-26.4.5
 
-Configuramos el servicio de Keycloak editando el contenido de su archivo de configuracion
+### Configuramos el servicio de Keycloak editando el contenido de su archivo de configuracion
 
 sudo nano /etc/systemd/system/keycloak.service
 
-# Agregamos los parametros de configuracion al archivo keycloak.service y guardamos los cmabios
+### Agregamos los parametros de configuracion al archivo keycloak.service y guardamos los cambios
 
 [Unit]
 
@@ -779,13 +779,13 @@ LimitNOFILE=102642
 
 WantedBy=multi-user.target
 
-# Configuramos el firewall del servidor para que acepte conexiones por el puerto 8080
+### Configuramos el firewall del servidor para que acepte conexiones por el puerto 8080
 
 sudo firewall-cmd --add-port=8080/tcp --permanent
 
 sudo firewall-cmd --reload
 
-# Probamos el acceso web al portal de keycloak
+### Probamos el acceso web al portal de keycloak
 
 http://[IP del servidor]:8080/admin/fosil
 
@@ -794,11 +794,14 @@ http://[IP del servidor]:8080/admin/fosil
 # Instalacion de Wordpress y la DB mariaDB
 
 sudo dnf install httpd mariadb-server php php-mysqlnd php-fpm php-json php-xml php-gd php-mbstring -y
+
 sudo systemctl enable --now httpd mariadb
+
 sudo mysql_secure_installation
+
 sudo mysql -u root -p
 
-# Inicializacion de la DB para Wordpress
+### Inicializacion de la DB para Wordpress
 
 CREATE DATABASE wordpress;
 
@@ -810,13 +813,13 @@ FLUSH PRIVILEGES;
 
 EXIT;
 
-# Instalacion e inicializacion del servidor web Apache 
+### Instalacion e inicializacion del servidor web Apache 
 
 sudo dnf install httpd php php-mysqlnd php-json php-xml php-gd php-mbstring php-curl php-zip -y
 
 sudo systemctl enable --now httpd
 
-# Instalacion y configuracion de Wordpress
+### Instalacion y configuracion de Wordpress
 
 cd /tmp
 
@@ -842,7 +845,7 @@ define( 'DB_PASSWORD', 'password' );
 
 define( 'DB_HOST', 'localhost' );
 
-# Configuramos el firewall del servidor para que acepte conexiones por el puerto 80 y 443 de Wordpress
+### Configuramos el firewall del servidor para que acepte conexiones por el puerto 80 y 443 de Wordpress
 
 sudo firewall-cmd --permanent --add-service=http
 
@@ -850,19 +853,21 @@ sudo firewall-cmd --permanent --add-service=https
 
 sudo firewall-cmd --reload
 
-## Probamos el acceso web al portal de Wordpress
+### Probamos el acceso web al portal de Wordpress
 
 http://[IP del servidor]/wp-login.php
 
 ![Portal web Wordpress](images/keycloak2.jpg)
 
-## Instalacion del plugin OpenID Connect Generic Client desde la web de Wordpress
+### Instalacion del plugin OpenID Connect Generic Client desde la web de Wordpress
 
 Una vez dentro del portal Wordpress, instalamos el plugin OpenID Connect Generic Client
 
 ![Plugin OpenID Connect](images/keycloak3.jpg)
 
 Despues que instalamos el plugin de OpenID Connect, debemos configurarlo como cliente del servidor Keycloak
+
+### Configuracion del plugin OpenID Connect Generic CLient
 
 ![Config del OpenID Connect como cliente en Keycloak](images/keycloak4.jpg)
 
