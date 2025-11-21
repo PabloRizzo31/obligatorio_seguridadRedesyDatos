@@ -821,12 +821,13 @@ define( 'DB_PASSWORD', 'password' );
 define( 'DB_HOST', 'localhost' );
 ```
 
-### Configuramos el firewall del servidor para que acepte conexiones por el puerto 80 y 443 de Wordpress
+### Configuramos el firewall y SELinux del servidor para que acepte conexiones por el puerto 80 y 443 de Wordpress
 
 ```
 sudo firewall-cmd --permanent --add-service=http
 sudo firewall-cmd --permanent --add-service=https
 sudo firewall-cmd --reload
+sudo setsebool -P httpd_can_network_connect on
 ```
 
 ### Probamos el acceso web al portal de Wordpress
