@@ -761,16 +761,68 @@ LimitNOFILE=102642
 [Install]
 WantedBy=multi-user.target
 
-# Configuramos el firewall del servidor para que acepte conexiones por el puerto 8080
+## Configuramos el firewall del servidor para que acepte conexiones por el puerto 8080
 
 sudo firewall-cmd --add-port=8080/tcp --permanent
 sudo firewall-cmd --reload
 
-# Probamos el acceso web al portal de keycloak
+## Probamos el acceso web al portal de keycloak
 
 http://[IP del servidor]:8080/admin/fosil
 
 ACA FALTA IMAGEN DE PORTAL
+
+### Instalacion de Wordpress y la DB mariaDB
+
+sudo dnf install httpd mariadb-server php php-mysqlnd php-fpm php-json php-xml php-gd php-mbstring -y
+sudo systemctl enable --now httpd mariadb
+sudo mysql_secure_installation
+sudo mysql -u root -p
+
+### Inicializacion de la DB para Wordpress
+
+CREATE DATABASE wordpress;
+CREATE USER 'wpuser'@'localhost' IDENTIFIED BY '*******';
+GRANT ALL PRIVILEGES ON wordpress.* TO 'wpuser'@'localhost';
+FLUSH PRIVILEGES;
+EXIT;
+
+### Instalacion e inicializacion del servidor web Apache 
+
+sudo dnf install httpd php php-mysqlnd php-json php-xml php-gd php-mbstring php-curl php-zip -y
+sudo systemctl enable --now httpd
+
+### Instalacion y configuracion de Wordpress
+
+cd /tmp
+curl -O https://wordpress.org/latest.tar.gz
+tar -xzvf latest.tar.gz
+sudo cp -R wordpress/* /var/www/html/
+sudo chown -R apache:apache /var/www/html
+sudo chmod -R 755 /var/www/html
+cd /var/www/html
+cp wp-config-sample.php wp-config.php
+
+define( 'DB_NAME', 'wordpress' );
+define( 'DB_USER', 'wpuser' );
+define( 'DB_PASSWORD', 'password' );
+define( 'DB_HOST', 'localhost' );
+
+## Configuramos el firewall del servidor para que acepte conexiones por el puerto 80 y 443 de Wordpress
+
+sudo firewall-cmd --permanent --add-service=http
+sudo firewall-cmd --permanent --add-service=https
+sudo firewall-cmd --reload
+
+## Probamos el acceso web al portal de Wordpress
+
+http://[IP del servidor]/wp-login.php
+
+Aca falta captura
+
+## Instalacion del plugin OpenID Connect Generic Client desde la web de Wordpress
+
+
 
 ---
 
