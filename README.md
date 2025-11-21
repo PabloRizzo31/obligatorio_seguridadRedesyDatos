@@ -568,7 +568,7 @@ Este comportamiento garantiza que el endpoint /login está protegido ante abuso,
 flowchart TB
     C[Cliente / Navegador] -->|HTTP :80<br/>Host: wp.example.com| F[Apache :80<br/>VirtualHost wp.example.com]
 
-    subgraph Apache_80_WP[Apache :80 con ModSecurity]
+    subgraph WAF[WAF<br/>Apache :80 + ModSecurity]
         F
     end
 
@@ -577,7 +577,6 @@ flowchart TB
     B -->|Sirve contenido<br/>DocumentRoot /var/www/html| WP[WordPress<br/>/var/www/html]
 
     WP -->|Respuesta HTTP| B --> F --> C
-
 
 ```
 
