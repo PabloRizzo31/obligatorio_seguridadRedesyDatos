@@ -723,95 +723,131 @@ Para demostrar la correcta gestion de usuarios, hemos optado por configurar un s
 
 ### Instalacion del Keycloak 26.4.5 en un servidor Rocky 9
 
-### Instalacion de Java
+# Instalacion de Java
 
 sudo dnf install -y java-21-openjdk java-21-openjdk-devel
 
-### Instalacion de Keycloak
+# Instalacion de Keycloak
 
 sudo mkdir /opt/keycloak
+
 cd /opt/keycloak
+
 sudo dnf install -y wget unzip
+
 sudo wget https://github.com/keycloak/keycloak/releases/download/26.4.5/keycloak-26.4.5.zip
+
 sudo unzip keycloak-26.4.5.zip
+
 cd /opt/keycloak/keycloak-26.4.5
 
 Configuramos el servicio de Keycloak editando el contenido de su archivo de configuracion
 
 sudo nano /etc/systemd/system/keycloak.service
 
-Agregamos los parametros de configuracion al archivo keycloak.service y guardamos los cmabios
+# Agregamos los parametros de configuracion al archivo keycloak.service y guardamos los cmabios
 
 [Unit]
+
 Description=Keycloak Server
+
 After=network.target
 
 [Service]
+
 Type=simple
+
 User=keycloak
+
 Group=keycloak
+
 WorkingDirectory=/opt/keycloak
+
 Environment="KEYCLOAK_ADMIN=keycloak"
+
 Environment="KEYCLOAK_ADMIN_PASSWORD=********"
+
 ExecStart=/opt/keycloak/bin/kc.sh start-dev
+
 Restart=on-failure
+
 TimeoutStartSec=600
+
 LimitNOFILE=102642
 
 [Install]
+
 WantedBy=multi-user.target
 
-## Configuramos el firewall del servidor para que acepte conexiones por el puerto 8080
+# Configuramos el firewall del servidor para que acepte conexiones por el puerto 8080
 
 sudo firewall-cmd --add-port=8080/tcp --permanent
+
 sudo firewall-cmd --reload
 
-## Probamos el acceso web al portal de keycloak
+# Probamos el acceso web al portal de keycloak
 
 http://[IP del servidor]:8080/admin/fosil
 
 ![Portal web Keycloak](images/keycloak.jpg)
 
-### Instalacion de Wordpress y la DB mariaDB
+# Instalacion de Wordpress y la DB mariaDB
 
 sudo dnf install httpd mariadb-server php php-mysqlnd php-fpm php-json php-xml php-gd php-mbstring -y
 sudo systemctl enable --now httpd mariadb
 sudo mysql_secure_installation
 sudo mysql -u root -p
 
-### Inicializacion de la DB para Wordpress
+# Inicializacion de la DB para Wordpress
 
 CREATE DATABASE wordpress;
+
 CREATE USER 'wpuser'@'localhost' IDENTIFIED BY '*******';
+
 GRANT ALL PRIVILEGES ON wordpress.* TO 'wpuser'@'localhost';
+
 FLUSH PRIVILEGES;
+
 EXIT;
 
-### Instalacion e inicializacion del servidor web Apache 
+# Instalacion e inicializacion del servidor web Apache 
 
 sudo dnf install httpd php php-mysqlnd php-json php-xml php-gd php-mbstring php-curl php-zip -y
+
 sudo systemctl enable --now httpd
 
-### Instalacion y configuracion de Wordpress
+# Instalacion y configuracion de Wordpress
 
 cd /tmp
+
 curl -O https://wordpress.org/latest.tar.gz
+
 tar -xzvf latest.tar.gz
+
 sudo cp -R wordpress/* /var/www/html/
+
 sudo chown -R apache:apache /var/www/html
+
 sudo chmod -R 755 /var/www/html
+
 cd /var/www/html
+
 cp wp-config-sample.php wp-config.php
 
 define( 'DB_NAME', 'wordpress' );
+
 define( 'DB_USER', 'wpuser' );
+
 define( 'DB_PASSWORD', 'password' );
+
 define( 'DB_HOST', 'localhost' );
 
-## Configuramos el firewall del servidor para que acepte conexiones por el puerto 80 y 443 de Wordpress
+# Configuramos el firewall del servidor para que acepte conexiones por el puerto 80 y 443 de Wordpress
 
 sudo firewall-cmd --permanent --add-service=http
+
 sudo firewall-cmd --permanent --add-service=https
+
 sudo firewall-cmd --reload
 
 ## Probamos el acceso web al portal de Wordpress
