@@ -171,7 +171,7 @@ Una vez finalizada la etapa de generacion de generacion de los perfiles OpenVPN 
 
 Una vez finalizada toda la configuracion VPN en el firewall PFsense, debemos exportar las politicas/perfiles VPN para cada colaborador, sabiendo que en este caso tenemos 2 perfiles definidos, el de Administradores IT y el de usuarios basicos. 
 
-Aqui se pueden descargar ambos perfiles de OpenVPN configurados y exportados del PFsense [perfil_TI.ovpn](vpn/perfil_TI.ovpn) [perfil_basico.ovpn](vpn/perfil_basico.ovpn) 
+Aqui se pueden descargar ambos perfiles de OpenVPN configurados y exportados del PFsense [perfil_TI.ovpn](vpn/perfil_TI.ovpn) y [perfil_basico.ovpn](vpn/perfil_basico.ovpn) 
 
 A continuacion se muestra como podrian quedar cargados ambos perfiles en un mismo PC a los efectos de ver la diferencia de nomenclatura de los perfiles, pero en la practica, ningun colaborador tendra ambos perfiles instalados en el mismo PC remoto.
 
@@ -715,7 +715,54 @@ TODO: agregar los logs de modsecurity, openvpn y freeip/Keycloak
 
 ## 7. Gestion de Identidad y Accesos (IAM)
 
-*Guia detallada de configuracion del servidor de gestion de usuarios FreeIPA*
+*Guia detallada de configuracion del servidor de gestion de usuarios Keycloak*
+
+Para demostrar la correcta gestion de usuarios, hemos optado por configurar un servidor Keycloak junto con un servidor web, el cual tendra alojado el servicio de Wordpress, y loguearemos usuarios del servidor Keycloak en dicho portal de Wordpress. Estas autenticaciones de usuarios seran mediante el protocolo OpenIDC y seran enviadas al SIEM al igual que los demas servidores de la infraestructura.
+
+# Instalacion del Keycloak 26.4.5 en un servidor Rocky 9
+
+# Instalacion de Java
+sudo dnf install -y java-21-openjdk java-21-openjdk-devel
+
+# Instalacion de Keycloak
+sudo mkdir /opt/keycloak
+cd /opt/keycloak
+sudo dnf install -y wget unzip
+sudo wget https://github.com/keycloak/keycloak/releases/download/26.4.5/keycloak-26.4.5.zip
+sudo unzip keycloak-26.4.5.zip
+cd /opt/keycloak/keycloak-26.4.5
+
+# Configuramos el servicio de Keycloak editando el contenido de su archivo de configuracion
+sudo nano /etc/systemd/system/keycloak.service
+
+# Agregamos los parametros de configuracion al archivo keycloak.service y guardamos los cmabios
+[Unit]
+Description=Keycloak Server
+After=network.target
+
+[Service]
+Type=simple
+User=keycloak
+Group=keycloak
+WorkingDirectory=/opt/keycloak
+Environment="KEYCLOAK_ADMIN=keycloak"
+Environment="KEYCLOAK_ADMIN_PASSWORD=********"
+ExecStart=/opt/keycloak/bin/kc.sh start-dev
+Restart=on-failure
+TimeoutStartSec=600
+LimitNOFILE=102642
+
+[Install]
+WantedBy=multi-user.target
+
+# Configuramos el firewall del servidor para que acepte conexiones por el puerto 8080
+sudo firewall-cmd --add-port=8080/tcp --permanent
+sudo firewall-cmd --reload
+
+# Probamos el acceso web al portal de keycloak
+http://[IP del servidor]:8080/admin/fosil
+
+ACA FALTA IMAGEN DE PORTAL
 
 ---
 
