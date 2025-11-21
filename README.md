@@ -308,6 +308,28 @@ curl -I http://localhost/test
 
 #### 5.A.B Pruebas de ataques WEB para deteccion y bloqueo de WAF
 
+#### Pruebas de CRS (Core Rule Set)
+
+A continuacion se evidencia el funcionamiento de estas reglas aplicadas, mediante dos pruebas.
+
+##### Inyeccion SQL
+
+![Waf-crs1](images/waf-crs1.png)
+
+Desde los logs se observa la regla *942100* aplicada y su correspondiente bloqueo.
+
+![Waf-crs2](images/waf-crs2.png)
+
+![Waf-crs3](images/waf-crs3.png)
+
+##### Cross-Site Scripting (XSS)
+
+![Waf-xss1](images/waf-crs-xss1.png)
+
+Desde los logs se aprecia la regla *941100* aplicada y su correspondiente bloqueo.
+
+![Waf-xss2](images/waf-crs-xss2.png)
+
 #### 1- Regla custom 1: Detección de escaneo o fuzzing (User-Agent sospechoso)
 
 Esta regla filtra algunos agentes de usuario sospechosos. Por ejemplo: curl, sqlmap ó nikto, los cuales que veces son el primer paso de reconocimiento en un ataque.
@@ -600,57 +622,41 @@ El mecanismo se basa en la correlación de eventos generados por el agente, apli
 Objetivo
 
 - Detectar intentos reiterados de autenticación fallida en SSH, tanto con usuarios inexistentes como con usuarios legítimos.
-
 - Incrementar el nivel de criticidad cuando los intentos ocurren fuera del horario laboral, lo que aumenta la probabilidad de que la actividad sea maliciosa.
-
 - Facilitar el posterior bloqueo automático o la generación de alertas críticas para el equipo de seguridad.
 
 ##### Reglas implementadas
 
 1. Regla 100901 – *Fuerza bruta con usuario inexistente*
 
-    - ID: 100901
-
-    - Nivel: 12
-
-    - Condición: Correlaciona eventos provenientes de la regla base 5710 (intentos fallidos con usuarios no válidos).
-
-    - Frecuencia: 3 intentos fallidos en 60 segundos.
-
-    - Ignorar (cooldown): 120 segundos.
-
-    - Descripción: “Login SSH: Múltiples intentos de login con usuario inexistente”.
-
-    - [MITRE ATT&CK: T1110 – Brute Force](https://attack.mitre.org/techniques/T1110/)
+   - ID: 100901
+   - Nivel: 12
+   - Condición: Correlaciona eventos provenientes de la regla base 5710 (intentos fallidos con usuarios no válidos).
+   - Frecuencia: 3 intentos fallidos en 60 segundos.
+   - Ignorar (cooldown): 120 segundos.
+   - Descripción: “Login SSH: Múltiples intentos de login con usuario inexistente”.
+   - [MITRE ATT&CK: T1110 – Brute Force](https://attack.mitre.org/techniques/T1110/)
 
 2. Regla 100902 – *Fuerza bruta con usuario existente (fuera de horario)*
 
-    - ID: 100902
+   - ID: 100902
+   - Nivel: 12
+   - Condición: Correlaciona con la regla base 5760 (intentos fallidos con usuarios válidos).
+   - Frecuencia: 3 intentos fallidos en 60 segundos.
+   - Horario aplicable: Entre 18:00 y 08:30 (fuera de jornada laboral).
+   - Ignorar (cooldown): 120 segundos.
+   - Descripción: “Login SSH: Múltiples intentos de login con usuario existente (fuera de hora)”
+   - MITRE ATT&CK:
 
-    - Nivel: 12
-
-    - Condición: Correlaciona con la regla base 5760 (intentos fallidos con usuarios válidos).
-
-    - Frecuencia: 3 intentos fallidos en 60 segundos.
-
-    - Horario aplicable: Entre 18:00 y 08:30 (fuera de jornada laboral).
-
-    - Ignorar (cooldown): 120 segundos.
-
-    - Descripción: “Login SSH: Múltiples intentos de login con usuario existente (fuera de hora)”
-
-    - MITRE ATT&CK:
       - [T1589 – Gather Victim Identity Information](https://attack.mitre.org/techniques/T1589/)
-
       - [T1592.004 – Gather Infrastructure Information: Credentials](https://attack.mitre.org/techniques/T1592/004/)
-
       - [Brute Force](https://attack.mitre.org/techniques/T1110/)
 
 Archivo de reglas: [autenticacion_custom.xml](siem/reglas/autenticacion_custom.xml)
 
 Respuesta Activa
 
-Se configura la respuesta activa por defecto de bloqueo de IP: "firewall-drop". 
+Se configura la respuesta activa por defecto de bloqueo de IP: "firewall-drop".
 
 En el archivo principal de configuracion *ossec.conf* incluir el bloque:
 
@@ -696,6 +702,10 @@ En el timestamp de los eventos se observa la hora que coincide con el rango hora
 El bloqueo se da de la misma manera.
 
 #### Caso 3
+
+### Alertas del resto de los servicios requeridos
+
+TODO: agregar los logs de modsecurity, openvpn y freeip/Keycloak
 
 ---
 
