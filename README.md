@@ -721,7 +721,7 @@ TODO: agregar los logs de modsecurity, openvpn y freeip/Keycloak
 
 Para demostrar la correcta gestion de usuarios, hemos optado por configurar un servidor Keycloak junto con un servidor web, el cual tendra alojado el servicio de Wordpress, y loguearemos usuarios del servidor Keycloak en dicho portal de Wordpress. Estas autenticaciones de usuarios seran mediante el protocolo OpenIDC y seran enviadas al SIEM al igual que los demas servidores de la infraestructura.
 
-# Instalacion del Keycloak 26.4.5 en un servidor Rocky 9
+## Instalacion del Keycloak 26.4.5 en un servidor Rocky 9
 
 ### Instalacion de Java
 
@@ -847,11 +847,11 @@ define( 'DB_HOST', 'localhost' );
 
 ### Configuramos el firewall del servidor para que acepte conexiones por el puerto 80 y 443 de Wordpress
 
+```
 sudo firewall-cmd --permanent --add-service=http
-
 sudo firewall-cmd --permanent --add-service=https
-
 sudo firewall-cmd --reload
+```
 
 ### Probamos el acceso web al portal de Wordpress
 
@@ -879,6 +879,29 @@ Para finalizar la configuracion del cliente, debemos setear la URL del Wordpress
 
 ![Parametros URL redirect](images/keycloak7.jpg)
 
+Luego vinculamos el plugin de OpenID con el Keycloak usando el Client Secret Key que generamos al configurar el cliente dentro de la consola de administracion del Keycloak
+
+![Parametros Client Secret Key](images/keycloak8.jpg)
+
+Ahora que ya estan vinculados el Wordpress junto con el Keycloak a traves del OpenID plugin, procedemos a crear usuarios locales en el servidor Keycloak. Este paso puede reemplazarse por una vinculacion del servidor Keycloak (User federation) con un servidor proveedor de identidades como puede lo es el servidor FreeIPA o IAM de AWS. 
+
+![Creacion usuario local en Keycloak](images/keycloak9.jpg)
+
+En este punto, la pantalla de inicio de sesion en el portal de Wordpress ahora nos da la opcion de "Login with OpenID Connect"
+
+![Portal Wordpress con opcion de OpenID Connect](images/keycloak10.jpg)
+
+Al seleccionar "Login with OpenID Connect" nos redirige al portal de login de Keycloak para ingresar un usuario valido del servidor Keycloak.
+
+![Redireccion de OpenID Connect a Keycloak](images/keycloak11.jpg)
+
+Nos logueamos en el portal de Wordpress con el usuario "pepito" definido en Keycloak.
+
+![Portal de bienvenida para el usuario pepito](images/keycloak12.jpg)
+
+Si observamos el log de eventos en la web del servidor Keycloak, podemos apreciar que la autenticacion del usuario "pepito" efectivamente fue utilizando el protocolo OpenID-Connect como se pide en los requisitos de este proyecto.
+
+![Evento del usuario pepito autenticandose con el protocolo OpenIDC](images/keycloak13.jpg)
 
 
 ---
