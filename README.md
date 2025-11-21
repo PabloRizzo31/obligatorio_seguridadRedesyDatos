@@ -560,6 +560,46 @@ Conclusión:
 
 Este comportamiento garantiza que el endpoint /login está protegido ante abuso, accesos no autorizados y exceso de peticiones, cumpliendo con las mejores prácticas de seguridad para APIs.
 
+#### 5.C Diagrama de las soluciones
+
+##### WAF y Servidor Web
+
+```mermaid
+flowchart TB
+    C[Cliente / Navegador] -->|HTTP :80<br/>Host: wp.example.com| F[Apache :80<br/>VirtualHost wp.example.com]
+
+    subgraph Apache_80_WP[Apache :80 con ModSecurity]
+        F
+    end
+
+    F -->|ProxyPass HTTP :8080<br/>http://127.0.0.1:8080/| B[Apache :8080<br/>VirtualHost backend.local]
+
+    B -->|Sirve contenido<br/>DocumentRoot /var/www/html| WP[WordPress<br/>/var/www/html]
+
+    WP -->|Respuesta HTTP| B --> F --> C
+
+
+```
+
+##### Flujo API Gateway
+
+```mermaid
+flowchart TB
+    C[Cliente / Consumidor API] -->|HTTP :80<br/>Host: api.example.com| F[Apache :80<br/>VirtualHost api.example.com]
+
+    subgraph Apache_80_API[Apache :80 con ModSecurity]
+        F
+    end
+
+    F -->|ProxyPass HTTP :8000<br/>http://127.0.0.1:8000/| K[Kong API Gateway<br/>proxy :8000]
+
+    K -->|Proxy hacia upstream<br/>HTTP/HTTPS a host:puerto| S[Servicio Backend API<br/>upstream definido en Kong]
+
+    S -->|Respuesta API| K --> F --> C
+
+
+```
+
 ---
 
 ## 6. Monitoreo y Respuesta (SIEM)
@@ -729,7 +769,7 @@ sudo dnf install -y java-21-openjdk java-21-openjdk-devel
 
 ### Instalacion de Keycloak
 
-```
+```sh
 sudo mkdir /opt/keycloak
 cd /opt/keycloak
 sudo dnf install -y wget unzip
@@ -744,7 +784,7 @@ sudo nano /etc/systemd/system/keycloak.service
 
 ### Agregamos los parametros de configuracion al archivo keycloak.service y guardamos los cambios
 
-```
+```ini
 [Unit]
 Description=Keycloak Server
 After=network.target
@@ -767,7 +807,7 @@ WantedBy=multi-user.target
 
 ### Configuramos el firewall del servidor para que acepte conexiones por el puerto 8080
 
-```
+```sh
 sudo firewall-cmd --add-port=8080/tcp --permanent
 sudo firewall-cmd --reload
 ```
@@ -780,7 +820,7 @@ http://[IP del servidor]:8080/admin/fosil
 
 ### Instalacion de Wordpress y la DB mariaDB
 
-```
+```sh
 sudo dnf install httpd mariadb-server php php-mysqlnd php-fpm php-json php-xml php-gd php-mbstring -y
 sudo systemctl enable --now httpd mariadb
 sudo mysql_secure_installation
@@ -789,7 +829,7 @@ sudo mysql -u root -p
 
 ### Inicializacion de la DB para Wordpress
 
-```
+```sql
 CREATE DATABASE wordpress;
 CREATE USER 'wpuser'@'localhost' IDENTIFIED BY '*******';
 GRANT ALL PRIVILEGES ON wordpress.* TO 'wpuser'@'localhost';
@@ -797,16 +837,16 @@ FLUSH PRIVILEGES;
 EXIT;
 ```
 
-### Instalacion e inicializacion del servidor web Apache 
+### Instalacion e inicializacion del servidor web Apache
 
-```
+```sh
 sudo dnf install httpd php php-mysqlnd php-json php-xml php-gd php-mbstring php-curl php-zip -y
 sudo systemctl enable --now httpd
 ```
 
 ### Instalacion y configuracion de Wordpress
 
-```
+```sh
 cd /tmp
 curl -O https://wordpress.org/latest.tar.gz
 tar -xzvf latest.tar.gz
@@ -823,7 +863,7 @@ define( 'DB_HOST', 'localhost' );
 
 ### Configuramos el firewall y SELinux del servidor para que acepte conexiones por el puerto 80 y 443 de Wordpress
 
-```
+```sh
 sudo firewall-cmd --permanent --add-service=http
 sudo firewall-cmd --permanent --add-service=https
 sudo firewall-cmd --reload
@@ -860,7 +900,7 @@ Luego vinculamos el plugin de OpenID con el Keycloak usando el Client Secret Key
 
 ![Parametros Client Secret Key](images/keycloak8.jpg)
 
-Ahora que ya estan vinculados el Wordpress junto con el Keycloak a traves del OpenID plugin, procedemos a crear usuarios locales en el servidor Keycloak. Este paso puede reemplazarse por una vinculacion del servidor Keycloak (User federation) con un servidor proveedor de identidades como puede lo es el servidor FreeIPA o IAM de AWS. 
+Ahora que ya estan vinculados el Wordpress junto con el Keycloak a traves del OpenID plugin, procedemos a crear usuarios locales en el servidor Keycloak. Este paso puede reemplazarse por una vinculacion del servidor Keycloak (User federation) con un servidor proveedor de identidades como puede lo es el servidor FreeIPA o IAM de AWS.
 
 ![Creacion usuario local en Keycloak](images/keycloak9.jpg)
 
@@ -879,7 +919,6 @@ Nos logueamos en el portal de Wordpress con el usuario "pepito" definido en Keyc
 Si observamos el log de eventos en la web del servidor Keycloak, podemos apreciar que la autenticacion del usuario "pepito" efectivamente fue utilizando el protocolo OpenID-Connect como se pide en los requisitos de este proyecto.
 
 ![Evento del usuario pepito autenticandose con el protocolo OpenIDC](images/keycloak13.jpg)
-
 
 ---
 
