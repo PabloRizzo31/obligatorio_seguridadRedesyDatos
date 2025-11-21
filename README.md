@@ -770,7 +770,7 @@ sudo firewall-cmd --reload
 
 http://[IP del servidor]:8080/admin/fosil
 
-ACA FALTA IMAGEN DE PORTAL
+![Portal web Keycloak](images/keycloak.jpg)
 
 ### Instalacion de Wordpress y la DB mariaDB
 
@@ -818,9 +818,25 @@ sudo firewall-cmd --reload
 
 http://[IP del servidor]/wp-login.php
 
-Aca falta captura
+![Portal web Wordpress](images/keycloak2.jpg)
 
 ## Instalacion del plugin OpenID Connect Generic Client desde la web de Wordpress
+
+Una vez dentro del portal Wordpress, instalamos el plugin OpenID Connect Generic Client
+
+![Plugin OpenID Connect](images/keycloak3.jpg)
+
+Despues que instalamos el plugin de OpenID Connect, debemos configurarlo como cliente del servidor Keycloak
+
+![Config del OpenID Connect como cliente en Keycloak](images/keycloak4.jpg)
+
+![Continuacion de la config del OpenID Connect como cliente en Keycloak](images/keycloak5.jpg)
+
+Para finalizar la configuracion del cliente, debemos setear la URL del Wordpress en todos aquellos campos necesarios, para que se nos despliegue en cada inicio o cierre de sesion en Wordpress.
+
+![Parametros URL](images/keycloak6.jpg)
+
+![Parametros URL redirect](images/keycloak7.jpg)
 
 
 
