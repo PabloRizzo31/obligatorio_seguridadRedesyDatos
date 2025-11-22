@@ -139,7 +139,7 @@ Para cumplir los requisitos de gestion de usuarios segura y centralizada, decidi
 
 En la topologia de red sugerida existiran 2 tipos de conexiones VPN, una de ellas sera del tipo Client-Access para los colaboradores remotos que necesitan utilizar servicios internos de la empresa, y el segundo tipo de VPN sera site-to-site y sera para unir el sitio central en Montevideo, con los nuevos servicios que la empresa desea levantar en la Cloud de AWS. A continuacion detallaremos la configuracion de ambos tipos de VPNs, la primera de ellas, Client-access, que se demostrara con un laptop (Con el cliente OpenVPN) y un firewall PFsense, y el segundo tipo de VPN, site-to-site se demostrara utilizando dos firewalls PFsense enlazados por sus interfaces WAN y arriba de ellas correra el tunel IPsec correspondiente.
 
-**Configuracion del servidor OpenVPN en el firewall PFsense central**
+### Configuracion del servidor OpenVPN en el firewall PFsense central
 
 A continuacion se observa como quedan configurados los 2 perfiles de acceso tipo Client-access para los usuarios basicos y para los administradores de TI. Mas abajo detallamos paso a paso como crear cada perfil y que parametros varian en cada perfil.
 
@@ -181,7 +181,7 @@ Hasta aqui hemos configurado la VPN client-access para acceso de los colaborador
 
 A continuacion configuramos el tunel IPsec en cada firewall PFsense, primero la fase 1 y luego la fase 2. Cabe aclarar que en ambos extremos del tunel los parametros de seguridad de la VPN tales como la PSK, algoritmos de encriptacion, entre otros, son identicos dado que de lo contrario el tunel IPsec no se establece en ninguna de las fases. La PreSharedKey de las capturas es una sugerencia de nuestro grupo que debe ser modificada si estas configuraciones se ponen en produccion en la empresa Fosil dado que es un parametro critico.
 
-Configuracion en el firewall Central:
+### Configuracion en el firewall Central:
 
 ![Tunel IPsec fase 1 en el PFsense Central](images/tunel3.jpg)
 
@@ -195,7 +195,7 @@ Podemos verificar que ambas fases del tunel quedaron configuradas en la seccion 
 
 ![Tunel IPsec fase 1 y fase 2 status en PFsense Central](images/status2.jpg)
 
-Configuracion en el firewall Cloud:
+### Configuracion en el firewall Cloud:
 
 ![Tunel IPsec fase 1 en el PFsense Cloud](images/tunel7.jpg)
 
@@ -754,11 +754,13 @@ TODO: agregar los logs de modsecurity, openvpn y Keycloak
 
 #### Solución WAF
 
-Las validaciones de detección y bloqueo en la solucion de WAF en el punto 5, tanto para reglas del CRS, como para las personalizadas, los logs que generan se encuentran integrados con el SIEM.
+El objetivo principal de integrar los registros generados por el WAF (ModSecurity) dentro del SIEM Wazuh es centralizar, normalizar y correlacionar los eventos de seguridad relacionados con la protección de aplicaciones web, permitiendo una visibilidad completa del tráfico malicioso, intentos de explotación y comportamiento anómalo dirigido a los servicios expuestos.
+
+Para las validaciones de detección y bloqueo en la solucion de WAF en el punto 5, tanto para reglas del CRS, como para las personalizadas, los logs de que generan se encuentran integrados con el SIEM.
 
 Para ello, es necesario configurar los logs que son generados para el sitio *wp.example.com* en */var/log/apache2/wp.example.com-access.log* y */var/log/apache2/wp.example.com-error.log*. En este ultimo se van a generar los codigos de error 403, provocados por la solucion de WAF al realizar los bloqueos.
 
-La ingesta de los logs se configura a nivel del agente de Wazuh en el servidor de WAF. Es necesario ubicar el archivo de configuracion de dicho agente: /var/ossec/etc/ossec.cong e ingresarle el siguiente bloque de codigo al final del archivo (justo antes del cierre *</ossec_config>*):
+La ingesta de los logs se configura a nivel del agente de Wazuh en el servidor de WAF. Es necesario ubicar el archivo de configuracion de dicho agente: /var/ossec/etc/ossec.cong e ingresarle el siguiente bloque de codigo al final del archivo (justo antes del cierre _</ossec_config>_):
 
 ```bash
 <!-- Logs ModSecurity -->
@@ -794,6 +796,91 @@ Cabe destacar que en el access log, Wazuh detecta automaticamente, con la regla 
 ![Waf log 4](images/waf-log4.png)
 
 En este ejemplo, la regla misma regla de ModSecurity que en el ejemplo anterior, evidenciando en este caso, la ejeucion de la regla custom de ModSecurity para detección y bloqueo de user agent sospechoso.
+
+#### Solución VPN
+
+El objetivo es integrar los registros generados por el servicio OpenVPN en pfSense dentro del SIEM Wazuh, permitiendo su recolección, normalización, correlación y monitoreo.
+Para esto se configura pfSense para enviar los logs vía Syslog hacia el Wazuh Manager, y luego se habilita la recepción y el procesamiento de dichos logs en el archivo *ossec.conf*.
+
+##### Configuracion en Pfsense
+
+Desde pfsense, es neceario habilitar el envio de logs por syslog.
+
+Ingresar a Status → System Logs → Settings.
+
+![Syslog pfsense 1](images/openvpn-log1.png)
+
+![Syslog pfsense 2](images/openvpn-log2.png)
+
+![Syslog pfsense 3](images/openvpn-log3.png)
+
+##### Configuracion en Wazuh
+
+En este escenario, el servidor de Wazuh Manager oficirá de servidor Syslog, el cual recibirá los logs de openvpn.
+
+Para ello es necesario configurar el siguiente bloque en */var/ossec/etc/ossec.conf*
+
+Dentro de <ossec_config></ossec_config>
+
+```bash
+<!-- Pfsense logs syslog -->
+  <remote>
+   <connection>syslog</connection>
+   <port>514</port>
+   <protocol>udp</protocol>
+   <allowed-ips>192.168.56.108/32</allowed-ips>
+   <local_ip>192.168.56.110</local_ip>
+ </remote>
+
+```
+
+En *allowed-ips* irá la direccion del servidor Pfsense y en *local_ip* la del propio Wazuh Manager.
+
+##### Decodificación de Logs de OpenVPN
+
+Si bien Wazuh ya incluye decodificadores base para syslog y VPN, es neceario agregar nuevos por la version y formato de los que se recibirán.
+
+En */var/ossec/etc/decoders* se crea archivo *openvpn_custom.xml*. Alli se definen los nuevos decoders, los cuales se pueden encontrar aqui: [openvpn_custom.xml](siem/decoders/openvpn_custom.xml)
+
+Igualar los permisos y ownership que el resto de los archivos:
+
+```bash
+chmod 660 openvpn_custom.xml
+chown wazuh:wazuh openvpn_custom.xml
+systemctl restart wazuh-manager
+```
+
+##### Reglas para eventos de OpenVPN
+
+De la misma forma que los decoders, se debe generar un archivo de reglas custom bajo */var/ossec/etc/rules*
+
+El archivo de reglas es accesible desde aqui: [openvpn_custom.xml](siem/reglas/openvpn_custom.xml)
+
+Ajustar permisos y ownership
+
+##### Recepcion de eventos
+
+Se realiza conexion via openvpn, siguiendo los pasos de configuracion detallados en el apartado de openvpn: [Configuracion del servidor OpenVPN](#configuracion-del-servidor-openvpn-en-el-firewall-pfsense-central)
+
+![Openvpn conexion](images/openvpn-conexion.png)
+
+Y luego desconectandose de la vpn, se observan los siguientes eventos generados en el SIEM:
+
+![Openvpn Wazuh 1](images/openvpn-wazuh1.png)
+
+Campos en el evento de Conexion:
+
+![Openvpn Wazuh 2](images/openvpn-wazuh2.png)
+
+Campos en el evento de desconexion:
+
+![Openvpn Wazuh 3](images/openvpn-wazuh3.png)
+
+Eventos de autenticacion fallida:
+
+![Openvpn Wazuh 4](images/openvpn-failed1.png)
+
+![Openvpn Wazuh 5](images/openvpn-failed2.png)
 
 ---
 

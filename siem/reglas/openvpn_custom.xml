@@ -5,6 +5,8 @@ Nov 10 00:38:33 fosil openvpn[434]: user 'fmorra' authenticated
 
 # Conexion Fallida por error de usuario y/o clave
 Nov 10 12:57:33 fosil openvpn[423]: user 'fmorra' could not authenticate.
+# Variante en version
+Nov 22 17:47:55 openvpn[424]: user 'prizzo' could not authenticate.
 
 # Version por syslog de conexion fallida
 2024-08-14T14:59:54-03:00 192.168.1.3 openvpn[39692]: user 'fmorra' could not authenticate.
@@ -40,7 +42,7 @@ Nov 10 00:40:05 fosil openvpn[67808]: openvpn server 'ovpns3' user 'fmorra' addr
 
 <!-- Conexion Fallida por error de usuario y/o clave -->
 <rule id="100803" level="6">
-        <if_sid>81800</if_sid>
+        <decoded_as>openvpn_failed</decoded_as>
         <match>could not authenticate</match>
         <description>OpenVPN: Autenticacion fallida para usuario</description>
         <mitre>

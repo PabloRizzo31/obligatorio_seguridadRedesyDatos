@@ -6,8 +6,17 @@ Nov 17 20:31:02 openvpn[56460]: openvpn server 'ovpns3' user 'prizzo' address '1
   <prematch> openvpn server</prematch>
 </decoder>
 
-<decoder name="openvpn">
+<decoder name="openvpn_connect">
   <parent>openvpn</parent>
   <regex>openvpn server '(\S+)' user '(\S+)' address '(\S+):(\S+)' -</regex>
   <order>server, dstuser, srcip, srcport</order>
+</decoder>
+
+<!-- Conexion Fallida por error de usuario y/o clave -->
+<!-- Nov 20 17:47:55 openvpn[424]: user 'prizzo' could not authenticate. -->
+
+<decoder name="openvpn_failed">
+<prematch>: user</prematch>
+  <regex>: user '(\S+)' could not authenticate</regex>
+  <order>dstuser</order>
 </decoder>
