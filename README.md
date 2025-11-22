@@ -730,19 +730,19 @@ Intentos de login con usuario "test", inexistente
 
 Regla aplicada y respuesta activa, que se observa mediante la regla 651.
 
-![cu2-2](images/cu2-2.png)
+![cu2-2](images/casoUso2-2.png)
 
 Desde el servidor en cuestion (donde se encuentra instalado el agente), se observa la ip bloqueada en el firewall iptables:
 
-![cu2-3](images/cu2-3.png)
+![cu2-3](images/Casouso3-3.png)
 
 Intentos de login con usuario "rocky" existente
 
-![cu2-4](images/cu2-4.png)
+![cu2-4](images/casouso2-4.png)
 
 En el timestamp de los eventos se observa la hora que coincide con el rango horario configurado para disparar la regla.
 
-![cu2-5](images/cu2-5.png)
+![cu2-5](images/cAsouso2-5.png)
 
 El bloqueo se da de la misma manera.
 
@@ -810,9 +810,9 @@ Ingresar a Status → System Logs → Settings.
 
 ![Syslog pfsense 1](images/openvpn-log1.png)
 
-![Syslog pfsense 2](images/openvpn-log2.png)
+![Syslog pfsense 2](images/openvpn-2-setting.png)
 
-![Syslog pfsense 3](images/openvpn-log3.png)
+![Syslog pfsense 3](images/openvpn-3-remoteoptions.png)
 
 ##### Configuracion en Wazuh
 
@@ -862,7 +862,7 @@ Ajustar permisos y ownership
 
 Se realiza conexion via openvpn, siguiendo los pasos de configuracion detallados en el apartado de openvpn: [Configuracion del servidor OpenVPN](#configuracion-del-servidor-openvpn-en-el-firewall-pfsense-central)
 
-![Openvpn conexion](images/openvpn-conexion.png)
+![Openvpn conexion](images/openvpnConexion.png)
 
 Y luego desconectandose de la vpn, se observan los siguientes eventos generados en el SIEM:
 
@@ -870,17 +870,17 @@ Y luego desconectandose de la vpn, se observan los siguientes eventos generados 
 
 Campos en el evento de Conexion:
 
-![Openvpn Wazuh 2](images/openvpn-wazuh2.png)
+![Openvpn Wazuh 2](images/openvpn-1wazuhextended.png)
 
 Campos en el evento de desconexion:
 
-![Openvpn Wazuh 3](images/openvpn-wazuh3.png)
+![Openvpn Wazuh 3](images/openvpn-desconexionwazuh.png)
 
 Eventos de autenticacion fallida:
 
-![Openvpn Wazuh 4](images/openvpn-failed1.png)
+![Openvpn Wazuh failed1](images/openvpn-failed.png)
 
-![Openvpn Wazuh 5](images/openvpn-failed2.png)
+![Openvpn Wazuh falied extended](images/openvpn-extendedfailed.png)
 
 ---
 
