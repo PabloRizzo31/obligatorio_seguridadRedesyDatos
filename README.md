@@ -785,7 +785,7 @@ Utilizaremos los mismos ejemplos que en el apartado de pruebas de funcionamiento
 
 ![Waf log 2](images/waf-log2.png)
 
-![Waf log 2b](images/waf-log2b.png)
+![Waf log 2b](images/waf-log-siem2.png)
 
 Cabe destacar que en el access log, Wazuh detecta automaticamente, con la regla por defecto *31164* un intento de SQL Injection. Luego en el evento en error log, se dispara otra regla por defecto de Wazuh, en este caso la *30411*, de detección de query rechazada de ModSecurity, evidenciando que la regla de CRS fue aplicada y el bloqueo realizado.
 
@@ -834,13 +834,13 @@ Dentro de <ossec_config></ossec_config>
 
 ```
 
-En *allowed-ips* irá la direccion del servidor Pfsense y en *local_ip* la del propio Wazuh Manager.
+En _allowed-ips_ irá la direccion del servidor Pfsense y en _local_ip_ la del propio Wazuh Manager.
 
 ##### Decodificación de Logs de OpenVPN
 
 Si bien Wazuh ya incluye decodificadores base para syslog y VPN, es neceario agregar nuevos por la version y formato de los que se recibirán.
 
-En */var/ossec/etc/decoders* se crea archivo *openvpn_custom.xml*. Alli se definen los nuevos decoders, los cuales se pueden encontrar aqui: [openvpn_custom.xml](siem/decoders/openvpn_custom.xml)
+En _/var/ossec/etc/decoders_ se crea archivo _openvpn_custom.xml_. Alli se definen los nuevos decoders, los cuales se pueden encontrar aqui: [openvpn_custom.xml](siem/decoders/openvpn_custom.xml)
 
 Igualar los permisos y ownership que el resto de los archivos:
 
