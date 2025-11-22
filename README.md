@@ -756,7 +756,7 @@ TODO: agregar los logs de modsecurity, openvpn y Keycloak
 
 El objetivo principal de integrar los registros generados por el WAF (ModSecurity) dentro del SIEM Wazuh es centralizar, normalizar y correlacionar los eventos de seguridad relacionados con la protección de aplicaciones web, permitiendo una visibilidad completa del tráfico malicioso, intentos de explotación y comportamiento anómalo dirigido a los servicios expuestos.
 
-Para las validaciones de detección y bloqueo en la solucion de WAF en el punto 5, tanto para reglas del CRS, como para las personalizadas, los logs de que generan se encuentran integrados con el SIEM.
+Para las validaciones de detección y bloqueo en la solucion de WAF en el punto 5, tanto para reglas del CRS, como para las personalizadas, se integran los logs que generan en el SIEM.
 
 Para ello, es necesario configurar los logs que son generados para el sitio *wp.example.com* en */var/log/apache2/wp.example.com-access.log* y */var/log/apache2/wp.example.com-error.log*. En este ultimo se van a generar los codigos de error 403, provocados por la solucion de WAF al realizar los bloqueos.
 
