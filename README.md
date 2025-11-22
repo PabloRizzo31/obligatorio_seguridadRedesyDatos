@@ -793,7 +793,7 @@ Cabe destacar que en el access log, Wazuh detecta automaticamente, con la regla 
 
 ![Waf log 3](images/waf-log3.png)
 
-![Waf log 4](images/waf-log4.png)
+![Waf log 4](images/waf-3-extended.png)
 
 En este ejemplo, la regla misma regla de ModSecurity que en el ejemplo anterior, evidenciando en este caso, la ejeucion de la regla custom de ModSecurity para detección y bloqueo de user agent sospechoso.
 
