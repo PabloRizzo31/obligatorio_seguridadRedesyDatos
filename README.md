@@ -752,6 +752,49 @@ El bloqueo se da de la misma manera.
 
 TODO: agregar los logs de modsecurity, openvpn y Keycloak
 
+#### Solución WAF
+
+Las validaciones de detección y bloqueo en la solucion de WAF en el punto 5, tanto para reglas del CRS, como para las personalizadas, los logs que generan se encuentran integrados con el SIEM.
+
+Para ello, es necesario configurar los logs que son generados para el sitio *wp.example.com* en */var/log/apache2/wp.example.com-access.log* y */var/log/apache2/wp.example.com-error.log*. En este ultimo se van a generar los codigos de error 403, provocados por la solucion de WAF al realizar los bloqueos.
+
+La ingesta de los logs se configura a nivel del agente de Wazuh en el servidor de WAF. Es necesario ubicar el archivo de configuracion de dicho agente: /var/ossec/etc/ossec.cong e ingresarle el siguiente bloque de codigo al final del archivo (justo antes del cierre *</ossec_config>*):
+
+```bash
+<!-- Logs ModSecurity -->
+  <localfile>
+    <log_format>syslog</log_format>
+    <location>/var/log/apache2/wp.example.com-error.log</location>
+  </localfile>
+  
+  <localfile>
+    <log_format>syslog</log_format>
+    <location>/var/log/apache2/wp.example.com-access.log</location>
+  </localfile>
+
+```
+
+![Waf log 1](images/waf-log1.png)
+
+Una vez configurado el paso anterior, ya se podran visualizar los eventos a nivel de SIEM.
+Utilizaremos los mismos ejemplos que en el apartado de pruebas de funcionamiento del WAF, con el de [SQL Injection de regla CRS](#inyeccion-sql) y con el de [uso sospechoso de user agent](#1--regla-custom-1-detección-de-escaneo-o-fuzzing-user-agent-sospechoso), configurado en la primera regla personalizada.
+
+##### Evento de SQL Injection en SIEM:
+
+![Waf log 2](images/waf-log2.png)
+
+![Waf log 2b](images/waf-log2b.png)
+
+Cabe destacar que en el access log, Wazuh detecta automaticamente, con la regla por defecto *31164* un intento de SQL Injection. Luego en el evento en error log, se dispara otra regla por defecto de Wazuh, en este caso la *30411*, de detección de query rechazada de ModSecurity, evidenciando que la regla de CRS fue aplicada y el bloqueo realizado.
+
+##### Evento de Custom Rule 1 de WAF en SIEM:
+
+![Waf log 3](images/waf-log3.png)
+
+![Waf log 4](images/waf-log4.png)
+
+En este ejemplo, la regla misma regla de ModSecurity que en el ejemplo anterior, evidenciando en este caso, la ejeucion de la regla custom de ModSecurity para detección y bloqueo de user agent sospechoso.
+
 ---
 
 ## 7. Gestion de Identidad y Accesos (IAM)
