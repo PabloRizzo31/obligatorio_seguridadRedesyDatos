@@ -862,7 +862,7 @@ Ajustar permisos y ownership
 
 Se realiza conexion via openvpn, siguiendo los pasos de configuracion detallados en el apartado de openvpn: [Configuracion del servidor OpenVPN](#configuracion-del-servidor-openvpn-en-el-firewall-pfsense-central)
 
-![Openvpn conexion](images/openvpnConexion.png)
+![Openvpn conexion](images/conexion-openvpn.png)
 
 Y luego desconectandose de la vpn, se observan los siguientes eventos generados en el SIEM:
 
