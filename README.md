@@ -726,11 +726,11 @@ systemctl restart wazuh-manager
 
 Intentos de login con usuario "test", inexistente
 
-![cu2-1](siem/images/intento-login-test.png)
+![login-test](siem/images/intento-login-test.png)
 
 Regla aplicada y respuesta activa, que se observa mediante la regla 651.
 
-![cu2-2](siem/images/regla-aplicada-AR.png)
+![regla-aplicada-AR](siem/images/regla-aplicada-AR.png)
 
 Desde el servidor en cuestion (donde se encuentra instalado el agente), se observa la ip bloqueada en el firewall iptables:
 
