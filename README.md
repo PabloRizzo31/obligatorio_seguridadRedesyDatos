@@ -374,9 +374,9 @@ sudo chmod -R 0755 /var/www/html/admin
 sudo systemctl reload apache2
 ```
 
-![Waf custom test admin site](images/waf-customRule2a.png)
+![Waf custom test admin site 1 ](images/waf-customRule2a.png)
 
-![Waf custom test admin site](images/waf-customRule2b.png)
+![Waf custom test admin site 2](images/waf-customRule2b.png)
 
 ### 5.B Instalacion y configuracíón del API Gateway Kong
 
