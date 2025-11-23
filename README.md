@@ -726,23 +726,23 @@ systemctl restart wazuh-manager
 
 Intentos de login con usuario "test", inexistente
 
-![cu2-1](images/intento-login-test.png)
+![cu2-1](siem/images/intento-login-test.png)
 
 Regla aplicada y respuesta activa, que se observa mediante la regla 651.
 
-![cu2-2](images/regla-aplicada-AR.png)
+![cu2-2](siem/images/regla-aplicada-AR.png)
 
 Desde el servidor en cuestion (donde se encuentra instalado el agente), se observa la ip bloqueada en el firewall iptables:
 
-![cu2-3](images/bloqueo-iptables.png)
+![cu2-3](siem/images/bloqueo-iptables.png)
 
 Intentos de login con usuario "rocky" existente
 
-![cu2-4](images/intento-login-existente.png)
+![cu2-4](siem/images/intento-login-existente.png)
 
 En el timestamp de los eventos se observa la hora que coincide con el rango horario configurado para disparar la regla.
 
-![cu2-5](images/resumen-eventos-login.png)
+![cu2-5](siem/images/resumen-eventos-login.png)
 
 El bloqueo se da de la misma manera.
 
@@ -776,24 +776,24 @@ La ingesta de los logs se configura a nivel del agente de Wazuh en el servidor d
 
 ```
 
-![Waf log 1](images/waf-log1.png)
+![Waf log 1](siem/images/waf-log1.png)
 
 Una vez configurado el paso anterior, ya se podran visualizar los eventos a nivel de SIEM.
 Utilizaremos los mismos ejemplos que en el apartado de pruebas de funcionamiento del WAF, con el de [SQL Injection de regla CRS](#inyeccion-sql) y con el de [uso sospechoso de user agent](#1--regla-custom-1-detección-de-escaneo-o-fuzzing-user-agent-sospechoso), configurado en la primera regla personalizada.
 
 ##### Evento de SQL Injection en SIEM:
 
-![Waf log 2](images/waf-log2.png)
+![Waf log 2](siem/images/waf-log2.png)
 
-![Waf log 2b](images/waf-log-siem2.png)
+![Waf log 2b](siem/images/waf-log-siem2.png)
 
 Cabe destacar que en el access log, Wazuh detecta automaticamente, con la regla por defecto *31164* un intento de SQL Injection. Luego en el evento en error log, se dispara otra regla por defecto de Wazuh, en este caso la *30411*, de detección de query rechazada de ModSecurity, evidenciando que la regla de CRS fue aplicada y el bloqueo realizado.
 
 ##### Evento de Custom Rule 1 de WAF en SIEM:
 
-![Waf log 3](images/waf-log3.png)
+![Waf log 3](siem/images/waf-log3.png)
 
-![Waf log 4](images/waf-3-extended.png)
+![Waf log 4](siem/images/waf-3-extended.png)
 
 En este ejemplo, la regla misma regla de ModSecurity que en el ejemplo anterior, evidenciando en este caso, la ejeucion de la regla custom de ModSecurity para detección y bloqueo de user agent sospechoso.
 
@@ -808,11 +808,11 @@ Desde pfsense, es neceario habilitar el envio de logs por syslog.
 
 Ingresar a Status → System Logs → Settings.
 
-![Syslog pfsense 1](images/openvpn-log1.png)
+![Syslog pfsense 1](siem/images/openvpn-log1.png)
 
-![Syslog pfsense 2](images/openvpn-2-setting.png)
+![Syslog pfsense 2](siem/images/openvpn-2-setting.png)
 
-![Syslog pfsense 3](images/openvpn-3-remoteoptions.png)
+![Syslog pfsense 3](siem/images/openvpn-3-remoteoptions.png)
 
 ##### Configuracion en Wazuh
 
@@ -862,25 +862,25 @@ Ajustar permisos y ownership
 
 Se realiza conexion via openvpn, siguiendo los pasos de configuracion detallados en el apartado de openvpn: [Configuracion del servidor OpenVPN](#configuracion-del-servidor-openvpn-en-el-firewall-pfsense-central)
 
-![Openvpn conexion](images/conexion-openvpn.png)
+![Openvpn conexion](siem/images/conexion-openvpn.png)
 
 Y luego desconectandose de la vpn, se observan los siguientes eventos generados en el SIEM:
 
-![Openvpn Wazuh 1](images/openvpn-wazuh1.png)
+![Openvpn Wazuh 1](siem/images/openvpn-wazuh1.png)
 
 Campos en el evento de Conexion:
 
-![Openvpn Wazuh 2](images/openvpn-1wazuhextended.png)
+![Openvpn Wazuh 2](siem/images/openvpn-1wazuhextended.png)
 
 Campos en el evento de desconexion:
 
-![Openvpn Wazuh 3](images/openvpn-desconexionwazuh.png)
+![Openvpn Wazuh 3](siem/images/openvpn-desconexionwazuh.png)
 
 Eventos de autenticacion fallida:
 
-![Openvpn Wazuh failed1](images/openvpn-failed.png)
+![Openvpn Wazuh failed1](siem/images/openvpn-failed.png)
 
-![Openvpn Wazuh falied extended](images/openvpn-extendedfailed.png)
+![Openvpn Wazuh falied extended](siem/images/openvpn-extendedfailed.png)
 
 ---
 
