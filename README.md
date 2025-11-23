@@ -1282,6 +1282,7 @@ Demostracion de la asignacion de direccion IP de distintos Pools de IP a los col
 - Material del curso Seguridad en Redes y Dato disponible en la web Aulas de la Facultad ORT (https://aulas.ort.edu.uy)
 - Caso de uso Viajero Imposible (https://medium.com/@soc_55904/imposible-traveler-detection-with-wazuh-0b66e45dd9c7)
 - Matriz de MITRE ATT&CK (https://attack.mitre.org/)
+- Generacion de reglas custom FIM en Wazuh (https://documentation.wazuh.com/current/user-manual/capabilities/file-integrity/creating-custom-fim-rules.html#mapping-fim-fields-to-wazuh-alerts)
 
 ### Uso de Inteligencia Artificial Generativa
 
