@@ -726,7 +726,7 @@ systemctl restart wazuh-manager
 
 Intentos de login con usuario "test", inexistente
 
-![cu2-1](https://github.com/PabloRizzo31/obligatorio_seguridadRedesyDatos/raw/main/siem/images/intento-login-test.png)
+![login-test](siem/images/intento-login-test.png)
 
 Regla aplicada y respuesta activa, que se observa mediante la regla 651.
 
