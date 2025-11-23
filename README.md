@@ -726,23 +726,23 @@ systemctl restart wazuh-manager
 
 Intentos de login con usuario "test", inexistente
 
-![cu2-1](images/cu2-1.png)
+![cu2-1](images/intento-login-test.png)
 
 Regla aplicada y respuesta activa, que se observa mediante la regla 651.
 
-![cu2-2](images/casoUso2-2.png)
+![cu2-2](images/regla-aplicada-AR.png)
 
 Desde el servidor en cuestion (donde se encuentra instalado el agente), se observa la ip bloqueada en el firewall iptables:
 
-![cu2-3](images/Casouso3-3.png)
+![cu2-3](images/bloqueo-iptables.png)
 
 Intentos de login con usuario "rocky" existente
 
-![cu2-4](images/casouso2-4.png)
+![cu2-4](images/intento-login-existente.png)
 
 En el timestamp de los eventos se observa la hora que coincide con el rango horario configurado para disparar la regla.
 
-![cu2-5](images/cAsouso2-5.png)
+![cu2-5](images/resumen-eventos-login.png)
 
 El bloqueo se da de la misma manera.
 
