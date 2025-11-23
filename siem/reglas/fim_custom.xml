@@ -1,0 +1,12 @@
+<!-- Regla para detectar archivo agregado que su path 
+     no coincida con una extension tipica de archivo de imagen -->
+
+<group name="fim_custom,">
+
+<rule id="105801" level="6">
+	<if_sid>554</if_sid>
+	<field name="file" type="pcre2" negate="yes">\.(png|jpg|jpeg)$</field>
+	<description>FIM Custom: Deteccion de archivo que no cumple con extension de imagenes</description>
+    </rule>
+    
+</group>

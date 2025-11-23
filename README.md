@@ -746,11 +746,93 @@ En el timestamp de los eventos se observa la hora que coincide con el rango hora
 
 El bloqueo se da de la misma manera.
 
-#### Caso 3
+#### Caso 3 Detección de subida de archivos de imagenes en sitio web
+
+Este caso de uso implementa un mecanismo de seguridad que permite detectar la carga de archivos con extensiones no autorizadas en un servidor web Apache.
+
+El control se basa en:
+
+- Apache Web Server que expone un formulario básico de carga de archivos.
+
+- Directorio de subida de archivos: /var/www/html/uploads/
+
+- Wazuh FIM (File Integrity Monitoring) configurado para monitorear ese directorio en tiempo real.
+
+- Regla personalizada que genera una alerta cuando se suben archivos cuya extensión no sea .png, .jpg o .jpeg.
+
+
+Este mecanismo permite identificar rápidamente intentos de subir contenido potencialmente malicioso (scripts, binaries, webshells, etc.), con sus propias limitaciones.
+
+Objetivo
+
+Detectar automáticamente cuando un usuario sube un archivo al servidor web cuya extensión no coincide con las permitidas.
+Esto ayuda a prevenir:
+
+- Subida de webshells (ej., shell.php)
+
+- Archivos ejecutables (elf, .exe)
+
+- Archivos comprimidos indiscriminados (.zip, .tar.gz)
+
+- Scripts (.py, .sh, .js)
+
+- Cargas maliciosas típicas en ataques a formularios vulnerables
+
+Las limitaciones son claras, ya que es posible subir archivos enmascarados o con otros nombres y/o extensiones. Para ello es mas efectivo analizar los hashes.
+
+En el servidor web será necesario generar:
+- Directorio "uploads" para subir archivos
+- Formulario basico html
+- Script en php para permitir la subida
+
+```bash
+# Crea la carpeta 'uploads' dentro del directorio web principal
+sudo mkdir /var/www/html/uploads
+
+# Asigna la propiedad de esa carpeta al usuario 'apache'
+sudo chown www-data:www-data /var/www/html/uploads
+
+# Instalar php 
+sudo apt update
+sudo apt install php libapache2-mod-php
+
+sudo systemctl restart apache2
+```
+
+El formulario y script en php se pueden obtener aqui: [upload_form.html](siem/casos_de_uso/fim_subida_imagenes/upload_form.html) y [upload_process.php](siem/casos_de_uso/fim_subida_imagenes/upload_process.php)
+
+Configurar en el agente de Wazuh el bloque "syscheck" para analizar de forma recursiva el directorio "uploads" en tiempo real:
+
+```bash
+<syscheck>
+      <directories realtime="yes">/var/www/html/uploads/<></directories>
+</syscheck>
+```
+
+```bash
+# Reiniciar servicio
+systemctl restart wazuh-agent
+```
+
+![Config FIM](siem/images/config-fim1.png)
+
+En el Wazuh Manager, configurar la regla custom para detectar el tipo de comportamiento deseado. Se puede encontrar aqui: [fim_custom.xml](siem/reglas/fim_custom.xml)
+
+##### Funcionamiento
+
+![Subida inst](siem/images/sitio-fotos-inst.png)
+
+Se sube archivo con extension "gif", la cual no coincide con las extensiones declaradas en la regla
+
+![Subida otro formato](siem/images/subida-otra-extension.png)
+
+Desde las alertas en Wazuh se observa:
+
+![Alerta otra extension](siem/images/alerta-otra-extension.png)
 
 ### Alertas del resto de los servicios requeridos
 
-TODO: agregar los logs de modsecurity, openvpn y Keycloak
+TODO: agregar los logs de Keycloak
 
 #### Solución WAF
 
@@ -1208,4 +1290,5 @@ Demostracion de la asignacion de direccion IP de distintos Pools de IP a los col
 - -->
 - -->
 - Prompts de configuracion en Google Gemini
+- --> Tenemos un servidor apache2, generame una pagina donde pueda subir archivos, con formulario html y php.
 - --> "modificar el script que tenemos hasta el momento para que se ajuste a los controles de cis benchmarks de debian realizados por el modulo sca de wazuh. A continuación te compartimos el script y el archivo de configuracion yml"
