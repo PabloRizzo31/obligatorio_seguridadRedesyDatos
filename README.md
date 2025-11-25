@@ -1131,6 +1131,44 @@ Si observamos el log de eventos en la web del servidor Keycloak, podemos aprecia
 
 ![Evento del usuario pepito autenticandose con el protocolo OpenIDC](images/keycloak13.jpg)
 
+### Configuracion de los logs de Keycloak para enviarlos al SIEM via agente Wazuh
+
+Se edita el archivo de configuracion de keycloak
+
+```sh
+sudo nano /opt/keycloak/keycloak-26.4.5/conf/keycloak.conf
+```
+
+Agregamos la siguiente configuracion y guardamos los cambios.
+
+```sh
+log=console,file
+log-level=info
+log-file=/var/log/keycloak/keycloak.log
+event-listeners=log
+events-enabled=true
+event-expiration=0
+admin-events-enabled=true
+admin-events-details-enabled=true
+```
+
+Editamos el servicio de Keycloak en systemctl y guardamos los cambios
+
+```sh
+[Service]
+Environment="KC_LOG_LEVEL=info,org.keycloak.events:debug"
+```
+
+Finalmente reiniciamos el servicio
+
+```sh
+sudo systemctl daemon-reload
+sudo systemctl restart keycloak
+```
+
+
+
+
 ---
 
 ## 8. Plantilla de Servidor endurecida
