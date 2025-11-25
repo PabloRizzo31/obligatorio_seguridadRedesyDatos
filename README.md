@@ -5,6 +5,35 @@
 **Profesor:** Mauricio Campiglia  
 **Estudiantes:** Federico Morra (143394) – Pablo Rizzo (181374)
 
+## Índice
+
+- [1. Descripción general](#1-descripción-general)
+- [2. Presentación del problema por parte del cliente](#2-presentación-del-problema-por-parte-del-cliente)
+- [3. Análisis y propuesta de la solucion](#3-análisis-y-propuesta-de-la-solucion)
+- [4. Redes Privadas Virtuales (VPN)](#4-redes-privadas-virtuales-vpn)
+  - [Configuración del servidor OpenVPN](#configuracion-del-servidor-openvpn-en-el-firewall-pfsense-central)
+- [5. Protección de Aplicaciones Web (WAF y API Gateway)](#5-proteccion-de-aplicaciones-web-waf-y-api-gateway)
+  - [5.A Instalación del WAF](#5a-instalación-de-la-solucion-de-waf)
+  - [5.A.A Reglas personalizadas](#5aa-reglas-personalizadas-configuración)
+  - [5.A.B Pruebas de ataques WEB](#5ab-pruebas-de-ataques-web-para-deteccion-y-bloqueo-de-waf)
+  - [5.B Instalación y configuración del API Gateway](#5b-instalacion-y-configuración-del-api-gateway-kong)
+  - [5.B.B Pruebas de API Gateway](#5bb-pruebas-de-funcionamiento-de-api-gateway)
+  - [5.C Diagramas](#5c-diagrama-de-las-soluciones)
+- [6. Monitoreo y Respuesta (SIEM)](#6-monitoreo-y-respuesta-siem)
+  - [Caso 1: Viajero Imposible](#caso-1-viajero-imposible)
+  - [Caso 2: Fuerza Bruta SSH](#caso-2-detección-y-bloqueo-de-fuerza-bruta-sobre-ssh)
+  - [Caso 3: Subida de archivos no permitidos](#caso-3-detección-de-subida-de-archivos-de-imagenes-en-sitio-web)
+  - [Alertas del resto de los servicios](#alertas-del-resto-de-los-servicios-requeridos)
+- [7. Gestión de Identidad y Accesos (IAM)](#7-gestion-de-identidad-y-accesos-iam)
+- [8. Plantilla de Servidor endurecida](#8-plantilla-de-servidor-endurecida)
+  - [8b. Pruebas en SIEM](#8b-pruebas-funcionamiento-hardening-en-siem)
+- [9. Diagramas de la infraestructura sugerida](#9-diagramas-de-la-infraestructura-sugerida)
+- [10. Software necesario para la maqueta virtual](#10-software-necesario-para-la-maqueta-virtual)
+- [11. Troubleshooting](#11-troubleshooting)
+- [12. Capturas de funcionamiento de la maqueta virtual](#12-capturas-de-funcionamiento-de-la-maqueta-virtual)
+- [13. Posibles mejoras de la infraestructura sugerida](#13-posibles-mejoras-de-la-infraestructura-sugerida)
+- [14. Referencias bibliográficas](#14-referencias-bibliograficas)
+
 ## 1. Descripción general
 
 Este repositorio contempla todos los requerimientos, configuraciones básicas y limitaciones a tener presente para
@@ -1338,7 +1367,6 @@ Estas mejoras permiten evolucionar este caso de uso hacia una solución más só
 
 - Prompts puntuales con consultas de errores y troubleshooting de la maqueta en ChatGPT
 - --> Error de vinculacion entre PFsense y FeeIPA, error de authenticacion con los formatos de "authentication containers" y "bind credentials"
-
 - --> Tengo keycloak 26.4.5 instalado en un servidor y un wp que lo utiliza con openid. Me indicas los pasos para configurar Keycloak (Quarkus) para que sus logs de login OpenID sean visibles en la terminal, ya he hecho configuraciones y no veo que los cambios hayan surgido efecto, entiendo que cambios que he hecho en el archivo de configuracion estan interfiriendo con el systemd, como puedo editarlo a ese nivel para que tome los cambios de configuracion a nivel de logueo?
 - -->
 - Prompts de configuracion en Google Gemini
