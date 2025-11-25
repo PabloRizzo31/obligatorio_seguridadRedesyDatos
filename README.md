@@ -1194,6 +1194,100 @@ sudo systemctl daemon-reload
 sudo systemctl restart keycloak
 ```
 
+Se pueden visualizar los eventos de login a traves de OpenID Connect desde la propia consola del servidor Keycloak
+
+![Eventos OpenID Connect por consola](images/log_keycloak_consola.jpg)
+
+### Instalacion del Wazuh-agent en el servidor Keycloak
+
+```sh
+rpm --import https://packages.wazuh.com/key/GPG-KEY-WAZUH
+
+sudo tee /etc/yum.repos.d/wazuh.repo > /dev/null << 'EOF'
+[wazuh]
+gpgcheck=1
+gpgkey=https://packages.wazuh.com/key/GPG-KEY-WAZUH
+enabled=1
+name=EL-$releasever - Wazuh
+baseurl=https://packages.wazuh.com/4.x/yum/
+protect=1
+EOF
+
+sudo WAZUH_MANAGER="192.168.56.113" dnf install wazuh-agent -y
+```
+
+### Configuracion del Wazuh-agent en el servidor Keycloak
+
+Editar el archivo de configuracion /var/ossec/etc/ossec.conf y guardar los cambios
+
+```sh
+<client>
+  <server>
+    <address>192.168.56.113</address>
+    <port>1514</port>
+    <protocol>tcp</protocol>
+  </server>
+
+  <enrollment>
+    <enabled>yes</enabled>
+    <manager_address>192.168.56.113</manager_address>
+  </enrollment>
+</client>
+ 
+ <localfile>
+  <log_format>full_command</log_format>
+  <location>/var/log/keycloak/keycloak.log</location>
+ </localfile>
+```
+
+Se debe reiniciar el servicio del agente
+
+```sh
+sudo systemctl daemon-reload
+sudo systemctl enable --now wazuh-agent
+```
+
+### Creacion del Wazuh-agent del Keycloak en el Wazuh-manager
+
+Ejecutar el siguiente comando para agrear un nuevo agente remoto, en este caso el agente del servidor Keycloak, con su nombre y dir IP.
+
+```sh
+sudo /var/ossec/bin/manage_agents
+```
+
+Se debe exportar la key para el agente recien agregado, e importarla en el agente instalado en el Keycloak server. La key tiene un formato similar al siguiente:
+
+```sh
+Agent key information for '001' is: 
+MDAzIEtleWNsb2FrI**********************************************************************************************************k=
+```
+
+En el servidor keycloak importamos la key exportada anteriormente desde el Wazuh-manager y guardamos los cambios:
+
+```sh
+sudo /var/ossec/bin/manage_agents
+```
+
+Se reinicia el Wazuh-agent en el keycloak server
+
+```sh
+sudo systemctl restart wazuh-agent
+```
+
+Se puede verificar en el Wazuh-manager como el Wazuh-agent del servidor Keycloak, esta enviando el archivo de keycloak.log el cual tiene los eventos de inicio de sesion en wordpress utilizando el protocolo OpenID Connect.
+
+![Wazuh-manager Statistics](images/stattistics_keycloak.jpg)
+
+### Creacion del decoder y la regla en el Wazuh-Manager para identificar los eventos OpenID Connect que envia el keycloak Server
+
+![Wazuh-manager keycloak decoder](images/decoder_keycloak.jpg)
+
+![Wazuh-manager keycloak Rule](images/rule_keycloak.jpg)
+
+Una vez finalizada la configuracion, podemos apreciar en el detalle de los eventos para el agente Keycloak, como se generan los eventos de autenticacion de Keycloak y los mismos son correctamente parseados por el decoder definido.
+
+![Wazuh-manager keycloak events](images/wazuh_connect.jpg)
+
 ---
 
 ## 8. Plantilla de Servidor endurecida
@@ -1290,11 +1384,13 @@ chmod +x hardening.sh
 - Wazuh version 4.13.1
 - PFsense version 2.8.0
 - FreeIPA version 4.12.2
-- keycloak 26.4.5
+- Keycloak version 26.4.5
 - VirtualBOX version 7.0
 - Apache web server version 2.4
 - Apache ModSecurity version 2.9
-- Kong 3.9.1
+- Kong version 3.9.1
+- Wordpress version 6.8.3
+- OpenID Connector Generic Client Plugin version 3.10
 
 ---
 
@@ -1352,6 +1448,8 @@ Estas mejoras permiten evolucionar este caso de uso hacia una solución más só
 - Documentacion del sitio oficial de OpenVPN (https://openvpn.net/community-docs/)
 - Documentacion del sitio oficial de PFsense (https://docs.netgate.com/pfsense/)
 - Documentacion del sitio oficial de Wazuh (https://documentation.wazuh.com/)
+- Documentacion del sitio oficial de Keycloak (https://www.keycloak.org/documentation)
+- Documentacion del sitio oficial de Wordpress (https://wordpress.org/documentation/)
 - Wazuh: sintaxis para generar reglas: (https://documentation.wazuh.com/current/user-manual/ruleset/ruleset-xml-syntax/rules.html)
 - Wazuh: controles SCA para Hardening: (https://documentation.wazuh.com/current/getting-started/use-cases/configuration-assessment.html)
 - Documentacion de Apache ModSecurity (https://www.feistyduck.com/library/modsecurity-handbook-free/online/)
