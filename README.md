@@ -1338,7 +1338,8 @@ Estas mejoras permiten evolucionar este caso de uso hacia una solución más só
 
 - Prompts puntuales con consultas de errores y troubleshooting de la maqueta en ChatGPT
 - --> Error de vinculacion entre PFsense y FeeIPA, error de authenticacion con los formatos de "authentication containers" y "bind credentials"
-- -->
+
+- --> Tengo keycloak 26.4.5 instalado en un servidor y un wp que lo utiliza con openid. Me indicas los pasos para configurar Keycloak (Quarkus) para que sus logs de login OpenID sean visibles en la terminal, ya he hecho configuraciones y no veo que los cambios hayan surgido efecto, entiendo que cambios que he hecho en el archivo de configuracion estan interfiriendo con el systemd, como puedo editarlo a ese nivel para que tome los cambios de configuracion a nivel de logueo?
 - -->
 - Prompts de configuracion en Google Gemini
 - --> Tenemos un servidor apache2, generame una pagina donde pueda subir archivos, con formulario html y php.
