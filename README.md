@@ -753,13 +753,9 @@ Este caso de uso implementa un mecanismo de seguridad que permite detectar la ca
 El control se basa en:
 
 - Apache Web Server que expone un formulario básico de carga de archivos.
-
 - Directorio de subida de archivos: /var/www/html/uploads/
-
 - Wazuh FIM (File Integrity Monitoring) configurado para monitorear ese directorio en tiempo real.
-
 - Regla personalizada que genera una alerta cuando se suben archivos cuya extensión no sea .png, .jpg o .jpeg.
-
 
 Este mecanismo permite identificar rápidamente intentos de subir contenido potencialmente malicioso (scripts, binaries, webshells, etc.), con sus propias limitaciones.
 
@@ -769,18 +765,15 @@ Detectar automáticamente cuando un usuario sube un archivo al servidor web cuya
 Esto ayuda a prevenir:
 
 - Subida de webshells (ej., shell.php)
-
 - Archivos ejecutables (elf, .exe)
-
 - Archivos comprimidos indiscriminados (.zip, .tar.gz)
-
 - Scripts (.py, .sh, .js)
-
 - Cargas maliciosas típicas en ataques a formularios vulnerables
 
 Las limitaciones son claras, ya que es posible subir archivos enmascarados o con otros nombres y/o extensiones. Para ello es mas efectivo analizar los hashes.
 
 En el servidor web será necesario generar:
+
 - Directorio "uploads" para subir archivos
 - Formulario basico html
 - Script en php para permitir la subida
@@ -1155,6 +1148,12 @@ admin-events-details-enabled=true
 Editamos el servicio de Keycloak en systemctl y guardamos los cambios
 
 ```sh
+systemctl edit keycloak
+```
+
+Agregar las siguientes lineas y guardar:
+
+```sh
 [Service]
 Environment="KC_LOG_LEVEL=info,org.keycloak.events:debug"
 ```
@@ -1165,9 +1164,6 @@ Finalmente reiniciamos el servicio
 sudo systemctl daemon-reload
 sudo systemctl restart keycloak
 ```
-
-
-
 
 ---
 
@@ -1265,6 +1261,7 @@ chmod +x hardening.sh
 - Wazuh version 4.13.1
 - PFsense version 2.8.0
 - FreeIPA version 4.12.2
+- keycloak 26.4.5
 - VirtualBOX version 7.0
 - Apache web server version 2.4
 - Apache ModSecurity version 2.9
@@ -1301,6 +1298,21 @@ Demostracion de la asignacion de direccion IP de distintos Pools de IP a los col
 ## 13. Posibles mejoras de la infraestructura sugerida
 
 *Aqui se detallan posibles mejoras del despliegue que fueron apareciendo durante la creacion del mismo, y que de alguna manera no hubo tiempo para ponerlos en produccion.*
+
+### Caso de usuo 3 "Detección de subida de archivos de imagenes en sitio web"
+
+El sistema actual cumple su función como primer nivel de detección ante cargas de archivos no autorizadas apoyándose en FIM y una regla de Wazuh personalizada. Si bien el caso de uso actual permite detectar archivos subidos con extensiones no permitidas mediante el monitoreo de /var/www/html/uploads/, presenta algunas limitaciones inherentes a realizar el control únicamente por extensión, así como limitantes del enfoque de FIM.
+
+A continuación se describen posibles mejoras para robustecer la infraestructura y elevar el nivel de seguridad:
+
+- Validación de tipo de archivo por firma MIME, no solo por extensión
+- Aislar el directorio de uploads mediante sandboxing o jail: Montar uploads/ en un chroot, contenedor, o directorio fuera del DocumentRoot.
+- Registrar y monitorear las solicitudes HTTP de upload: correlacionar eventos FIM + apache access logs
+- Usar hashing para detectar archivos repetidos o conocidos-maliciosos
+- Implementar Active Response para cuarentena o eliminación automática: por ejemplo, integracion con herramienta VirusTotal
+- Ampliar el caso de uso para detectar evasiones
+
+Estas mejoras permiten evolucionar este caso de uso hacia una solución más sólida, proactiva y adecuada para escenarios de seguridad modernos.
 
 ---
 
