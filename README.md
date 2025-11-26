@@ -136,21 +136,23 @@ Su equipo es el responsable de la implementación de los controles de seguridad 
 
 ## 3. Análisis y propuesta de la solucion
 
-Aca faltan aclarar varios temas.......
+El enfoque de este proyecto es demostrar el abordaje integral de los distintos servicios criticos de una red como la de la empresa Fosil S.A., teniendo como premisa el fortalecimiento de la seguridad de la misma. A los efectos practicos de demostrar el funcionamiento de todos estos servicios, y cumpliendo con los requerimientos de letra, la maqueta presentada seran 5 VMs que agruparan varios servicios, pero que claramente en un ambiente de produccion no podrian compartir hardware ni direccionamiento IP. Aquellas VMs que solo demostraran una funcion especifica que no sea el endurecimiento del sistema operativo, tendran un sistema operativo Linux Rocky 9.6, en cambio la VM a la cual se le aplicara la politica de hardening tendra un sistema operativo Linux Debian 12.
+
+En las distintas etapas de configuracion, se brindaran detalles tecnicos de instalacion que apuntan a un usuario con avanzados conocimientos de seguridad y redes, preservando logicamente aquellos datos sensibles como credenciales, certificados, keys, etc, etc.
+
+En este proyecto que claramente no es de produccion, la dificultad mayor se nos presento al momento de integrar todos los servicios entre si para poder presentar una solucion de ciberseguridad completa y concisa a nivel corporativo. Es por ello que algunas demostraciones a nivel de la maqueta tienen ciertas excepciones y limitaciones, sobre todo a nivel de direccionamiento IP publico. Para aquellas demostraciones que no se pudo profundizar en la prueba de funcionamiento, remarcamos en la seccion **"13. Posibles mejoras de la infraestructura sugerida"**, los cambios a implementar sobre la prueba en cuestion, que por cuestiones de tiempo, limitantes tecnicas y alcance del proyecto, no fue posible investigar con mayor profundidad. 
+
+El lector con conocimientos avanzados de seguridad y redes puede investigarlos por su cuenta partiendo de las bases establecidas por nosotros en este proyecto.
 
 **Como resumen tecnico la solución propuesta provee:**
 
-- Un servidor ubicado en el borde entre las zonas DMZ e Internet que cumplira funciones de Firewall (PFsense con OpenVPN)
+- Un servidor ubicado en el borde entre las zonas DMZ e Internet que cumplira funciones de Firewall (PFsense con OpenVPN e IPsec)
 - Un servidor en la zona DMZ que cumplira funciones de WAF (Apache ModSecurity)
 - Un servidor en la zona DMZ que cumplira funciones de  API Gateway (Kong API Gateway)
-- Un servidor en la zona SERVIDORES que cumplira funciones de web server (Apache)
+- Un servidor en la zona SERVIDORES que cumplira funciones de web server (Apache + Wordpress)
 - Un servidor en la zona SERVIDORES que cumplira funciones de SIEM (Wazuh)
 - Un servidor en la zona SERVIDORES que cumplira funciones de autenticacion (FreeIPA + Keycloak)
 - La solución del Firewall se montará en un servidor con sistema operativo FreeBSD, en los demas servidores se usará la distribución Debian 12.
-
-A los efectos practicos de demostrar el funcionamiento de todos estos servicios, y cumpliendo con los requerimientos de letra,
-la maqueta presentada seran 4 VMs que agruparan varios servicios, pero que claramente en un ambiente de produccion no podrian
-compartir hardware ni direccionamiento IP. Aquellas VMs que solo demostraran una funcion especifica que no sea el endurecimiento del sistema operativo, tendran un sistema operativo Linux Rocky 9.6, en cambio la VM a la cual se le aplicara la politica de hardening tendra un sistema operativo Linux Debian 12.
 
 ---
 
@@ -210,7 +212,7 @@ Hasta aqui hemos configurado la VPN client-access para acceso de los colaborador
 
 A continuacion configuramos el tunel IPsec en cada firewall PFsense, primero la fase 1 y luego la fase 2. Cabe aclarar que en ambos extremos del tunel los parametros de seguridad de la VPN tales como la PSK, algoritmos de encriptacion, entre otros, son identicos dado que de lo contrario el tunel IPsec no se establece en ninguna de las fases. La PreSharedKey de las capturas es una sugerencia de nuestro grupo que debe ser modificada si estas configuraciones se ponen en produccion en la empresa Fosil dado que es un parametro critico.
 
-### Configuracion en el firewall Central:
+### Configuracion en el firewall PFsense Central:
 
 ![Tunel IPsec fase 1 en el PFsense Central](images/tunel3.jpg)
 
@@ -224,7 +226,7 @@ Podemos verificar que ambas fases del tunel quedaron configuradas en la seccion 
 
 ![Tunel IPsec fase 1 y fase 2 status en PFsense Central](images/status2.jpg)
 
-### Configuracion en el firewall Cloud:
+### Configuracion en el firewall PFsense Cloud:
 
 ![Tunel IPsec fase 1 en el PFsense Cloud](images/tunel7.jpg)
 
@@ -634,7 +636,7 @@ flowchart TB
 
 *Guia detallada de configuracion del servidor con la herramienta Wazuh, para recibir alertas del resto de los servicios de la infraestructura*
 
-### Casos de uso personalizados
+### Casos de uso personalizados del SIEM
 
 #### Caso 1: Viajero Imposible
 
@@ -838,7 +840,8 @@ systemctl restart wazuh-agent
 
 ![Config FIM](siem/images/config-fim1.png)
 
-En el Wazuh Manager, configurar la regla custom para detectar el tipo de comportamiento deseado. Se puede encontrar aqui: [fim_custom.xml](siem/reglas/fim_custom.xml)
+En el Wazuh Manager, configurar la regla custom para detectar el tipo de comportamiento deseado. 
+Se puede encontrar aqui: [fim_custom.xml](siem/reglas/fim_custom.xml)
 
 ##### Funcionamiento
 
@@ -906,9 +909,9 @@ En este ejemplo, la regla misma regla de ModSecurity que en el ejemplo anterior,
 El objetivo es integrar los registros generados por el servicio OpenVPN en pfSense dentro del SIEM Wazuh, permitiendo su recolección, normalización, correlación y monitoreo.
 Para esto se configura pfSense para enviar los logs vía Syslog hacia el Wazuh Manager, y luego se habilita la recepción y el procesamiento de dichos logs en el archivo *ossec.conf*.
 
-##### Configuracion en Pfsense
+##### Configuracion en el firewall Pfsense
 
-Desde pfsense, es neceario habilitar el envio de logs por syslog.
+Desde el firewall PFsense, es neceario habilitar el envio de logs por syslog.
 
 Ingresar a Status → System Logs → Settings.
 
@@ -918,7 +921,7 @@ Ingresar a Status → System Logs → Settings.
 
 ![Syslog pfsense 3](siem/images/openvpn-3-remoteoptions.png)
 
-##### Configuracion en Wazuh
+##### Configuracion en el Wazuh Manager
 
 En este escenario, el servidor de Wazuh Manager oficirá de servidor Syslog, el cual recibirá los logs de openvpn.
 
@@ -996,13 +999,15 @@ Para demostrar la correcta gestion de usuarios, hemos optado por configurar un s
 
 ## Instalacion del Keycloak 26.4.5 en un servidor Rocky 9
 
+La instalacion del servicio de Keycloak se llevo a cabo en una distribucion Rocky de Linux para facilitar su implementacion y demostracion practica de los conceptos de gestion centralizada de usuarios, pero llevado a un ambiente de produccion, esta instalacion de keycloak deberia instalarse sobre una distribucion Debian para cumplir con el estandar de hardening de los demas servidores de la red del cliente.
+
 ### Instalacion de Java 21
 
 ```sh
 sudo dnf install -y java-21-openjdk java-21-openjdk-devel
 ```
 
-### Instalacion de Keycloak
+### Instalacion de Keycloak 26.4.5
 
 ```sh
 sudo mkdir /opt/keycloak
@@ -1013,13 +1018,13 @@ sudo unzip keycloak-26.4.5.zip
 cd /opt/keycloak/keycloak-26.4.5
 ```
 
-### Configuramos el servicio de Keycloak editando el contenido de su archivo de configuracion
+Configurar el servicio de Keycloak editando el contenido de su archivo de configuracion
 
 ```sh
 sudo nano /etc/systemd/system/keycloak.service
 ```
 
-### Agregamos los parametros de configuracion al archivo keycloak.service y guardamos los cambios
+Agregar los parametros de configuracion al archivo keycloak.service y guardar los cambios
 
 ```ini
 [Unit]
@@ -1042,20 +1047,20 @@ LimitNOFILE=102642
 WantedBy=multi-user.target
 ```
 
-### Configuramos el firewall del servidor para que acepte conexiones por el puerto 8080
+### Configuracion del firewall del servidor Keycloak para que acepte conexiones por el puerto 8080
 
 ```sh
 sudo firewall-cmd --add-port=8080/tcp --permanent
 sudo firewall-cmd --reload
 ```
 
-### Probamos el acceso web al portal de keycloak
+### Validacion del acceso web al portal de Keycloak
 
 http://[IP del servidor]:8080/admin/fosil
 
 ![Portal web Keycloak](images/keycloak.jpg)
 
-### Instalacion de Wordpress y la DB mariaDB
+### Instalacion de Wordpress y la DB MariaDB
 
 ```sh
 sudo dnf install httpd mariadb-server php php-mysqlnd php-fpm php-json php-xml php-gd php-mbstring -y
@@ -1081,7 +1086,7 @@ sudo dnf install httpd php php-mysqlnd php-json php-xml php-gd php-mbstring php-
 sudo systemctl enable --now httpd
 ```
 
-### Instalacion y configuracion de Wordpress
+### Instalacion y configuracion del Wordpress
 
 ```sh
 cd /tmp
@@ -1098,7 +1103,7 @@ define( 'DB_PASSWORD', 'password' );
 define( 'DB_HOST', 'localhost' );
 ```
 
-### Configuramos el firewall y SELinux del servidor para que acepte conexiones por el puerto 80 y 443 de Wordpress
+### Configuracion del firewall y SELinux del servidor para que acepte conexiones por el puerto 80 y 443 de Wordpress
 
 ```sh
 sudo firewall-cmd --permanent --add-service=http
@@ -1107,7 +1112,7 @@ sudo firewall-cmd --reload
 sudo setsebool -P httpd_can_network_connect on
 ```
 
-### Probamos el acceso web al portal de Wordpress
+### Validacion del acceso web al portal de Wordpress
 
 http://[IP del servidor]/wp-login.php
 
@@ -1159,7 +1164,7 @@ Si observamos el log de eventos en la web del servidor Keycloak, podemos aprecia
 
 ### Configuracion de los logs de Keycloak para enviarlos al SIEM via agente Wazuh
 
-Se edita el archivo de configuracion de keycloak
+Editar el archivo de configuracion de keycloak
 
 ```sh
 sudo nano /opt/keycloak/keycloak-26.4.5/conf/keycloak.conf
@@ -1282,7 +1287,7 @@ Se puede verificar en el Wazuh-manager como el Wazuh-agent del servidor Keycloak
 
 ![Wazuh-manager Statistics](images/stattistics_keycloak.jpg)
 
-### Creacion del decoder y la regla en el Wazuh-Manager para identificar los eventos OpenID Connect que envia el keycloak Server
+### Decodificación de Logs de Keycloak
 
 Si bien el Wazuh-manager cuenta con algunos decoders basicos para interpretar mensajes con formato syslog, fue necesario generar un nuevo decoder al igual que se hizo con los logs del firewall PFsense en el apartado anterior.
 
@@ -1295,6 +1300,8 @@ La regla y decoder para interpretar los inicios de sesion en los logs del Keyclo
 ![Wazuh-manager keycloak decoder](images/decoder_keycloak.jpg)
 
 ![Wazuh-manager keycloak Rule](images/rule_keycloak.jpg)
+
+### Recepcion de eventos de Keycloak
 
 Una vez finalizada la configuracion, se puede apreciar en el detalle de los eventos para el agente Keycloak, como se generan los eventos de autenticacion de Keycloak y los mismos son correctamente parseados por el decoder definido.
 
