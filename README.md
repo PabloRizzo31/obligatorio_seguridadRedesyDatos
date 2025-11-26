@@ -26,6 +26,8 @@
   - [Caso 3: Subida de archivos no permitidos](#caso-3-detección-de-subida-de-archivos-de-imagenes-en-sitio-web)
   - [Alertas del resto de los servicios](#alertas-del-resto-de-los-servicios-requeridos)
 - [7. Gestión de Identidad y Accesos (IAM)](#7-gestion-de-identidad-y-accesos-iam)
+  - [Instalacion del Keycloak 26.4.5](#instalacion-de-keycloak-2645)
+  - [Instalacion de Wordpress y la DB MariaDB](#instalacion-de-wordpress-y-la-db-mariadb)
 - [8. Plantilla de Servidor endurecida](#8-plantilla-de-servidor-endurecida)
   - [8b. Pruebas en SIEM](#8b-pruebas-funcionamiento-hardening-en-siem)
 - [9. Diagramas de la infraestructura sugerida](#9-diagramas-de-la-infraestructura-sugerida)
@@ -1004,7 +1006,7 @@ Eventos de autenticacion fallida:
 
 Para demostrar la correcta gestion de usuarios, hemos optado por configurar un servidor Keycloak junto con un servidor web, el cual tendra alojado el servicio de Wordpress, y loguearemos usuarios del servidor Keycloak en dicho portal de Wordpress. Estas autenticaciones de usuarios seran mediante el protocolo OpenIDC y seran enviadas al SIEM al igual que los demas servidores de la infraestructura.
 
-## Instalacion del Keycloak 26.4.5 en un servidor Rocky 9
+### Instalacion del Keycloak 26.4.5
 
 La instalacion del servicio de Keycloak se llevo a cabo en una distribucion Rocky de Linux para facilitar su implementacion y demostracion practica de los conceptos de gestion centralizada de usuarios, pero llevado a un ambiente de produccion, esta instalacion de keycloak deberia instalarse sobre una distribucion Debian para cumplir con el estandar de hardening de los demas servidores de la red del cliente.
 
