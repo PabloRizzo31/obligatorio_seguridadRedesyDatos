@@ -1,0 +1,23 @@
+<!-- Nov 24 18:30:25 localhost.localdomain kc.sh[4826]: 2025-11-24 18:30:25,827 DEBUG [org.keycloak.events] (executor-thread-1) type="LOGIN", realmId="8a0cfef0-f70a-4c6e-a227-9bc2acd5bc04", realmName="fosil", clientId="wordpress", userId="b304049b-1eee-4ea3-90d4-a10f14004b72",sessionId="b879b254-546a-8891-e129-ee40cdc87d43", ipAddress="192.168.56.1", auth_method="openid-connect", auth_type="code", response_type="code", redirect_uri="http://192.168.56.111/wp-admin/admin-ajax.php?action=openid-connect-authorize", consent="no_consent_required", code_id="b879b254-546a-8891-e129-ee40cdc87d43", username="pepito", response_mode="query", authSessionParentId="b879b254-546a-8891-e129-ee40cdc87d43",authSessionTabId="l7FRJury_lo" -->
+
+<decoder name="keycloak">
+    <program_name type="pcre2">kc.sh</program_name>
+</decoder>
+
+<decoder name="keycloak">
+  <parent>keycloak</parent>
+  <regex>type="(\S+)"</regex>
+  <order>type</order>
+</decoder>
+
+<decoder name="keycloak">
+  <parent>keycloak</parent>
+  <regex>auth_method="(\S+)"</regex>
+  <order>metodo</order>
+</decoder>
+
+<decoder name="keycloak">
+  <parent>keycloak</parent>
+  <regex>username="(\S+)"</regex>
+  <order>user</order>
+</decoder>
