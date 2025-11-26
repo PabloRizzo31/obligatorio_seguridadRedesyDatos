@@ -26,8 +26,9 @@
   - [Caso 3: Subida de archivos no permitidos](#caso-3-detección-de-subida-de-archivos-de-imagenes-en-sitio-web)
   - [Alertas del resto de los servicios](#alertas-del-resto-de-los-servicios-requeridos)
 - [7. Gestión de Identidad y Accesos (IAM)](#7-gestion-de-identidad-y-accesos-iam)
-  - [Instalacion del Keycloak 26.4.5](#instalacion-de-keycloak-2645)
-  - [Instalacion de Wordpress y la DB MariaDB](#instalacion-de-wordpress-y-la-db-mariadb)
+  - [7.A Instalacion del Keycloak 26.4.5](#7a-instalacion-del-keycloak-2645)
+  - [7.B Instalacion de Wordpress y la DB MariaDB](#7b-instalacion-de-wordpress-y-la-db-mariadb)
+  - [7.C Instalacion de FreeIPA](#7c-instalacion-de-freeipa)
 - [8. Plantilla de Servidor endurecida](#8-plantilla-de-servidor-endurecida)
   - [8b. Pruebas en SIEM](#8b-pruebas-funcionamiento-hardening-en-siem)
 - [9. Diagramas de la infraestructura sugerida](#9-diagramas-de-la-infraestructura-sugerida)
@@ -243,7 +244,7 @@ Luego de haber configurado ambas fases del tunel IPsec en cada firewall, se conf
 
 ![Reglas entrantes en el PFsense Central](images/fw2.jpg)
 
-De forma analoga se configuran las reglas entrantes y saliente en el firewall PFsense Cloud (192;168.2.1) pero con el direccionamiento correspondiente.
+De forma analoga se configuran las reglas entrantes y saliente en el firewall PFsense Cloud (192.168.2.1) pero con el direccionamiento correspondiente.
 
 ![Reglas salientes en el PFsense Cloud](images/fw3.jpg)
 
@@ -994,7 +995,7 @@ Eventos de autenticacion fallida:
 
 Para demostrar la correcta gestion de usuarios, hemos optado por configurar un servidor Keycloak junto con un servidor web, el cual tendra alojado el servicio de Wordpress, y loguearemos usuarios del servidor Keycloak en dicho portal de Wordpress. Estas autenticaciones de usuarios seran mediante el protocolo OpenIDC y seran enviadas al SIEM al igual que los demas servidores de la infraestructura.
 
-### Instalacion del Keycloak 26.4.5
+### 7.A Instalacion del Keycloak 26.4.5
 
 La instalacion del servicio de Keycloak se llevo a cabo en una distribucion Rocky de Linux para facilitar su implementacion y demostracion practica de los conceptos de gestion centralizada de usuarios, pero llevado a un ambiente de produccion, esta instalacion de keycloak deberia instalarse sobre una distribucion Debian para cumplir con el estandar de hardening de los demas servidores de la red del cliente.
 
@@ -1057,7 +1058,7 @@ http://[IP del servidor]:8080/admin/fosil
 
 ![Portal web Keycloak](images/keycloak.jpg)
 
-### Instalacion de Wordpress y la DB MariaDB
+### 7.B Instalacion de Wordpress y la DB MariaDB
 
 ```sh
 sudo dnf install httpd mariadb-server php php-mysqlnd php-fpm php-json php-xml php-gd php-mbstring -y
@@ -1303,6 +1304,10 @@ La regla y decoder para interpretar los inicios de sesion en los logs del Keyclo
 Una vez finalizada la configuracion, se puede apreciar en el detalle de los eventos para el agente Keycloak, como se generan los eventos de autenticacion de Keycloak y los mismos son correctamente parseados por el decoder definido.
 
 ![Wazuh-manager keycloak events](images/wazuh_connect.jpg)
+
+### 7.C Instalacion de FreeIPA 
+
+***Aca falta poner instalacion de FreeIPA que la tengo en un txt***
 
 ---
 
