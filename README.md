@@ -855,8 +855,6 @@ Desde las alertas en Wazuh se observa:
 
 ### Alertas del resto de los servicios requeridos
 
-TODO: agregar los logs de Keycloak
-
 #### Solución WAF
 
 El objetivo principal de integrar los registros generados por el WAF (ModSecurity) dentro del SIEM Wazuh es centralizar, normalizar y correlacionar los eventos de seguridad relacionados con la protección de aplicaciones web, permitiendo una visibilidad completa del tráfico malicioso, intentos de explotación y comportamiento anómalo dirigido a los servicios expuestos.
@@ -1020,7 +1018,7 @@ Para demostrar la correcta gestion de usuarios, hemos optado por configurar un s
 
 La instalacion del servicio de Keycloak se llevo a cabo en una distribucion Rocky de Linux para facilitar su implementacion y demostracion practica de los conceptos de gestion centralizada de usuarios, pero llevado a un ambiente de produccion, esta instalacion de keycloak deberia instalarse sobre una distribucion Debian para cumplir con el estandar de hardening de los demas servidores de la red del cliente.
 
-### Instalacion de Java 21
+Instalacion de Java 21
 
 ```sh
 sudo dnf install -y java-21-openjdk java-21-openjdk-devel
@@ -1066,7 +1064,7 @@ LimitNOFILE=102642
 WantedBy=multi-user.target
 ```
 
-### Configuracion del firewall del servidor Keycloak para que acepte conexiones por el puerto 8080
+Configuracion del firewall del servidor Keycloak para que acepte conexiones por el puerto 8080
 
 ```sh
 sudo firewall-cmd --add-port=8080/tcp --permanent
@@ -1082,7 +1080,7 @@ sudo mysql_secure_installation
 sudo mysql -u root -p
 ```
 
-### Inicializacion de la DB para Wordpress
+Inicializacion de la DB para Wordpress
 
 ```sql
 CREATE DATABASE wordpress;
@@ -1092,14 +1090,14 @@ FLUSH PRIVILEGES;
 EXIT;
 ```
 
-### Instalacion e inicializacion del servidor web Apache
+Instalacion e inicializacion del servidor web Apache
 
 ```sh
 sudo dnf install httpd php php-mysqlnd php-json php-xml php-gd php-mbstring php-curl php-zip -y
 sudo systemctl enable --now httpd
 ```
 
-### Instalacion y configuracion del Wordpress
+Instalacion y configuracion del Wordpress
 
 ```sh
 cd /tmp
@@ -1116,7 +1114,7 @@ define( 'DB_PASSWORD', 'password' );
 define( 'DB_HOST', 'localhost' );
 ```
 
-### Configuracion del firewall y SELinux del servidor para que acepte conexiones por el puerto 80 y 443 de Wordpress
+Configuracion del firewall y SELinux del servidor para que acepte conexiones por el puerto 80 y 443 de Wordpress
 
 ```sh
 sudo firewall-cmd --permanent --add-service=http
