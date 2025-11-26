@@ -996,9 +996,11 @@ Para demostrar la correcta gestion de usuarios, hemos optado por configurar un s
 
 ## Instalacion del Keycloak 26.4.5 en un servidor Rocky 9
 
-### Instalacion de Java
+### Instalacion de Java 21
 
+```sh
 sudo dnf install -y java-21-openjdk java-21-openjdk-devel
+```
 
 ### Instalacion de Keycloak
 
@@ -1013,7 +1015,9 @@ cd /opt/keycloak/keycloak-26.4.5
 
 ### Configuramos el servicio de Keycloak editando el contenido de su archivo de configuracion
 
+```sh
 sudo nano /etc/systemd/system/keycloak.service
+```
 
 ### Agregamos los parametros de configuracion al archivo keycloak.service y guardamos los cambios
 
@@ -1161,7 +1165,7 @@ Se edita el archivo de configuracion de keycloak
 sudo nano /opt/keycloak/keycloak-26.4.5/conf/keycloak.conf
 ```
 
-Agregamos la siguiente configuracion y guardamos los cambios.
+Agregar la siguiente configuracion y guardar los cambios.
 
 ```sh
 log=console,file
@@ -1174,7 +1178,7 @@ admin-events-enabled=true
 admin-events-details-enabled=true
 ```
 
-Editamos el servicio de Keycloak en systemctl y guardamos los cambios
+Editar el servicio de Keycloak en systemctl y guardar los cambios
 
 ```sh
 systemctl edit keycloak
@@ -1187,7 +1191,7 @@ Agregar las siguientes lineas y guardar:
 Environment="KC_LOG_LEVEL=info,org.keycloak.events:debug"
 ```
 
-Finalmente reiniciamos el servicio
+Finalmente se debe reiniciar el servicio de keycloak
 
 ```sh
 sudo systemctl daemon-reload
@@ -1240,7 +1244,7 @@ Editar el archivo de configuracion /var/ossec/etc/ossec.conf y guardar los cambi
  </localfile>
 ```
 
-Se debe reiniciar el servicio del agente
+Reiniciar el servicio del agente de Wazuh
 
 ```sh
 sudo systemctl daemon-reload
@@ -1255,20 +1259,20 @@ Ejecutar el siguiente comando para agrear un nuevo agente remoto, en este caso e
 sudo /var/ossec/bin/manage_agents
 ```
 
-Se debe exportar la key para el agente recien agregado, e importarla en el agente instalado en el Keycloak server. La key tiene un formato similar al siguiente:
+Exportar la key para el agente recien agregado, e importarla en el agente instalado en el Keycloak server. La key tiene un formato similar al siguiente:
 
 ```sh
 Agent key information for '001' is: 
 MDAzIEtleWNsb2FrI**********************************************************************************************************k=
 ```
 
-En el servidor keycloak importamos la key exportada anteriormente desde el Wazuh-manager y guardamos los cambios:
+En el servidor keycloak importar la key exportada anteriormente desde el Wazuh-manager y guardar los cambios:
 
 ```sh
 sudo /var/ossec/bin/manage_agents
 ```
 
-Se reinicia el Wazuh-agent en el keycloak server
+Reiniciar el Wazuh-agent en el keycloak server
 
 ```sh
 sudo systemctl restart wazuh-agent
@@ -1280,11 +1284,19 @@ Se puede verificar en el Wazuh-manager como el Wazuh-agent del servidor Keycloak
 
 ### Creacion del decoder y la regla en el Wazuh-Manager para identificar los eventos OpenID Connect que envia el keycloak Server
 
+Si bien el Wazuh-manager cuenta con algunos decoders basicos para interpretar mensajes con formato syslog, fue necesario generar un nuevo decoder al igual que se hizo con los logs del firewall PFsense en el apartado anterior.
+
+
+La regla y decoder para interpretar los inicios de sesion en los logs del Keyclock se pueden encontrar en los siguientes archivos:
+
+- Decoder: [decoder_keycloak.xml](siem/decoders/keycloak_custom.xml)
+- Regla: [rule_keycloak.xml](siem/reglas/Keycloak_rule.xml)
+
 ![Wazuh-manager keycloak decoder](images/decoder_keycloak.jpg)
 
 ![Wazuh-manager keycloak Rule](images/rule_keycloak.jpg)
 
-Una vez finalizada la configuracion, podemos apreciar en el detalle de los eventos para el agente Keycloak, como se generan los eventos de autenticacion de Keycloak y los mismos son correctamente parseados por el decoder definido.
+Una vez finalizada la configuracion, se puede apreciar en el detalle de los eventos para el agente Keycloak, como se generan los eventos de autenticacion de Keycloak y los mismos son correctamente parseados por el decoder definido.
 
 ![Wazuh-manager keycloak events](images/wazuh_connect.jpg)
 
@@ -1381,7 +1393,7 @@ chmod +x hardening.sh
 
 - Distribucion Linux Debian 12
 - Distribucion Linux Rocky 9.6
-- Wazuh version 4.13.1
+- Wazuh version 4.12.1
 - PFsense version 2.8.0
 - FreeIPA version 4.12.2
 - Keycloak version 26.4.5
