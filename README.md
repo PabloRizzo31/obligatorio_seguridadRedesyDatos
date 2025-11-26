@@ -11,7 +11,8 @@
 - [2. Presentación del problema por parte del cliente](#2-presentación-del-problema-por-parte-del-cliente)
 - [3. Análisis y propuesta de la solucion](#3-análisis-y-propuesta-de-la-solucion)
 - [4. Redes Privadas Virtuales (VPN)](#4-redes-privadas-virtuales-vpn)
-  - [Configuración del servidor OpenVPN](#configuracion-del-servidor-openvpn-en-el-firewall-pfsense-central)
+  - [Configuración del servidor OpenVPN en el firewall PFsense central](#configuracion-del-servidor-openvpn-en-el-firewall-pfsense-central)
+  - [Configuracion de la VPN IPsec entre el firewall PFsense Central y el firewall PFsense Cloud:](#configuracion-de-la-vpn-ipsec-entre-el-firewall-pfsense-central-y-el-firewall-pfsense-cloud)
 - [5. Protección de Aplicaciones Web (WAF y API Gateway)](#5-proteccion-de-aplicaciones-web-waf-y-api-gateway)
   - [5.A Instalación del WAF](#5a-instalación-de-la-solucion-de-waf)
   - [5.A.A Reglas personalizadas](#5aa-reglas-personalizadas-configuración)
@@ -216,7 +217,9 @@ Hasta aqui hemos configurado la VPN client-access para acceso de los colaborador
 
 A continuacion configuramos el tunel IPsec en cada firewall PFsense, primero la fase 1 y luego la fase 2. Cabe aclarar que en ambos extremos del tunel los parametros de seguridad de la VPN tales como la PSK, algoritmos de encriptacion, entre otros, son identicos dado que de lo contrario el tunel IPsec no se establece en ninguna de las fases. La PreSharedKey de las capturas es una sugerencia de nuestro grupo que debe ser modificada si estas configuraciones se ponen en produccion en la empresa Fosil dado que es un parametro critico.
 
-### Configuracion en el firewall PFsense Central:
+### Configuracion de la VPN IPsec entre el firewall PFsense Central y el firewall PFsense Cloud:
+
+Configuracion en el firewall PFsense Central:
 
 ![Tunel IPsec fase 1 en el PFsense Central](images/tunel3.jpg)
 
@@ -230,7 +233,7 @@ Podemos verificar que ambas fases del tunel quedaron configuradas en la seccion 
 
 ![Tunel IPsec fase 1 y fase 2 status en PFsense Central](images/status2.jpg)
 
-### Configuracion en el firewall PFsense Cloud:
+Configuracion en el firewall PFsense Cloud:
 
 ![Tunel IPsec fase 1 en el PFsense Cloud](images/tunel7.jpg)
 
