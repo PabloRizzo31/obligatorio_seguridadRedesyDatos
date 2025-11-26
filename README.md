@@ -227,10 +227,6 @@ Configuracion en el firewall PFsense Central:
 
 ![Tunel IPsec fase 2 en el PFsense Central.](images/tunel6.jpg)
 
-Podemos verificar que ambas fases del tunel quedaron configuradas en la seccion VPN/IPsec del PFsense Central
-
-![Tunel IPsec fase 1 y fase 2 status en PFsense Central](images/status2.jpg)
-
 Configuracion en el firewall PFsense Cloud:
 
 ![Tunel IPsec fase 1 en el PFsense Cloud](images/tunel7.jpg)
@@ -240,10 +236,6 @@ Configuracion en el firewall PFsense Cloud:
 ![Tunel IPsec fase 2 en el PFsense Cloud](images/tunel9.jpg)
 
 ![Tunel IPsec fase 2 en el PFsense Cloud.](images/tunel10.jpg)
-
-Podemos verificar que ambas fases del tunel quedaron configuradas en la seccion VPN/IPsec del PFsense Cloud
-
-![Tunel IPsec fase 1 y fase 2 status en PFsense Cloud:](images/status3.jpg)
 
 Luego de haber configurado ambas fases del tunel IPsec en cada firewall, se configuran las reglas que permitiran el trafico entrante y saliente en el firewall PFsense Central (192.168.56.108)
 
@@ -1445,6 +1437,14 @@ Demostracion de la asignacion de direccion IP de distintos Pools de IP a los col
 Demostracion de como aparece una nueva ruta estatica en el laptop del colaborador conectado al perfil TI de openVPN, y esta sera accesible a traves de la VPN establecida como se puede ver a continuacion
 
 ![Ruta estatica a traves de la vpn levantada](images/ovpn_ruta.jpg)
+
+Verificacion de que ambas fases del tunel IPsec quedaron configuradas en la seccion VPN/IPsec del PFsense Cloud
+
+![Tunel IPsec fase 1 y fase 2 status en PFsense Cloud:](images/status3.jpg)
+
+Verificacion de que ambas fases del tunel IPsec quedaron configuradas en la seccion VPN/IPsec del PFsense Central
+
+![Tunel IPsec fase 1 y fase 2 status en PFsense Central](images/status2.jpg)
 
 ---
 
