@@ -1,0 +1,7 @@
+<!-- Modify it at your will. -->
+<group name="keycloak">
+<rule id="110070" level="3">
+   <decoded_as>keycloak</decoded_as>
+   <description>Evento de Keycloak</description>
+</rule>
+</group>
