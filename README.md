@@ -211,10 +211,6 @@ A continuacion se muestra como podrian quedar cargados ambos perfiles en un mism
 
 ![Carga de perfiles en el cliente Open VPN de un PC de colaborador](images/vpn5.jpg)
 
-Cuando un usuario de TI establece la VPN utilizando el perfil correspondiente, si en su laptop revisa las rutas estaticas, vera como aparece una nueva ruta que esta accesible a traves de la VPN establecida como se puede ver a continuacion
-
-![Ruta estatica a traves de la vpn levantada](images/ovpn_ruta.jpg)
-
 Hasta aqui hemos configurado la VPN client-access para acceso de los colaboradores remotos a la redes internas de la empresa. A continuacion detallaremos la configuracion paso a paso entre los dos firewalls PFsense que levantaran una VPN site-to-site entre las oficinas centrales de Montevideo (PFsense Central utilizado para los accesos client-acces) y la nube de AWS (PFsense Cloud AWS). Como mencionamos anteriormente ambos firewalls estaran enlazados fisicamente por sus interfaces WAN con direccionamiento 172.16.16.0/24 simulando ser una red publica como los es internet, y las redes locales de seran la 192.168.56.0/24 y 192.168.2.0/24 para el PFsense Central y para el PFsense Cloud respectivamente.
 
 A continuacion configuramos el tunel IPsec en cada firewall PFsense, primero la fase 1 y luego la fase 2. Cabe aclarar que en ambos extremos del tunel los parametros de seguridad de la VPN tales como la PSK, algoritmos de encriptacion, entre otros, son identicos dado que de lo contrario el tunel IPsec no se establece en ninguna de las fases. La PreSharedKey de las capturas es una sugerencia de nuestro grupo que debe ser modificada si estas configuraciones se ponen en produccion en la empresa Fosil dado que es un parametro critico.
@@ -1445,6 +1441,10 @@ Demostracion del correcto establecimiento del tunel IPsec para la VPN site-to-si
 Demostracion de la asignacion de direccion IP de distintos Pools de IP a los colaboradores que se conectan mediante OpenVPN utilizando perfiles VPN distintos.
 
 ![OpenVPN client status, 2 perfiles en una misma imagen representando 2 PCs distintos](images/status.jpg)
+
+Demostracion de como aparece una nueva ruta estatica en el laptop del colaborador conectado al perfil TI de openVPN, y esta sera accesible a traves de la VPN establecida como se puede ver a continuacion
+
+![Ruta estatica a traves de la vpn levantada](images/ovpn_ruta.jpg)
 
 ---
 
