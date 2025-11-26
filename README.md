@@ -987,6 +987,27 @@ Eventos de autenticacion fallida:
 
 ![Openvpn Wazuh falied extended](siem/images/openvpn-extendedfailed.png)
 
+#### Solución Keycloak
+
+Si bien el Wazuh-manager cuenta con algunos decoders basicos para interpretar mensajes con formato syslog, fue necesario generar un nuevo decoder al igual que se hizo con los logs del firewall PFsense en el apartado anterior.
+
+### Decodificación de Logs de Keycloak
+
+La regla y decoder para interpretar los inicios de sesion en los logs del Keyclock se pueden encontrar en los siguientes archivos:
+
+- Decoder: [decoder_keycloak.xml](siem/decoders/keycloak_custom.xml)
+- Regla: [rule_keycloak.xml](siem/reglas/Keycloak_rule.xml)
+
+![Wazuh-manager keycloak decoder](images/decoder_keycloak.jpg)
+
+![Wazuh-manager keycloak Rule](images/rule_keycloak.jpg)
+
+### Recepcion de eventos de Keycloak
+
+Una vez finalizada la configuracion, se puede apreciar en el detalle de los eventos para el agente Keycloak, como se generan los eventos de autenticacion de Keycloak y los mismos son correctamente parseados por el decoder definido.
+
+![Wazuh-manager keycloak events](images/wazuh_connect.jpg)
+
 ---
 
 ## 7. Gestion de Identidad y Accesos (IAM)
@@ -1005,7 +1026,7 @@ La instalacion del servicio de Keycloak se llevo a cabo en una distribucion Rock
 sudo dnf install -y java-21-openjdk java-21-openjdk-devel
 ```
 
-### Instalacion de Keycloak 26.4.5
+Instalacion de Keycloak
 
 ```sh
 sudo mkdir /opt/keycloak
@@ -1051,12 +1072,6 @@ WantedBy=multi-user.target
 sudo firewall-cmd --add-port=8080/tcp --permanent
 sudo firewall-cmd --reload
 ```
-
-### Validacion del acceso web al portal de Keycloak
-
-http://[IP del servidor]:8080/admin/fosil
-
-![Portal web Keycloak](images/keycloak.jpg)
 
 ### 7.B Instalacion de Wordpress y la DB MariaDB
 
@@ -1110,12 +1125,6 @@ sudo firewall-cmd --reload
 sudo setsebool -P httpd_can_network_connect on
 ```
 
-### Validacion del acceso web al portal de Wordpress
-
-http://[IP del servidor]/wp-login.php
-
-![Portal web Wordpress](images/keycloak2.jpg)
-
 ### Instalacion del plugin OpenID Connect Generic Client desde la web de Wordpress
 
 Una vez dentro del portal Wordpress, instalamos el plugin OpenID Connect Generic Client
@@ -1155,10 +1164,6 @@ Al seleccionar "Login with OpenID Connect" nos redirige al portal de login de Ke
 Nos logueamos en el portal de Wordpress con el usuario "pepito" definido en Keycloak.
 
 ![Portal de bienvenida para el usuario pepito](images/keycloak12.jpg)
-
-Si observamos el log de eventos en la web del servidor Keycloak, podemos apreciar que la autenticacion del usuario "pepito" efectivamente fue utilizando el protocolo OpenID-Connect como se pide en los requisitos de este proyecto.
-
-![Evento del usuario pepito autenticandose con el protocolo OpenIDC](images/keycloak13.jpg)
 
 ### Configuracion de los logs de Keycloak para enviarlos al SIEM via agente Wazuh
 
@@ -1200,10 +1205,6 @@ Finalmente se debe reiniciar el servicio de keycloak
 sudo systemctl daemon-reload
 sudo systemctl restart keycloak
 ```
-
-Se pueden visualizar los eventos de login a traves de OpenID Connect desde la propia consola del servidor Keycloak
-
-![Eventos OpenID Connect por consola](images/log_keycloak_consola.jpg)
 
 ### Instalacion del Wazuh-agent en el servidor Keycloak
 
@@ -1280,30 +1281,6 @@ Reiniciar el Wazuh-agent en el keycloak server
 ```sh
 sudo systemctl restart wazuh-agent
 ```
-
-Se puede verificar en el Wazuh-manager como el Wazuh-agent del servidor Keycloak, esta enviando el archivo de keycloak.log el cual tiene los eventos de inicio de sesion en wordpress utilizando el protocolo OpenID Connect.
-
-![Wazuh-manager Statistics](images/stattistics_keycloak.jpg)
-
-### Decodificación de Logs de Keycloak
-
-Si bien el Wazuh-manager cuenta con algunos decoders basicos para interpretar mensajes con formato syslog, fue necesario generar un nuevo decoder al igual que se hizo con los logs del firewall PFsense en el apartado anterior.
-
-
-La regla y decoder para interpretar los inicios de sesion en los logs del Keyclock se pueden encontrar en los siguientes archivos:
-
-- Decoder: [decoder_keycloak.xml](siem/decoders/keycloak_custom.xml)
-- Regla: [rule_keycloak.xml](siem/reglas/Keycloak_rule.xml)
-
-![Wazuh-manager keycloak decoder](images/decoder_keycloak.jpg)
-
-![Wazuh-manager keycloak Rule](images/rule_keycloak.jpg)
-
-### Recepcion de eventos de Keycloak
-
-Una vez finalizada la configuracion, se puede apreciar en el detalle de los eventos para el agente Keycloak, como se generan los eventos de autenticacion de Keycloak y los mismos son correctamente parseados por el decoder definido.
-
-![Wazuh-manager keycloak events](images/wazuh_connect.jpg)
 
 ### 7.C Instalacion de FreeIPA 
 
@@ -1450,6 +1427,30 @@ Verificacion de que ambas fases del tunel IPsec quedaron configuradas en la secc
 Verificacion de que ambas fases del tunel IPsec quedaron configuradas en la seccion VPN/IPsec del PFsense Central
 
 ![Tunel IPsec fase 1 y fase 2 status en PFsense Central](images/status2.jpg)
+
+Validacion del acceso web al portal de Wordpress
+
+http://[IP del servidor]/wp-login.php
+
+![Portal web Wordpress](images/keycloak2.jpg)
+
+Validacion del acceso web al portal de Keycloak
+
+http://[IP del servidor]:8080/admin/fosil
+
+![Portal web Keycloak](images/keycloak.jpg)
+
+En el log de eventos en la web del servidor Keycloak, se aprecia que la autenticacion del usuario "pepito", que efectivamente fue utilizando el protocolo OpenID-Connect como se pide en los requisitos de este proyecto.
+
+![Evento del usuario pepito autenticandose con el protocolo OpenIDC](images/keycloak13.jpg)
+
+De igual modo, se pueden visualizar los eventos de login a traves de OpenID Connect desde la propia consola del servidor Keycloak
+
+![Eventos OpenID Connect por consola](images/log_keycloak_consola.jpg)
+
+Se verifica en el Wazuh-manager como el Wazuh-agent del servidor Keycloak, esta enviando el archivo de keycloak.log el cual tiene los eventos de inicio de sesion en wordpress utilizando el protocolo OpenID Connect.
+
+![Wazuh-manager Statistics](images/stattistics_keycloak.jpg)
 
 ---
 
