@@ -1006,6 +1006,22 @@ Una vez finalizada la configuracion, se puede apreciar en el detalle de los even
 
 ![Wazuh-manager keycloak events](images/wazuh_connect.jpg)
 
+Eventos de autenticacion exitosa utilizando OpenID Connect
+
+![Resumen de eventos keycloak en wazuh manager](images/keycloak_summary.jpg)
+
+En el log de eventos en la web del servidor Keycloak, se aprecia que la autenticacion del usuario "pepito", que efectivamente fue utilizando el protocolo OpenID-Connect como se pide en los requisitos de este proyecto.
+
+![Evento del usuario pepito autenticandose con el protocolo OpenIDC](images/keycloak13.jpg)
+
+De igual modo, se pueden visualizar los eventos de login a traves de OpenID Connect desde la propia consola del servidor Keycloak
+
+![Eventos OpenID Connect por consola](images/log_keycloak_consola.jpg)
+
+Se verifica en el Wazuh-manager como el Wazuh-agent del servidor Keycloak, esta enviando el archivo de keycloak.log el cual tiene los eventos de inicio de sesion en wordpress utilizando el protocolo OpenID Connect.
+
+![Wazuh-manager Statistics](images/stattistics_keycloak.jpg)
+
 ---
 
 ## 7. Gestion de Identidad y Accesos (IAM)
@@ -1437,18 +1453,6 @@ Validacion del acceso web al portal de Keycloak
 http://[IP del servidor]:8080/admin/fosil
 
 ![Portal web Keycloak](images/keycloak.jpg)
-
-En el log de eventos en la web del servidor Keycloak, se aprecia que la autenticacion del usuario "pepito", que efectivamente fue utilizando el protocolo OpenID-Connect como se pide en los requisitos de este proyecto.
-
-![Evento del usuario pepito autenticandose con el protocolo OpenIDC](images/keycloak13.jpg)
-
-De igual modo, se pueden visualizar los eventos de login a traves de OpenID Connect desde la propia consola del servidor Keycloak
-
-![Eventos OpenID Connect por consola](images/log_keycloak_consola.jpg)
-
-Se verifica en el Wazuh-manager como el Wazuh-agent del servidor Keycloak, esta enviando el archivo de keycloak.log el cual tiene los eventos de inicio de sesion en wordpress utilizando el protocolo OpenID Connect.
-
-![Wazuh-manager Statistics](images/stattistics_keycloak.jpg)
 
 ---
 
