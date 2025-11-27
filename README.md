@@ -11,26 +11,31 @@
 - [2. Presentación del problema por parte del cliente](#2-presentación-del-problema-por-parte-del-cliente)
 - [3. Análisis y propuesta de la solucion](#3-análisis-y-propuesta-de-la-solucion)
 - [4. Redes Privadas Virtuales (VPN)](#4-redes-privadas-virtuales-vpn)
-  - [Configuración del servidor OpenVPN en el firewall PFsense central](#configuracion-del-servidor-openvpn-en-el-firewall-pfsense-central)
-  - [Configuracion de la VPN IPsec entre el firewall PFsense Central y el firewall PFsense Cloud:](#configuracion-de-la-vpn-ipsec-entre-el-firewall-pfsense-central-y-el-firewall-pfsense-cloud)
+   - [Configuración del servidor OpenVPN en el firewall PFsense central](#configuracion-del-servidor-openvpn-en-el-firewall-pfsense-central)
+   - [Configuracion de la VPN IPsec entre el firewall PFsense Central y el firewall PFsense Cloud:](#configuracion-de-la-vpn-ipsec-entre-el-firewall-pfsense-central-y-el-firewall-pfsense-cloud)
+
 - [5. Protección de Aplicaciones Web (WAF y API Gateway)](#5-proteccion-de-aplicaciones-web-waf-y-api-gateway)
-  - [5.A Instalación del WAF](#5a-instalación-de-la-solucion-de-waf)
-  - [5.A.A Reglas personalizadas](#5aa-reglas-personalizadas-configuración)
-  - [5.A.B Pruebas de ataques WEB](#5ab-pruebas-de-ataques-web-para-deteccion-y-bloqueo-de-waf)
-  - [5.B Instalación y configuración del API Gateway](#5b-instalacion-y-configuración-del-api-gateway-kong)
-  - [5.B.B Pruebas de API Gateway](#5bb-pruebas-de-funcionamiento-de-api-gateway)
-  - [5.C Diagramas](#5c-diagrama-de-las-soluciones)
+   - [5.A Instalación del WAF](#5a-instalación-de-la-solucion-de-waf)
+   - [5.A.A Reglas personalizadas](#5aa-reglas-personalizadas-configuración)
+   - [5.A.B Pruebas de ataques WEB](#5ab-pruebas-de-ataques-web-para-deteccion-y-bloqueo-de-waf)
+   - [5.B Instalación y configuración del API Gateway](#5b-instalacion-y-configuración-del-api-gateway-kong)
+   - [5.B.B Pruebas de API Gateway](#5bb-pruebas-de-funcionamiento-de-api-gateway)
+   - [5.C Diagramas](#5c-diagrama-de-las-soluciones)
+
 - [6. Monitoreo y Respuesta (SIEM)](#6-monitoreo-y-respuesta-siem)
-  - [Caso 1: Viajero Imposible](#caso-1-viajero-imposible)
-  - [Caso 2: Fuerza Bruta SSH](#caso-2-detección-y-bloqueo-de-fuerza-bruta-sobre-ssh)
-  - [Caso 3: Subida de archivos no permitidos](#caso-3-detección-de-subida-de-archivos-de-imagenes-en-sitio-web)
-  - [Alertas del resto de los servicios](#alertas-del-resto-de-los-servicios-requeridos)
+   - [Caso 1: Viajero Imposible](#caso-1-viajero-imposible)
+   - [Caso 2: Fuerza Bruta SSH](#caso-2-detección-y-bloqueo-de-fuerza-bruta-sobre-ssh)
+   - [Caso 3: Subida de archivos no permitidos](#caso-3-detección-de-subida-de-archivos-de-imagenes-en-sitio-web)
+   - [Alertas del resto de los servicios](#alertas-del-resto-de-los-servicios-requeridos)
+
 - [7. Gestión de Identidad y Accesos (IAM)](#7-gestion-de-identidad-y-accesos-iam)
-  - [7.A Instalacion y configuracion del Keycloak 26.4.5](#7a-instalacion-y-configuracion-del-keycloak-2645)
-  - [7.B Instalacion y configuracion de Wordpress MariaDB](#7b-instalacion-y-configuracion-de-wordpress-mariadb)
-  - [7.C Instalacion de FreeIPA](#7c-instalacion-de-freeipa)
+   - [7.A Instalacion y configuracion del Keycloak 26.4.5](#7a-instalacion-y-configuracion-del-keycloak-2645)
+   - [7.B Instalacion y configuracion de Wordpress MariaDB](#7b-instalacion-y-configuracion-de-wordpress-mariadb)
+   - [7.C Instalacion de FreeIPA](#7c-instalacion-de-freeipa)
+
 - [8. Plantilla de Servidor endurecida](#8-plantilla-de-servidor-endurecida)
-  - [8b. Pruebas en SIEM](#8b-pruebas-funcionamiento-hardening-en-siem)
+   - [8b. Pruebas en SIEM](#8b-pruebas-funcionamiento-hardening-en-siem)
+
 - [9. Diagramas de la infraestructura sugerida](#9-diagramas-de-la-infraestructura-sugerida)
 - [10. Software necesario para la maqueta virtual](#10-software-necesario-para-la-maqueta-virtual)
 - [11. Troubleshooting](#11-troubleshooting)
@@ -144,7 +149,7 @@ El enfoque de este proyecto es demostrar el abordaje integral de los distintos s
 
 En las distintas etapas de configuracion, se brindaran detalles tecnicos de instalacion que apuntan a un usuario con avanzados conocimientos de seguridad y redes, preservando logicamente aquellos datos sensibles como credenciales, certificados, keys, etc, etc.
 
-En este proyecto que claramente no es de produccion, la dificultad mayor se nos presento al momento de integrar todos los servicios entre si para poder presentar una solucion de ciberseguridad completa y concisa a nivel corporativo. Es por ello que algunas demostraciones a nivel de la maqueta tienen ciertas excepciones y limitaciones, sobre todo a nivel de direccionamiento IP publico. Para aquellas demostraciones que no se pudo profundizar en la prueba de funcionamiento, remarcamos en la seccion **"13. Posibles mejoras de la infraestructura sugerida"**, los cambios a implementar sobre la prueba en cuestion, que por cuestiones de tiempo, limitantes tecnicas y alcance del proyecto, no fue posible investigar con mayor profundidad. 
+En este proyecto que claramente no es de produccion, la dificultad mayor se nos presento al momento de integrar todos los servicios entre si para poder presentar una solucion de ciberseguridad completa y concisa a nivel corporativo. Es por ello que algunas demostraciones a nivel de la maqueta tienen ciertas excepciones y limitaciones, sobre todo a nivel de direccionamiento IP publico. Para aquellas demostraciones que no se pudo profundizar en la prueba de funcionamiento, remarcamos en la seccion **"13. Posibles mejoras de la infraestructura sugerida"**, los cambios a implementar sobre la prueba en cuestion, que por cuestiones de tiempo, limitantes tecnicas y alcance del proyecto, no fue posible investigar con mayor profundidad.
 
 El lector con conocimientos avanzados de seguridad y redes puede investigarlos por su cuenta partiendo de las bases establecidas por nosotros en este proyecto.
 
@@ -675,6 +680,21 @@ El objetivo de la integración es:
 - 1.4. La regla buscaba un patrón que ya no existía: La regla *555556* buscaba: *"Event ID": "1"*, y en el formato json se ajustaron los espacios.
 - Solución: Se corrige en la regla: *<match>"Event ID":"1"</match>*
 
+Finalmente, para que el script de integracion funcione se debe contar con las librerias "geopy" y "requests" de Python:
+
+```bash
+/var/ossec/framework/python/bin/pip3 install geopy requests
+```
+
+Los permisos sobre la base de datos de geolocalizacion deben ser de escritura:
+
+```bash
+chmod 666 /var/ossec/var/db/DB_Imposible_traveller.db
+
+# Reiniciar servicio para terminar de aplicar los cambios
+systemctl restart wazuh-manager
+```
+
 Corregidos estos pasos, es posible generar la integración descrita en la guía.
 
 Los cambios implementados se visualizan en el script: [custom-imposible_traveller.py](siem/casos_de_uso/viajero_imposible/custom-imposible_traveller.py)
@@ -684,7 +704,13 @@ Las reglas y decoders de este caso de uso se pueden encontrar en los siguientes 
 - Decoders: [viajero_imposible.xml](siem/decoders/viajero_imposible.xml)
 - Reglas: [viajero_imposible.xml](siem/reglas/viajero_imposible.xml)
 
-TODO: faltan capturas de funcionamiento
+##### Funcionamiento
+
+Se necesitan logins de un usuario valido en Openvpn, el cual ingrese por diferentes ips publicas, de distintos paises en un rango de tiempo corto. La integracion va a detectar la geolocalizacion para los campos de "srcip" y los va a procesas en la base de datos interna, si se cumplen las condiciones, disparará la nueva regla "555556" para viajero imposible.
+
+![Traveller 1](siem/images/traveller-1.png)
+
+![Detalles Traveller](siem/images/evento-traveller.png)
 
 #### Caso 2: Detección y Bloqueo de Fuerza Bruta sobre SSH
 
@@ -837,7 +863,7 @@ systemctl restart wazuh-agent
 
 ![Config FIM](siem/images/config-fim1.png)
 
-En el Wazuh Manager, configurar la regla custom para detectar el tipo de comportamiento deseado. 
+En el Wazuh Manager, configurar la regla custom para detectar el tipo de comportamiento deseado.
 Se puede encontrar aqui: [fim_custom.xml](siem/reglas/fim_custom.xml)
 
 ##### Funcionamiento
@@ -1034,7 +1060,7 @@ Se verifica tambien un intento de LOGIN fallido del usuario "pepito":
 
 *Guia detallada de configuracion del servidor de gestion centralizada de usuarios Keycloak*
 
-Para demostrar la correcta gestion centralizada de usuarios, hemos optado por configurar un servidor Keycloak junto con un servidor web, el cual tendra alojado el servicio de Wordpress, y loguearemos usuarios del servidor Keycloak en dicho portal de Wordpress. Estas autenticaciones de usuarios seran mediante el protocolo OpenIDC y seran enviadas al SIEM al igual que los demas servidores de la infraestructura. Para lograr que que el servidor Keycloak autentique los usuarios mediante el protocolo OpenID Connect, detallaremos mas adelante la instalacion de un plugin en el propio portal web del Wordpress. 
+Para demostrar la correcta gestion centralizada de usuarios, hemos optado por configurar un servidor Keycloak junto con un servidor web, el cual tendra alojado el servicio de Wordpress, y loguearemos usuarios del servidor Keycloak en dicho portal de Wordpress. Estas autenticaciones de usuarios seran mediante el protocolo OpenIDC y seran enviadas al SIEM al igual que los demas servidores de la infraestructura. Para lograr que que el servidor Keycloak autentique los usuarios mediante el protocolo OpenID Connect, detallaremos mas adelante la instalacion de un plugin en el propio portal web del Wordpress.
 
 ### 7.A Instalacion y configuracion del Keycloak 26.4.5
 
@@ -1268,7 +1294,7 @@ sudo /var/ossec/bin/manage_agents
 sudo systemctl restart wazuh-agent
 ```
 
-### 7.C Instalacion de FreeIPA 
+### 7.C Instalacion de FreeIPA
 
 ```sh
 #Editar el archivo de hosts del servidor linux con distribucion Rocky donde instalaremos el servidor FreeIPA y guardar los cambios.
