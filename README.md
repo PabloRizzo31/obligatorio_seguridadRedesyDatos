@@ -9,31 +9,36 @@
 
 - [1. Descripción general](#1-descripción-general)
 - [2. Presentación del problema por parte del cliente](#2-presentación-del-problema-por-parte-del-cliente)
-- [3. Análisis y propuesta de la solucion](#3-análisis-y-propuesta-de-la-solucion)
+- [3. Análisis y propuesta de la solución](#3-análisis-y-propuesta-de-la-solución)
 - [4. Redes Privadas Virtuales (VPN)](#4-redes-privadas-virtuales-vpn)
-   - [Configuración del servidor OpenVPN en el firewall PFsense central](#configuracion-del-servidor-openvpn-en-el-firewall-pfsense-central)
-   - [Configuracion de la VPN IPsec entre el firewall PFsense Central y el firewall PFsense Cloud:](#configuracion-de-la-vpn-ipsec-entre-el-firewall-pfsense-central-y-el-firewall-pfsense-cloud)
 
-- [5. Protección de Aplicaciones Web (WAF y API Gateway)](#5-proteccion-de-aplicaciones-web-waf-y-api-gateway)
-   - [5.A Instalación del WAF](#5a-instalación-de-la-solucion-de-waf)
+   - [Configuración del servidor OpenVPN en el firewall PFsense central](#configuración-del-servidor-openvpn-en-el-firewall-pfsense-central)
+   - [Configuración de la VPN IPsec entre el firewall PFsense Central y el firewall PFsense Cloud:](#configuración-de-la-vpn-ipsec-entre-el-firewall-pfsense-central-y-el-firewall-pfsense-cloud)
+
+- [5. Protección de Aplicaciones Web (WAF y API Gateway)](#5-protección-de-aplicaciones-web-waf-y-api-gateway)
+
+   - [5.A Instalación del WAF](#5a-instalación-de-la-solución-de-waf)
    - [5.A.A Reglas personalizadas](#5aa-reglas-personalizadas-configuración)
-   - [5.A.B Pruebas de ataques WEB](#5ab-pruebas-de-ataques-web-para-deteccion-y-bloqueo-de-waf)
-   - [5.B Instalación y configuración del API Gateway](#5b-instalacion-y-configuración-del-api-gateway-kong)
+   - [5.A.B Pruebas de ataques WEB](#5ab-pruebas-de-ataques-web-para-detección-y-bloqueo-de-waf)
+   - [5.B Instalación y configuración del API Gateway](#5b-instalación-y-configuración-del-api-gateway-kong)
    - [5.B.B Pruebas de API Gateway](#5bb-pruebas-de-funcionamiento-de-api-gateway)
    - [5.C Diagramas](#5c-diagrama-de-las-soluciones)
 
 - [6. Monitoreo y Respuesta (SIEM)](#6-monitoreo-y-respuesta-siem)
+
    - [Caso 1: Viajero Imposible](#caso-1-viajero-imposible)
    - [Caso 2: Fuerza Bruta SSH](#caso-2-detección-y-bloqueo-de-fuerza-bruta-sobre-ssh)
-   - [Caso 3: Subida de archivos no permitidos](#caso-3-detección-de-subida-de-archivos-de-imagenes-en-sitio-web)
+   - [Caso 3: Subida de archivos no permitidos](#caso-3-detección-de-subida-de-archivos-de-imágenes-en-sitio-web)
    - [Alertas del resto de los servicios](#alertas-del-resto-de-los-servicios-requeridos)
 
 - [7. Gestión de Identidad y Accesos (IAM)](#7-gestion-de-identidad-y-accesos-iam)
-   - [7.A Instalacion y configuracion del Keycloak 26.4.5](#7a-instalacion-y-configuracion-del-keycloak-2645)
-   - [7.B Instalacion y configuracion de Wordpress MariaDB](#7b-instalacion-y-configuracion-de-wordpress-mariadb)
-   - [7.C Instalacion de FreeIPA](#7c-instalacion-de-freeipa)
+
+   - [7.A Instalación y configuración del Keycloak 26.4.5](#7a-instalación-y-configuración-del-keycloak-2645)
+   - [7.B Instalación y configuración de Wordpress MariaDB](#7b-instalación-y-configuración-de-wordpress-mariadb)
+   - [7.C Instalación de FreeIPA](#7c-instalación-de-freeipa)
 
 - [8. Plantilla de Servidor endurecida](#8-plantilla-de-servidor-endurecida)
+
    - [8b. Pruebas en SIEM](#8b-pruebas-funcionamiento-hardening-en-siem)
 
 - [9. Diagramas de la infraestructura sugerida](#9-diagramas-de-la-infraestructura-sugerida)
@@ -45,7 +50,7 @@
 ## 1. Descripción general
 
 Este repositorio contempla todos los requerimientos, configuraciones básicas y limitaciones a tener presente para
-la implementacion de una infraestructura de red segura para una empresa local que ha decidido migrar parte de su
+la implementación de una infraestructura de red segura para una empresa local que ha decidido migrar parte de su
 infraestructura on-premise hacia la cloud. El foco del proyecto sera siempre la seguridad de la red y el correcto
 uso y gestion de las identidades de usuarios de la misma, siendo hoy en dia el principal vector de un ataque cibernetico.
 
@@ -142,13 +147,13 @@ Su equipo es el responsable de la implementación de los controles de seguridad 
 
 ---
 
-## 3. Análisis y propuesta de la solucion
+## 3. Análisis y propuesta de la solución
 
-El enfoque de este proyecto es demostrar el abordaje integral de los distintos servicios criticos de una red como la de la empresa Fosil S.A., teniendo como premisa el fortalecimiento de la seguridad de la misma. A los efectos practicos de demostrar el funcionamiento de todos estos servicios, y cumpliendo con los requerimientos de letra, la maqueta presentada seran 5 VMs que agruparan varios servicios, pero que claramente en un ambiente de produccion no podrian compartir hardware ni direccionamiento IP. Aquellas VMs que solo demostraran una funcion especifica que no sea el endurecimiento del sistema operativo, tendran un sistema operativo Linux Rocky 9.6, en cambio la VM a la cual se le aplicara la politica de hardening tendra un sistema operativo Linux Debian 12.
+El enfoque de este proyecto es demostrar el abordaje integral de los distintos servicios criticos de una red como la de la empresa Fosil S.A., teniendo como premisa el fortalecimiento de la seguridad de la misma. A los efectos practicos de demostrar el funcionamiento de todos estos servicios, y cumpliendo con los requerimientos de letra, la maqueta presentada seran 5 VMs que agruparan varios servicios, pero que claramente en un ambiente de producción no podrian compartir hardware ni direccionamiento IP. Aquellas VMs que solo demostraran una función especifica que no sea el endurecimiento del sistema operativo, tendran un sistema operativo Linux Rocky 9.6, en cambio la VM a la cual se le aplicara la politica de hardening tendra un sistema operativo Linux Debian 12.
 
-En las distintas etapas de configuracion, se brindaran detalles tecnicos de instalacion que apuntan a un usuario con avanzados conocimientos de seguridad y redes, preservando logicamente aquellos datos sensibles como credenciales, certificados, keys, etc, etc.
+En las distintas etapas de configuración, se brindaran detalles tecnicos de instalación que apuntan a un usuario con avanzados conocimientos de seguridad y redes, preservando logicamente aquellos datos sensibles como credenciales, certificados, keys, etc, etc.
 
-En este proyecto que claramente no es de produccion, la dificultad mayor se nos presento al momento de integrar todos los servicios entre si para poder presentar una solucion de ciberseguridad completa y concisa a nivel corporativo. Es por ello que algunas demostraciones a nivel de la maqueta tienen ciertas excepciones y limitaciones, sobre todo a nivel de direccionamiento IP publico. Para aquellas demostraciones que no se pudo profundizar en la prueba de funcionamiento, remarcamos en la seccion **"13. Posibles mejoras de la infraestructura sugerida"**, los cambios a implementar sobre la prueba en cuestion, que por cuestiones de tiempo, limitantes tecnicas y alcance del proyecto, no fue posible investigar con mayor profundidad.
+En este proyecto que claramente no es de producción, la dificultad mayor se nos presento al momento de integrar todos los servicios entre si para poder presentar una solución de ciberseguridad completa y concisa a nivel corporativo. Es por ello que algunas demostraciones a nivel de la maqueta tienen ciertas excepciones y limitaciones, sobre todo a nivel de direccionamiento IP publico. Para aquellas demostraciones que no se pudo profundizar en la prueba de funcionamiento, remarcamos en la sección **"13. Posibles mejoras de la infraestructura sugerida"**, los cambios a implementar sobre la prueba en cuestion, que por cuestiones de tiempo, limitantes tecnicas y alcance del proyecto, no fue posible investigar con mayor profundidad.
 
 El lector con conocimientos avanzados de seguridad y redes puede investigarlos por su cuenta partiendo de las bases establecidas por nosotros en este proyecto.
 
@@ -159,70 +164,70 @@ El lector con conocimientos avanzados de seguridad y redes puede investigarlos p
 - Un servidor en la zona DMZ que cumplira funciones de  API Gateway (Kong API Gateway)
 - Un servidor en la zona SERVIDORES que cumplira funciones de web server (Apache + Wordpress)
 - Un servidor en la zona SERVIDORES que cumplira funciones de SIEM (Wazuh)
-- Un servidor en la zona SERVIDORES que cumplira funciones de autenticacion (FreeIPA + Keycloak)
+- Un servidor en la zona SERVIDORES que cumplira funciones de autenticación (FreeIPA + Keycloak)
 - La solución del Firewall se montará en un servidor con sistema operativo FreeBSD, en los demas servidores se usará la distribución Debian 12.
 
 ---
 
 ## 4. Redes Privadas Virtuales (VPN)
 
-*Guia detallada de configuracion de un firewall PFsense con el servicio de OpenVPN y protocolo IPsec instalados*
+*Guia detallada de configuración de un firewall PFsense con el servicio de OpenVPN y protocolo IPsec instalados*
 
-Para la implementacion de un acceso seguro a la empresa, por parte de los colaboradores que acceden a traves de internet, hemos optado por un firewall PFsense (version 2.8) el cual ya tiene incluido de fabrica el paquete OpenVPN y el modulo OpenVPN-client-export que nos permitira exportar facilmente las politicas VPN desde el firewall PFsense para instalarla en los clientes VPN de los laptops de los colaboradores remotos. El paquete OpenVPN nos permitira configurar una VPN Client-Access para dichos colaboradores y como segundo factor de autenticacion hemos optado por un certificado que se instalara en el dispositivo remoto de cada usuario que la vaya a utilizar y un codigo OTP que se generara automaticamente en los celulares de los colaboradores mediante el uso de una app del tipo Google Authenticator.
+Para la implementación de un acceso seguro a la empresa, por parte de los colaboradores que acceden a traves de internet, hemos optado por un firewall PFsense (version 2.8) el cual ya tiene incluido de fabrica el paquete OpenVPN y el modulo OpenVPN-client-export que nos permitira exportar facilmente las politicas VPN desde el firewall PFsense para instalarla en los clientes VPN de los laptops de los colaboradores remotos. El paquete OpenVPN nos permitira configurar una VPN Client-Access para dichos colaboradores y como segundo factor de autenticación hemos optado por un certificado que se instalara en el dispositivo remoto de cada usuario que la vaya a utilizar y un codigo OTP que se generara automaticamente en los celulares de los colaboradores mediante el uso de una app del tipo Google Authenticator.
 
-En el firewall se crearan 2 perfiles client-access de VPN, uno de ellos para los Administradores de TI a los cuales se les asignara una direccion IP del pool 10.0.1.0/24 y el otro perfil sera para los usuarios basicos, a los cuales se les asignara una direccion IP del pool 10.0.2.0/24. Con esto permitiremos el acceso administrativo granular a distintos recursos de la red utilizando reglas de firewall que filtraran el acceso dependiendo de la direccion IP de origen. Por ejemplo cuando el perfil que se establezca sea el de los Administradores (IPs 10.0.1.0/24) hay una regla en el firewall que les permite acceder a la red 192.169.2.0/24 unicamente y en caso de ser un perfil de Usuario basico (IPs 10.0.2.0/24), hay otra regla que solo les permite acceder a la red 192.168.3.0/24. Cabe destacar que estas reglas se pueden customizar aun mas dependiendo de los requerimientos de acceso a los ecursos por parte de los colaboradores
+En el firewall se crearan 2 perfiles client-access de VPN, uno de ellos para los Administradores de TI a los cuales se les asignara una dirección IP del pool 10.0.1.0/24 y el otro perfil sera para los usuarios basicos, a los cuales se les asignara una dirección IP del pool 10.0.2.0/24. Con esto permitiremos el acceso administrativo granular a distintos recursos de la red utilizando reglas de firewall que filtraran el acceso dependiendo de la dirección IP de origen. Por ejemplo cuando el perfil que se establezca sea el de los Administradores (IPs 10.0.1.0/24) hay una regla en el firewall que les permite acceder a la red 192.169.2.0/24 unicamente y en caso de ser un perfil de Usuario basico (IPs 10.0.2.0/24), hay otra regla que solo les permite acceder a la red 192.168.3.0/24. Cabe destacar que estas reglas se pueden customizar aun mas dependiendo de los requerimientos de acceso a los ecursos por parte de los colaboradores
 
-A los efectos practicos, autogeneramos un certificado local, el cual no tiene validez en internet, pero si servira para establecer las VPNs Client-access requeridos por la organizacion. Al momento de llevarlo al ambiente de produccion, la empresa Fosil debera costear dicho certificado con una CA reconocida. Para la implementacion de la VPN IPsec site-to-site, hemos optado por utilizar Pre Shared Key aunque puede utilizarse certificados para mayor seguridad de la VPN.
+A los efectos practicos, autogeneramos un certificado local, el cual no tiene validez en internet, pero si servira para establecer las VPNs Client-access requeridos por la organización. Al momento de llevarlo al ambiente de producción, la empresa Fosil debera costear dicho certificado con una CA reconocida. Para la implementación de la VPN IPsec site-to-site, hemos optado por utilizar Pre Shared Key aunque puede utilizarse certificados para mayor seguridad de la VPN.
 
-Para cumplir los requisitos de gestion de usuarios segura y centralizada, decidimos implementar un servidor FreeIPA que sera alojado en la red interna de servidores, y su proposito sera autenticar a todos aquellos colaboradores que intenten ingresar mediante VPN. Para ello, en el firewall PFsense central, vinculamos como servidor de autenticacion al servidor interno FreeIPA utilizando el protocolo LDAP como protocolo de autenticacion entre ambos equipos, pudiendo mejorarse dicha comunicacion si se implemente LDAPS que es mas seguro que LDAP. Cuando el firewall PFsense Central permite validar las autenticaciones VPN de los colaboradores con el FreeIPA, la base local de usuarios y contrasenas del PFsense queda deshabilitada en la configuracion del servidor OpenVPN y esto asegura un control centralizado de las cuentas de usuarios ya sea de la VPN como de los dispositivos de red.
+Para cumplir los requisitos de gestion de usuarios segura y centralizada, decidimos implementar un servidor FreeIPA que sera alojado en la red interna de servidores, y su proposito sera autenticar a todos aquellos colaboradores que intenten ingresar mediante VPN. Para ello, en el firewall PFsense central, vinculamos como servidor de autenticación al servidor interno FreeIPA utilizando el protocolo LDAP como protocolo de autenticación entre ambos equipos, pudiendo mejorarse dicha comunicación si se implemente LDAPS que es mas seguro que LDAP. Cuando el firewall PFsense Central permite validar las autenticaciones VPN de los colaboradores con el FreeIPA, la base local de usuarios y contrasenas del PFsense queda deshabilitada en la configuración del servidor OpenVPN y esto asegura un control centralizado de las cuentas de usuarios ya sea de la VPN como de los dispositivos de red.
 
-En la topologia de red sugerida existiran 2 tipos de conexiones VPN, una de ellas sera del tipo Client-Access para los colaboradores remotos que necesitan utilizar servicios internos de la empresa, y el segundo tipo de VPN sera site-to-site y sera para unir el sitio central en Montevideo, con los nuevos servicios que la empresa desea levantar en la Cloud de AWS. A continuacion detallaremos la configuracion de ambos tipos de VPNs, la primera de ellas, Client-access, que se demostrara con un laptop (Con el cliente OpenVPN) y un firewall PFsense, y el segundo tipo de VPN, site-to-site se demostrara utilizando dos firewalls PFsense enlazados por sus interfaces WAN y arriba de ellas correra el tunel IPsec correspondiente.
+En la topologia de red sugerida existiran 2 tipos de conexiones VPN, una de ellas sera del tipo Client-Access para los colaboradores remotos que necesitan utilizar servicios internos de la empresa, y el segundo tipo de VPN sera site-to-site y sera para unir el sitio central en Montevideo, con los nuevos servicios que la empresa desea levantar en la Cloud de AWS. A continuación detallaremos la configuración de ambos tipos de VPNs, la primera de ellas, Client-access, que se demostrara con un laptop (Con el cliente OpenVPN) y un firewall PFsense, y el segundo tipo de VPN, site-to-site se demostrara utilizando dos firewalls PFsense enlazados por sus interfaces WAN y arriba de ellas correra el tunel IPsec correspondiente.
 
-### Configuracion del servidor OpenVPN en el firewall PFsense central
+### Configuración del servidor OpenVPN en el firewall PFsense central
 
-A continuacion se observa como quedan configurados los 2 perfiles de acceso tipo Client-access para los usuarios basicos y para los administradores de TI. Mas abajo detallamos paso a paso como crear cada perfil y que parametros varian en cada perfil.
+A continuación se observa como quedan configurados los 2 perfiles de acceso tipo Client-access para los usuarios basicos y para los administradores de TI. Mas abajo detallamos paso a paso como crear cada perfil y que parametros varian en cada perfil.
 
 ![PFsense OpenVPN server summary](images/vpn0.jpg)
 
-A continuacion se puede ver mas en detalle como los clientes VPN se autenticaran contra el servidor FreeIPA y no la local database. Tambien seleccionamos la interface (wan) por donde llegaran los intentos de conexion VPN y el puerto que escuchara el servidor Open VPN decidimos cambiarlo a 41194 UDP en el caso del perfil de administradores de TI y 51194 UDP para el perfil de los usuarios basicos, para no dejarlo en el valor por defecto de OpenVPN que es el puerto 1194 UDP. Si la empresa lo requiere, el puerto de escucha de la OpenVPN puede ser cambiado a TCP en lugar de UDP por defecto.
+A continuación se puede ver mas en detalle como los clientes VPN se autenticaran contra el servidor FreeIPA y no la local database. Tambien seleccionamos la interface (wan) por donde llegaran los intentos de conexion VPN y el puerto que escuchara el servidor Open VPN decidimos cambiarlo a 41194 UDP en el caso del perfil de administradores de TI y 51194 UDP para el perfil de los usuarios basicos, para no dejarlo en el valor por defecto de OpenVPN que es el puerto 1194 UDP. Si la empresa lo requiere, el puerto de escucha de la OpenVPN puede ser cambiado a TCP en lugar de UDP por defecto.
 
-![Configuracion de la autenticacion, interface y puerto de escucha del servidor OpenVPN](images/vpn1.jpg)
+![Configuración de la autenticación, interface y puerto de escucha del servidor OpenVPN](images/vpn1.jpg)
 
 Se habilita la casilla TLS para el uso del certificado (autofirmado por el propio firewall PFsense) al cual le llamamos fosil. Esto es requisito indispensable de seguridad para el acceso seguro de nuestros colaboradores indistintamente del perfil de VPN que tenga cada uno.
 
-![Configuracion del certificado del servidor OpenVPN](images/vpn2.jpg)
+![Configuración del certificado del servidor OpenVPN](images/vpn2.jpg)
 
-Y finalmente se configuran las redes remotas y del tunel VPN en si mismo. Aqui es donde vamos a aplicar el control de acceso granular para cada perfil, es decir, para el perfil de Administradores de TI, el tunel IP tendra una direccion IP del Pool 10.0.1.0/24 y para el caso de los usuarios basicos, el tunel IP tendra una direccion IP del Pool 10.0.2.0/24.
+Y finalmente se configuran las redes remotas y del tunel VPN en si mismo. Aqui es donde vamos a aplicar el control de acceso granular para cada perfil, es decir, para el perfil de Administradores de TI, el tunel IP tendra una dirección IP del Pool 10.0.1.0/24 y para el caso de los usuarios basicos, el tunel IP tendra una dirección IP del Pool 10.0.2.0/24.
 
-![Configuracion de las redes del tunel VPN](images/vpn3.jpg)
+![Configuración de las redes del tunel VPN](images/vpn3.jpg)
 
 Luego se crea el servidor FreeIPA el token OTP para los cada usuario que se vaya a loguear a traves de la VPN, y el mismo puede ser valido por el tiempo que las politicas de la empresa requieran.
 
-![Creacion de un OTP para un usuario del servidor FreeIPA](images/OTP.jpg)
+![Creación de un OTP para un usuario del servidor FreeIPA](images/OTP.jpg)
 
-Una vez creado el token OTP, debemos habilitarlo en las opciones de inicio de sesion del usuario dado, si solo configuramos la opcion OTP, y el usuario no tiene consigo el dispositivo generador de OTP, el colaborador no podra loguearse por VPN, requisito fundamental de seguridad de la empresa Fosil.
+Una vez creado el token OTP, debemos habilitarlo en las opciones de inicio de sesion del usuario dado, si solo configuramos la opción OTP, y el usuario no tiene consigo el dispositivo generador de OTP, el colaborador no podra loguearse por VPN, requisito fundamental de seguridad de la empresa Fosil.
 
-![Configuracion del tipo de autenticacion de un usuario](images/2FA.jpg)
+![Configuración del tipo de autenticación de un usuario](images/2FA.jpg)
 
-Una vez finalizada la etapa de generacion de los perfiles OpenVPN y la autenticacion con 2FA, debemos aplicarle las reglas de acceso granular a los distintos perfiles VPN para que solo puedan acceder a los recursos especificos que correspondan. Esta configuracion de reglas entrantes se realiza en el firewall PFsense central donde tenemos definidos los perfiles de OpenVPN
+Una vez finalizada la etapa de generación de los perfiles OpenVPN y la autenticación con 2FA, debemos aplicarle las reglas de acceso granular a los distintos perfiles VPN para que solo puedan acceder a los recursos especificos que correspondan. Esta configuración de reglas entrantes se realiza en el firewall PFsense central donde tenemos definidos los perfiles de OpenVPN
 
 ![Reglas de firewall para acceso granular a la red](images/vpn4.jpg)
 
-Una vez finalizada toda la configuracion VPN en el firewall PFsense, debemos exportar las politicas/perfiles VPN para cada colaborador, sabiendo que en este caso tenemos 2 perfiles definidos, el de Administradores IT y el de usuarios basicos.
+Una vez finalizada toda la configuración VPN en el firewall PFsense, debemos exportar las politicas/perfiles VPN para cada colaborador, sabiendo que en este caso tenemos 2 perfiles definidos, el de Administradores IT y el de usuarios basicos.
 
 Aqui se pueden descargar ambos perfiles de OpenVPN configurados y exportados del PFsense [perfil_TI.ovpn](vpn/perfil_TI.ovpn) y [perfil_basico.ovpn](vpn/perfil_basico.ovpn)
 
-A continuacion se muestra como podrian quedar cargados ambos perfiles en un mismo PC a los efectos de ver la diferencia de nomenclatura de los perfiles, pero en la practica, ningun colaborador tendra ambos perfiles instalados en el mismo PC remoto.
+A continuación se muestra como podrian quedar cargados ambos perfiles en un mismo PC a los efectos de ver la diferencia de nomenclatura de los perfiles, pero en la practica, ningun colaborador tendra ambos perfiles instalados en el mismo PC remoto.
 
 ![Carga de perfiles en el cliente Open VPN de un PC de colaborador](images/vpn5.jpg)
 
-Hasta aqui hemos configurado la VPN client-access para acceso de los colaboradores remotos a la redes internas de la empresa. A continuacion detallaremos la configuracion paso a paso entre los dos firewalls PFsense que levantaran una VPN site-to-site entre las oficinas centrales de Montevideo (PFsense Central utilizado para los accesos client-acces) y la nube de AWS (PFsense Cloud AWS). Como mencionamos anteriormente ambos firewalls estaran enlazados fisicamente por sus interfaces WAN con direccionamiento 172.16.16.0/24 simulando ser una red publica como los es internet, y las redes locales de seran la 192.168.56.0/24 y 192.168.2.0/24 para el PFsense Central y para el PFsense Cloud respectivamente.
+Hasta aqui hemos configurado la VPN client-access para acceso de los colaboradores remotos a la redes internas de la empresa. A continuación detallaremos la configuración paso a paso entre los dos firewalls PFsense que levantaran una VPN site-to-site entre las oficinas centrales de Montevideo (PFsense Central utilizado para los accesos client-acces) y la nube de AWS (PFsense Cloud AWS). Como mencionamos anteriormente ambos firewalls estaran enlazados fisicamente por sus interfaces WAN con direccionamiento 172.16.16.0/24 simulando ser una red publica como los es internet, y las redes locales de seran la 192.168.56.0/24 y 192.168.2.0/24 para el PFsense Central y para el PFsense Cloud respectivamente.
 
-A continuacion configuramos el tunel IPsec en cada firewall PFsense, primero la fase 1 y luego la fase 2. Cabe aclarar que en ambos extremos del tunel los parametros de seguridad de la VPN tales como la PSK, algoritmos de encriptacion, entre otros, son identicos dado que de lo contrario el tunel IPsec no se establece en ninguna de las fases. La PreSharedKey de las capturas es una sugerencia de nuestro grupo que debe ser modificada si estas configuraciones se ponen en produccion en la empresa Fosil dado que es un parametro critico.
+A continuación configuramos el tunel IPsec en cada firewall PFsense, primero la fase 1 y luego la fase 2. Cabe aclarar que en ambos extremos del tunel los parametros de seguridad de la VPN tales como la PSK, algoritmos de encriptación, entre otros, son identicos dado que de lo contrario el tunel IPsec no se establece en ninguna de las fases. La PreSharedKey de las capturas es una sugerencia de nuestro grupo que debe ser modificada si estas configuraciones se ponen en producción en la empresa Fosil dado que es un parametro critico.
 
-### Configuracion de la VPN IPsec entre el firewall PFsense Central y el firewall PFsense Cloud:
+### Configuración de la VPN IPsec entre el firewall PFsense Central y el firewall PFsense Cloud:
 
-Configuracion en el firewall PFsense Central:
+Configuración en el firewall PFsense Central:
 
 ![Tunel IPsec fase 1 en el PFsense Central](images/tunel3.jpg)
 
@@ -232,7 +237,7 @@ Configuracion en el firewall PFsense Central:
 
 ![Tunel IPsec fase 2 en el PFsense Central.](images/tunel6.jpg)
 
-Configuracion en el firewall PFsense Cloud:
+Configuración en el firewall PFsense Cloud:
 
 ![Tunel IPsec fase 1 en el PFsense Cloud](images/tunel7.jpg)
 
@@ -254,15 +259,15 @@ De forma analoga se configuran las reglas entrantes y saliente en el firewall PF
 
 ![Reglas salientes en el PFsense Cloud](images/fw4.jpg)
 
-En este punto quedan finalizadas las configuraciones de ambos tipos de VPN, dejando las capturas que evidencian el correcto funcionamiento en la seccion **#12 Capturas de funcionamiento de la maqueta virtual**.
+En este punto quedan finalizadas las configuraciones de ambos tipos de VPN, dejando las capturas que evidencian el correcto funcionamiento en la sección **#12 Capturas de funcionamiento de la maqueta virtual**.
 
 ---
 
-## 5. Proteccion de Aplicaciones Web (WAF y API Gateway)
+## 5. Protección de Aplicaciones Web (WAF y API Gateway)
 
-*Guia detallada de configuracion de ambos servicios (y su integracion con el SIEM)*
+*Guia detallada de configuración de ambos servicios (y su integración con el SIEM)*
 
-Antes de la implementacion de estos componentes, se instala el servidor web con Apache mod_security en modo reverse proxy.
+Antes de la implementación de estos componentes, se instala el servidor web con Apache mod_security en modo reverse proxy.
 
 Se configura el siguiente VirtualHost:
 
@@ -291,9 +296,9 @@ systemctl reload apache2
 
 Para resolver el nombre se optará por agregar la entrada en el /etc/hosts
 
-### 5.A Instalación de la solucion de WAF
+### 5.A Instalación de la solución de WAF
 
-La instalacion de Mod Security se automatizó mediante el siguiente script: [Instalacion Solución WAF](waf/install.sh)
+La instalación de Mod Security se automatizó mediante el siguiente script: [Instalación Solución WAF](waf/install.sh)
 
 #### 5.A.A Reglas personalizadas: configuración
 
@@ -301,7 +306,7 @@ La instalacion de Mod Security se automatizó mediante el siguiente script: [Ins
 # Crear directorio de reglas 
 sudo mkdir /etc/modsecurity/local_rules
 
-# Generar archivo de configuracion y agregar:
+# Generar archivo de configuración y agregar:
 sudo nano /etc/modsecurity/local_rules/custom_rules.conf
 
 # Regla custom 1: Bloquear agentes de usuario comunes de herramientas de escaneo
@@ -322,7 +327,7 @@ SecRule REQUEST_URI "@rx ^/(admin|dashboard|internal|controlpanel)" \
     msg:'Acceso no autorizado a ruta administrativa'"
 
 
-# Inculuir las reglas en la configuracion activa
+# Inculuir las reglas en la configuración activa
 sudo nano /etc/modsecurity/modsecurity.conf
 
 # Agregar al final:
@@ -343,13 +348,13 @@ curl -I http://localhost/test
 # El mensaje: "Acceso bloqueado a /test por regla personalizada"
 ```
 
-#### 5.A.B Pruebas de ataques WEB para deteccion y bloqueo de WAF
+#### 5.A.B Pruebas de ataques WEB para detección y bloqueo de WAF
 
 #### Pruebas de CRS (Core Rule Set)
 
-A continuacion se evidencia el funcionamiento de estas reglas aplicadas, mediante dos pruebas.
+A continuación se evidencia el funcionamiento de estas reglas aplicadas, mediante dos pruebas.
 
-##### Inyeccion SQL
+##### Inyección SQL
 
 ![Waf-crs1](images/waf-crs1.png)
 
@@ -411,9 +416,9 @@ sudo systemctl reload apache2
 
 ![Waf custom test admin site 2](images/waf-customRule2b.png)
 
-### 5.B Instalacion y configuracíón del API Gateway Kong
+### 5.B Instalación y configuracíón del API Gateway Kong
 
-Se procederá a la instalacion y configuracion de Kong y luego, utilizando el plugin request-termination. Este ultimo nos permite realizar un login simulado, devolviendo una respuesta fija en JSON.
+Se procederá a la instalación y configuración de Kong y luego, utilizando el plugin request-termination. Este ultimo nos permite realizar un login simulado, devolviendo una respuesta fija en JSON.
 
 Se crea un VirtualHost nuevo en Apache: api.example.com
 
@@ -446,7 +451,7 @@ sudo systemctl reload apache2
 Instalar y configurar API Gateway
 
 ```bash
-# Instalacion y configuracion de Kong
+# Instalación y configuración de Kong
 sudo apt update
 sudo apt install -y ca-certificates curl gnupg lsb-release
 
@@ -635,7 +640,7 @@ flowchart TB
 
 ## 6. Monitoreo y Respuesta (SIEM)
 
-*Guia detallada de configuracion del servidor con la herramienta Wazuh, para recibir alertas del resto de los servicios de la infraestructura*
+*Guia detallada de configuración del servidor con la herramienta Wazuh, para recibir alertas del resto de los servicios de la infraestructura*
 
 ### Casos de uso personalizados del SIEM
 
@@ -656,7 +661,7 @@ Cuando se detecta una situación de este tipo, el sistema genera una alerta clas
 
 ##### Ajustes implementados para integrar “Impossible Traveller” en Wazuh
 
-La documentación seguida para implementar el caso de uso se especifica en la sección 14  (Referencias bibliograficas).
+La documentación seguida para implementar el caso de uso se especifica en la sección 14  (Referencias bibliográficas).
 Se describen las correcciones y mejoras realizadas sobre la integración Impossible Traveller basada en la guía original publicada en Medium, permitiendo un funcionamiento correcto dentro de Wazuh.
 
 El objetivo de la integración es:
@@ -679,13 +684,13 @@ El objetivo de la integración es:
 - 1.4. La regla buscaba un patrón que ya no existía: La regla *555556* buscaba: *"Event ID": "1"*, y en el formato json se ajustaron los espacios.
 - Solución: Se corrige en la regla: *<match>"Event ID":"1"</match>*
 
-Finalmente, para que el script de integracion funcione se debe contar con las librerias "geopy" y "requests" de Python:
+Finalmente, para que el script de integración funcione se debe contar con las librerias "geopy" y "requests" de Python:
 
 ```bash
 /var/ossec/framework/python/bin/pip3 install geopy requests
 ```
 
-Los permisos sobre la base de datos de geolocalizacion deben ser de escritura:
+Los permisos sobre la base de datos de geolocalización deben ser de escritura:
 
 ```bash
 chmod 666 /var/ossec/var/db/DB_Imposible_traveller.db
@@ -705,7 +710,7 @@ Las reglas y decoders de este caso de uso se pueden encontrar en los siguientes 
 
 ##### Funcionamiento
 
-Se necesitan logins de un usuario valido en Openvpn, el cual ingrese por diferentes ips publicas, de distintos paises en un rango de tiempo corto. La integracion va a detectar la geolocalizacion para los campos de "srcip" y los va a procesas en la base de datos interna, si se cumplen las condiciones, disparará la nueva regla "555556" para viajero imposible.
+Se necesitan logins de un usuario valido en Openvpn, el cual ingrese por diferentes ips publicas, de distintos paises en un rango de tiempo corto. La integración va a detectar la geolocalización para los campos de "srcip" y los va a procesas en la base de datos interna, si se cumplen las condiciones, disparará la nueva regla "555556" para viajero imposible.
 
 ![Traveller 1](siem/images/traveller-1.png)
 
@@ -756,10 +761,10 @@ Respuesta Activa
 
 Se configura la respuesta activa por defecto de bloqueo de IP: "firewall-drop".
 
-En el archivo principal de configuracion *ossec.conf* incluir el bloque:
+En el archivo principal de configuración *ossec.conf* incluir el bloque:
 
 ```bash
-<!-- Autorizacion bloqueos fuerza bruta -->
+<!-- Autorización bloqueos fuerza bruta -->
   <active-response>
     <disabled>no</disabled>
     <command>firewall-drop</command>
@@ -799,7 +804,7 @@ En el timestamp de los eventos se observa la hora que coincide con el rango hora
 
 El bloqueo se da de la misma manera.
 
-#### Caso 3 Detección de subida de archivos de imagenes en sitio web
+#### Caso 3 Detección de subida de archivos de imágenes en sitio web
 
 Este caso de uso implementa un mecanismo de seguridad que permite detectar la carga de archivos con extensiones no autorizadas en un servidor web Apache.
 
@@ -845,7 +850,7 @@ sudo apt install php libapache2-mod-php
 sudo systemctl restart apache2
 ```
 
-El formulario y script en php se pueden obtener aqui: [upload_form.html](siem/casos_de_uso/fim_subida_imagenes/upload_form.html) y [upload_process.php](siem/casos_de_uso/fim_subida_imagenes/upload_process.php)
+El formulario y script en php se pueden obtener aqui: [upload_form.html](siem/casos_de_uso/fim_subida_imágenes/upload_form.html) y [upload_process.php](siem/casos_de_uso/fim_subida_imágenes/upload_process.php)
 
 Configurar en el agente de Wazuh el bloque "syscheck" para analizar de forma recursiva el directorio "uploads" en tiempo real:
 
@@ -883,11 +888,11 @@ Desde las alertas en Wazuh se observa:
 
 El objetivo principal de integrar los registros generados por el WAF (ModSecurity) dentro del SIEM Wazuh es centralizar, normalizar y correlacionar los eventos de seguridad relacionados con la protección de aplicaciones web, permitiendo una visibilidad completa del tráfico malicioso, intentos de explotación y comportamiento anómalo dirigido a los servicios expuestos.
 
-Para las validaciones de detección y bloqueo en la solucion de WAF en el punto 5, tanto para reglas del CRS, como para las personalizadas, se integran los logs que generan en el SIEM.
+Para las validaciones de detección y bloqueo en la solución de WAF en el punto 5, tanto para reglas del CRS, como para las personalizadas, se integran los logs que generan en el SIEM.
 
-Para ello, es necesario configurar los logs que son generados para el sitio *wp.example.com* en */var/log/apache2/wp.example.com-access.log* y */var/log/apache2/wp.example.com-error.log*. En este ultimo se van a generar los codigos de error 403, provocados por la solucion de WAF al realizar los bloqueos.
+Para ello, es necesario configurar los logs que son generados para el sitio *wp.example.com* en */var/log/apache2/wp.example.com-access.log* y */var/log/apache2/wp.example.com-error.log*. En este ultimo se van a generar los codigos de error 403, provocados por la solución de WAF al realizar los bloqueos.
 
-La ingesta de los logs se configura a nivel del agente de Wazuh en el servidor de WAF. Es necesario ubicar el archivo de configuracion de dicho agente: /var/ossec/etc/ossec.cong e ingresarle el siguiente bloque de codigo al final del archivo (justo antes del cierre _</ossec_config>_):
+La ingesta de los logs se configura a nivel del agente de Wazuh en el servidor de WAF. Es necesario ubicar el archivo de configuración de dicho agente: /var/ossec/etc/ossec.cong e ingresarle el siguiente bloque de codigo al final del archivo (justo antes del cierre _</ossec_config>_):
 
 ```bash
 <!-- Logs ModSecurity -->
@@ -906,7 +911,7 @@ La ingesta de los logs se configura a nivel del agente de Wazuh en el servidor d
 ![Waf log 1](siem/images/waf-log1.png)
 
 Una vez configurado el paso anterior, ya se podran visualizar los eventos a nivel de SIEM.
-Utilizaremos los mismos ejemplos que en el apartado de pruebas de funcionamiento del WAF, con el de [SQL Injection de regla CRS](#inyeccion-sql) y con el de [uso sospechoso de user agent](#1--regla-custom-1-detección-de-escaneo-o-fuzzing-user-agent-sospechoso), configurado en la primera regla personalizada.
+Utilizaremos los mismos ejemplos que en el apartado de pruebas de funcionamiento del WAF, con el de [SQL Injection de regla CRS](#inyección-sql) y con el de [uso sospechoso de user agent](#1--regla-custom-1-detección-de-escaneo-o-fuzzing-user-agent-sospechoso), configurado en la primera regla personalizada.
 
 ##### Evento de SQL Injection en SIEM:
 
@@ -922,14 +927,14 @@ Cabe destacar que en el access log, Wazuh detecta automaticamente, con la regla 
 
 ![Waf log 4](siem/images/waf-3-extended.png)
 
-En este ejemplo, la regla misma regla de ModSecurity que en el ejemplo anterior, evidenciando en este caso, la ejeucion de la regla custom de ModSecurity para detección y bloqueo de user agent sospechoso.
+En este ejemplo, la regla misma regla de ModSecurity que en el ejemplo anterior, evidenciando en este caso, la ejeución de la regla custom de ModSecurity para detección y bloqueo de user agent sospechoso.
 
 #### Solución VPN
 
 El objetivo es integrar los registros generados por el servicio OpenVPN en pfSense dentro del SIEM Wazuh, permitiendo su recolección, normalización, correlación y monitoreo.
 Para esto se configura pfSense para enviar los logs vía Syslog hacia el Wazuh Manager, y luego se habilita la recepción y el procesamiento de dichos logs en el archivo *ossec.conf*.
 
-##### Configuracion en el firewall Pfsense
+##### Configuración en el firewall Pfsense
 
 Desde el firewall PFsense, es neceario habilitar el envio de logs por syslog.
 
@@ -941,7 +946,7 @@ Ingresar a Status → System Logs → Settings.
 
 ![Syslog pfsense 3](siem/images/openvpn-3-remoteoptions.png)
 
-##### Configuracion en el Wazuh Manager
+##### Configuración en el Wazuh Manager
 
 En este escenario, el servidor de Wazuh Manager oficirá de servidor Syslog, el cual recibirá los logs de openvpn.
 
@@ -961,7 +966,7 @@ Dentro de <ossec_config></ossec_config>
 
 ```
 
-En _allowed-ips_ irá la direccion del servidor Pfsense y en _local_ip_ la del propio Wazuh Manager.
+En _allowed-ips_ irá la dirección del servidor Pfsense y en _local_ip_ la del propio Wazuh Manager.
 
 ##### Decodificación de Logs de OpenVPN
 
@@ -985,9 +990,9 @@ El archivo de reglas es accesible desde aqui: [openvpn_custom.xml](siem/reglas/o
 
 Ajustar permisos y ownership
 
-##### Recepcion de eventos
+##### Recepción de eventos
 
-Se realiza conexion via openvpn, siguiendo los pasos de configuracion detallados en el apartado de openvpn: [Configuracion del servidor OpenVPN](#configuracion-del-servidor-openvpn-en-el-firewall-pfsense-central)
+Se realiza conexion via openvpn, siguiendo los pasos de configuración detallados en el apartado de openvpn: [Configuración del servidor OpenVPN](#configuración-del-servidor-openvpn-en-el-firewall-pfsense-central)
 
 ![Openvpn conexion](siem/images/conexion-openvpn.png)
 
@@ -1003,7 +1008,7 @@ Campos en el evento de desconexion:
 
 ![Openvpn Wazuh 3](siem/images/openvpn-desconexionwazuh.png)
 
-Eventos de autenticacion fallida:
+Eventos de autenticación fallida:
 
 ![Openvpn Wazuh failed1](siem/images/openvpn-failed.png)
 
@@ -1027,17 +1032,17 @@ La regla para interpretar los inicios de sesion en los logs del Keyclock se pued
 
 ![Wazuh-manager keycloak Rule](images/rule_keycloak.jpg)
 
-##### Recepcion de eventos de Keycloak
+##### Recepción de eventos de Keycloak
 
-Una vez finalizada la configuracion, se puede apreciar en el detalle de los eventos para el agente Keycloak, como se generan los eventos de autenticacion de Keycloak y los mismos son correctamente parseados por el decoder definido.
+Una vez finalizada la configuración, se puede apreciar en el detalle de los eventos para el agente Keycloak, como se generan los eventos de autenticación de Keycloak y los mismos son correctamente parseados por el decoder definido.
 
 ![Wazuh-manager keycloak events](images/wazuh_connect.jpg)
 
-Eventos de autenticacion exitosa utilizando OpenID Connect:
+Eventos de autenticación exitosa utilizando OpenID Connect:
 
 ![Resumen de eventos keycloak en wazuh manager](images/keycloak_summary.jpg)
 
-En el log de eventos en la web del servidor Keycloak, se aprecia que la autenticacion exitosa del usuario "pepito", que efectivamente fue utilizando el protocolo OpenID-Connect como se pide en los requisitos de este proyecto:
+En el log de eventos en la web del servidor Keycloak, se aprecia que la autenticación exitosa del usuario "pepito", que efectivamente fue utilizando el protocolo OpenID-Connect como se pide en los requisitos de este proyecto:
 
 ![Evento del usuario pepito autenticandose con el protocolo OpenIDC](images/keycloak13.jpg)
 
@@ -1057,20 +1062,20 @@ Se verifica tambien un intento de LOGIN fallido del usuario "pepito":
 
 ## 7. Gestion de Identidad y Accesos (IAM)
 
-*Guia detallada de configuracion del servidor de gestion centralizada de usuarios Keycloak*
+*Guia detallada de configuración del servidor de gestion centralizada de usuarios Keycloak*
 
-Para demostrar la correcta gestion centralizada de usuarios, hemos optado por configurar un servidor Keycloak junto con un servidor web, el cual tendra alojado el servicio de Wordpress, y loguearemos usuarios del servidor Keycloak en dicho portal de Wordpress. Estas autenticaciones de usuarios seran mediante el protocolo OpenIDC y seran enviadas al SIEM al igual que los demas servidores de la infraestructura. Para lograr que que el servidor Keycloak autentique los usuarios mediante el protocolo OpenID Connect, detallaremos mas adelante la instalacion de un plugin en el propio portal web del Wordpress.
+Para demostrar la correcta gestion centralizada de usuarios, hemos optado por configurar un servidor Keycloak junto con un servidor web, el cual tendra alojado el servicio de Wordpress, y loguearemos usuarios del servidor Keycloak en dicho portal de Wordpress. Estas autenticaciones de usuarios seran mediante el protocolo OpenIDC y seran enviadas al SIEM al igual que los demas servidores de la infraestructura. Para lograr que que el servidor Keycloak autentique los usuarios mediante el protocolo OpenID Connect, detallaremos mas adelante la instalación de un plugin en el propio portal web del Wordpress.
 
-### 7.A Instalacion y configuracion del Keycloak 26.4.5
+### 7.A Instalación y configuración del Keycloak 26.4.5
 
-La instalacion del servicio de Keycloak se llevo a cabo en una distribucion Rocky 9 de Linux para facilitar su implementacion y demostracion practica de los conceptos de gestion centralizada de usuarios, pero llevado a un ambiente de produccion, esta instalacion de keycloak deberia instalarse sobre una distribucion Debian para cumplir con el estandar de hardening de los demas servidores de la red del cliente.
+La instalación del servicio de Keycloak se llevo a cabo en una distribución Rocky 9 de Linux para facilitar su implementación y demostración practica de los conceptos de gestion centralizada de usuarios, pero llevado a un ambiente de producción, esta instalación de keycloak deberia instalarse sobre una distribución Debian para cumplir con el estandar de hardening de los demas servidores de la red del cliente.
 
 ```sh
-#Instalacion de Java 21
+#Instalación de Java 21
 
 sudo dnf install -y java-21-openjdk java-21-openjdk-devel
 
-#Instalacion de Keycloak
+#Instalación de Keycloak
 
 sudo mkdir /opt/keycloak
 cd /opt/keycloak
@@ -1079,11 +1084,11 @@ sudo wget https://github.com/keycloak/keycloak/releases/download/26.4.5/keycloak
 sudo unzip keycloak-26.4.5.zip
 cd /opt/keycloak/keycloak-26.4.5
 
-#Configurar el servicio de Keycloak editando el contenido de su archivo de configuracion
+#Configurar el servicio de Keycloak editando el contenido de su archivo de configuración
 
 sudo nano /etc/systemd/system/keycloak.service
 
-#Agregar los parametros de configuracion al archivo keycloak.service y guardar los cambios
+#Agregar los parametros de configuración al archivo keycloak.service y guardar los cambios
 
 [Unit]
 Description=Keycloak Server
@@ -1104,13 +1109,13 @@ LimitNOFILE=102642
 [Install]
 WantedBy=multi-user.target
 
-# Configuracion del firewall del servidor Keycloak para que acepte conexiones por el puerto 8080
+# Configuración del firewall del servidor Keycloak para que acepte conexiones por el puerto 8080
 
 sudo firewall-cmd --add-port=8080/tcp --permanent
 sudo firewall-cmd --reload
 ```
 
-### 7.B Instalacion y configuracion de Wordpress MariaDB
+### 7.B Instalación y configuración de Wordpress MariaDB
 
 ```sh
 sudo dnf install httpd mariadb-server php php-mysqlnd php-fpm php-json php-xml php-gd php-mbstring -y
@@ -1118,7 +1123,7 @@ sudo systemctl enable --now httpd mariadb
 sudo mysql_secure_installation
 sudo mysql -u root -p
 
-#Inicializacion de la DB para Wordpress
+#Inicialización de la DB para Wordpress
 
 CREATE DATABASE wordpress;
 CREATE USER 'wpuser'@'localhost' IDENTIFIED BY '*******';
@@ -1126,12 +1131,12 @@ GRANT ALL PRIVILEGES ON wordpress.* TO 'wpuser'@'localhost';
 FLUSH PRIVILEGES;
 EXIT;
 
-#Instalacion e inicializacion del servidor web Apache
+#Instalación e inicialización del servidor web Apache
 
 sudo dnf install httpd php php-mysqlnd php-json php-xml php-gd php-mbstring php-curl php-zip -y
 sudo systemctl enable --now httpd
 
-#Instalacion y configuracion del Wordpress
+#Instalación y configuración del Wordpress
 
 cd /tmp
 curl -O https://wordpress.org/latest.tar.gz
@@ -1146,7 +1151,7 @@ define( 'DB_USER', 'wpuser' );
 define( 'DB_PASSWORD', 'password' );
 define( 'DB_HOST', 'localhost' );
 
-#Configuracion del firewall y SELinux del servidor para que acepte conexiones por el puerto 80 y 443 de Wordpress
+#Configuración del firewall y SELinux del servidor para que acepte conexiones por el puerto 80 y 443 de Wordpress
 
 sudo firewall-cmd --permanent --add-service=http
 sudo firewall-cmd --permanent --add-service=https
@@ -1154,7 +1159,7 @@ sudo firewall-cmd --reload
 sudo setsebool -P httpd_can_network_connect on
 ```
 
-### Instalacion del plugin OpenID Connect Generic Client desde la web de Wordpress
+### Instalación del plugin OpenID Connect Generic Client desde la web de Wordpress
 
 Una vez dentro del portal Wordpress, instalamos el plugin OpenID Connect Generic Client
 
@@ -1162,45 +1167,45 @@ Una vez dentro del portal Wordpress, instalamos el plugin OpenID Connect Generic
 
 Despues que instalamos el plugin de OpenID Connect, debemos configurarlo como cliente del servidor Keycloak
 
-### Configuracion del plugin OpenID Connect Generic CLient
+### Configuración del plugin OpenID Connect Generic CLient
 
 ![Config del OpenID Connect como cliente en Keycloak](images/keycloak4.jpg)
 
-![Continuacion de la config del OpenID Connect como cliente en Keycloak](images/keycloak5.jpg)
+![Continuación de la config del OpenID Connect como cliente en Keycloak](images/keycloak5.jpg)
 
-Para finalizar la configuracion del cliente, debemos setear la URL del Wordpress en todos aquellos campos necesarios, para que se nos despliegue en cada inicio o cierre de sesion en Wordpress.
+Para finalizar la configuración del cliente, debemos setear la URL del Wordpress en todos aquellos campos necesarios, para que se nos despliegue en cada inicio o cierre de sesion en Wordpress.
 
 ![Parametros URL](images/keycloak6.jpg)
 
 ![Parametros URL redirect](images/keycloak7.jpg)
 
-Luego vinculamos el plugin de OpenID con el Keycloak usando el Client Secret Key que generamos al configurar el cliente dentro de la consola de administracion del Keycloak
+Luego vinculamos el plugin de OpenID con el Keycloak usando el Client Secret Key que generamos al configurar el cliente dentro de la consola de administración del Keycloak
 
 ![Parametros Client Secret Key](images/keycloak8.jpg)
 
-Ahora que ya estan vinculados el Wordpress junto con el Keycloak a traves del OpenID plugin, procedemos a crear usuarios locales en el servidor Keycloak. Este paso puede reemplazarse por una vinculacion del servidor Keycloak (User federation) con un servidor proveedor de identidades como puede lo es el servidor FreeIPA o IAM de AWS.
+Ahora que ya estan vinculados el Wordpress junto con el Keycloak a traves del OpenID plugin, procedemos a crear usuarios locales en el servidor Keycloak. Este paso puede reemplazarse por una vinculación del servidor Keycloak (User federation) con un servidor proveedor de identidades como puede lo es el servidor FreeIPA o IAM de AWS.
 
-![Creacion usuario local en Keycloak](images/keycloak9.jpg)
+![Creación usuario local en Keycloak](images/keycloak9.jpg)
 
-En este punto, la pantalla de inicio de sesion en el portal de Wordpress ahora nos da la opcion de "Login with OpenID Connect"
+En este punto, la pantalla de inicio de sesion en el portal de Wordpress ahora nos da la opción de "Login with OpenID Connect"
 
-![Portal Wordpress con opcion de OpenID Connect](images/keycloak10.jpg)
+![Portal Wordpress con opción de OpenID Connect](images/keycloak10.jpg)
 
 Al seleccionar "Login with OpenID Connect" nos redirige al portal de login de Keycloak para ingresar un usuario valido del servidor Keycloak.
 
-![Redireccion de OpenID Connect a Keycloak](images/keycloak11.jpg)
+![Redirección de OpenID Connect a Keycloak](images/keycloak11.jpg)
 
 Nos logueamos en el portal de Wordpress con el usuario "pepito" definido en Keycloak.
 
 ![Portal de bienvenida para el usuario pepito](images/keycloak12.jpg)
 
-### Configuracion de los logs de Keycloak para enviarlos al SIEM via agente Wazuh
+### Configuración de los logs de Keycloak para enviarlos al SIEM via agente Wazuh
 
 ```sh
-#Editar el archivo de configuracion de keycloak
+#Editar el archivo de configuración de keycloak
 sudo nano /opt/keycloak/keycloak-26.4.5/conf/keycloak.conf
 
-#Agregar la siguiente configuracion y guardar los cambios.
+#Agregar la siguiente configuración y guardar los cambios.
 
 log=console,file
 log-level=info
@@ -1226,7 +1231,7 @@ sudo systemctl daemon-reload
 sudo systemctl restart keycloak
 ```
 
-### Instalacion del Wazuh-agent en el servidor Keycloak
+### Instalación del Wazuh-agent en el servidor Keycloak
 
 ```sh
 rpm --import https://packages.wazuh.com/key/GPG-KEY-WAZUH
@@ -1244,10 +1249,10 @@ EOF
 sudo WAZUH_MANAGER="192.168.56.113" dnf install wazuh-agent -y
 ```
 
-### Configuracion del Wazuh-agent en el servidor Keycloak
+### Configuración del Wazuh-agent en el servidor Keycloak
 
 ```sh
-#Editar el archivo de configuracion /var/ossec/etc/ossec.conf y guardar los cambios
+#Editar el archivo de configuración /var/ossec/etc/ossec.conf y guardar los cambios
 <client>
   <server>
     <address>192.168.56.113</address>
@@ -1272,7 +1277,7 @@ sudo systemctl daemon-reload
 sudo systemctl enable --now wazuh-agent
 ```
 
-### Creacion del Wazuh-agent del Keycloak en el Wazuh-manager
+### Creación del Wazuh-agent del Keycloak en el Wazuh-manager
 
 ```sh
 #Ejecutar el siguiente comando para agrear un nuevo agente remoto, en este caso el agente del servidor Keycloak, con su nombre y dir IP.
@@ -1293,10 +1298,10 @@ sudo /var/ossec/bin/manage_agents
 sudo systemctl restart wazuh-agent
 ```
 
-### 7.C Instalacion de FreeIPA
+### 7.C Instalación de FreeIPA
 
 ```sh
-#Editar el archivo de hosts del servidor linux con distribucion Rocky donde instalaremos el servidor FreeIPA y guardar los cambios.
+#Editar el archivo de hosts del servidor linux con distribución Rocky donde instalaremos el servidor FreeIPA y guardar los cambios.
 
 sudo nano /etc/hosts
 192.168.56.109 fosil.ipa.test ipa
@@ -1317,7 +1322,7 @@ sudo ipa-server-install --setup-dns
 kinit admin
 ```
 
-En este punto la instalacion del servidor FreeIPA concluyo y se podran configurar los distintos usuarios con sus respectivos 2FA para que accedan por OpenVPN al firewall PFsense de borde.
+En este punto la instalación del servidor FreeIPA concluyo y se podran configurar los distintos usuarios con sus respectivos 2FA para que accedan por OpenVPN al firewall PFsense de borde.
 
 ---
 
@@ -1327,11 +1332,11 @@ En este punto la instalacion del servidor FreeIPA concluyo y se podran configura
 
 El script creado y utilizado para el endurecimiento se puede acceder aqui: [hardening.sh](hardening/hardening.sh)
 
-El script de hardening de este repositorio (hardening.sh) cumple con el fortalecimiento de 4 areas criticas de un servidor Debian teniendo como referencia el CIS CSC Benchmark. Una vez finalizada la ejecucion de los distintos comandos en cada area, se procede a reiniciar los servicios involucrados y configurar la ejecucion de los mismos desde el inicio del sistema operativo.
+El script de hardening de este repositorio (hardening.sh) cumple con el fortalecimiento de 4 areas criticas de un servidor Debian teniendo como referencia el CIS CSC Benchmark. Una vez finalizada la ejecución de los distintos comandos en cada area, se procede a reiniciar los servicios involucrados y configurar la ejecución de los mismos desde el inicio del sistema operativo.
 
 A nivel de **Firewall local** se configura lo siguiente:
 
-- Instalar el paquete nftables (evolucion del firewall iptables).
+- Instalar el paquete nftables (evolución del firewall iptables).
 - Limpiar reglas de firewall existentes.
 - Crear regla "Deny all" por defecto si no hay trafico especifico definido.
 - Permitir solamente acceso SSH y puertos del servidor Wazuh (1514 y 1515) en sentido entrante al servidor.
@@ -1346,9 +1351,9 @@ A nivel de **Auditorioa del sistema** se configura lo siguiente:
 - Habilitar el servicio de auditoria desde el gestor de arranque GRUB.
 - Aplicar reglas de auditoria relativas a cambios de identidad (Usuarios, Grupos y Contrasenias) generando logs ante cualquier cambio.
 - Aplicar reglas de auditoria relativas a comandos de privilegio (sudo y su) generando logs ante cualquier uso de los mismos.
-- Aplicar reglas de auditoria relativas a la configuracion de red (Hostname, dominio y direccionamiento IP) generando logs con los detalles de cada cambio.
-- Configurar politica de retencion de logs de auditoria por tamanio maximo, sin sobreescritura y notificacion via mail al admin si el HDD no tiene espacio fisico.
-- Configurar el modo inmutable para todas las reglas de auditoria creadas para impedir su modificacion o borrado intencional.
+- Aplicar reglas de auditoria relativas a la configuración de red (Hostname, dominio y direccionamiento IP) generando logs con los detalles de cada cambio.
+- Configurar politica de retención de logs de auditoria por tamanio maximo, sin sobreescritura y notificación via mail al admin si el HDD no tiene espacio fisico.
+- Configurar el modo inmutable para todas las reglas de auditoria creadas para impedir su modificación o borrado intencional.
 
 A nivel de **Acceso administrativo seguro** se configura lo siguiente:
 
@@ -1362,16 +1367,16 @@ A nivel de **Acceso administrativo seguro** se configura lo siguiente:
 - Cambiar el nivel de registro de eventos SSH al nivel **Verbose**
 - Deshabilitar el reenvio de interfaces graficas a traves de SSH (X11).
 - Bloquear variables de entorno personalizadas durante el login SSH.
-- Limitar conexiones simultaneas en una sesion SSH para evitar un ataque de denegacion de servicio.
+- Limitar conexiones simultaneas en una sesion SSH para evitar un ataque de denegación de servicio.
 - Deshabilitar reenvios de puertos TCP en una sesion SSH.
 - Establecer banner informativo legal que se desplegara por pantalla antes de cada login SSH.
 
-A nivel de **Integracion con el SIEM** se configura lo siguiente:
+A nivel de **Integración con el SIEM** se configura lo siguiente:
 
 - Descargar e instalar agente Wazuh en el servidor.
-- En la configuracion del agente Wazuh, establecer la direccion IP del Wazuh Manager (SIEM), al cual el agente enviara los logs.
+- En la configuración del agente Wazuh, establecer la dirección IP del Wazuh Manager (SIEM), al cual el agente enviara los logs.
 
-Cabe destacar que antes de aplicar el script de hardening a un servidor Debian con una instalacion limpia, desde cero, el nivel de seguridad CIS CSC segun el agente Wazuh es del 48% y una vez aplicado el script de hardening, dicho nivel de seguridad aciende a 54%. De todos modos, si el lector experimentado decide editar el script de hardening para sumar controles de hardening y asi elevar el nivel de seguridad de un servidor Debian, adjuntamos en este repositorio el documento PDF completo de CIS CSC Benchmark para un servidor Debian 12.
+Cabe destacar que antes de aplicar el script de hardening a un servidor Debian con una instalación limpia, desde cero, el nivel de seguridad CIS CSC segun el agente Wazuh es del 48% y una vez aplicado el script de hardening, dicho nivel de seguridad aciende a 54%. De todos modos, si el lector experimentado decide editar el script de hardening para sumar controles de hardening y asi elevar el nivel de seguridad de un servidor Debian, adjuntamos en este repositorio el documento PDF completo de CIS CSC Benchmark para un servidor Debian 12.
 
 ### 8b. Pruebas funcionamiento hardening en SIEM
 
@@ -1410,8 +1415,8 @@ chmod +x hardening.sh
 
 *No se incluye licenciamiento de software dado que se opto por software de licenciamiento libre*
 
-- Distribucion Linux Debian 12
-- Distribucion Linux Rocky 9.6
+- Distribución Linux Debian 12
+- Distribución Linux Rocky 9.6
 - Wazuh version 4.12.1
 - PFsense version 2.8.0
 - FreeIPA version 4.12.2
@@ -1427,47 +1432,47 @@ chmod +x hardening.sh
 
 ## 11. Capturas de funcionamiento de la maqueta virtual
 
-*En esta seccion se muestran capturas que evidencian el funcionamiento en un entorno virtual*
+*En esta sección se muestran capturas que evidencian el funcionamiento en un entorno virtual*
 
-A continuacion se muestra la validacion del servidor FreeIPA como servidor de autenticacion para el PFsense, desde la web del PFsense
+A continuación se muestra la validación del servidor FreeIPA como servidor de autenticación para el PFsense, desde la web del PFsense
 
-![Autenticacion externa LDAP exitosa ](images/test-freeipa.jpg)
+![Autenticación externa LDAP exitosa ](images/test-freeipa.jpg)
 
-Demostracion del correcto establecimiento del tunel IPsec para la VPN site-to-site entre ambos firewalls PFsense
+Demostración del correcto establecimiento del tunel IPsec para la VPN site-to-site entre ambos firewalls PFsense
 
 ![IPsec status desde el firewall PFsense Central](images/tunel1.jpg)
 
 ![IPsec status desde el firewall PFsense Cloud](images/tunel2.jpg)
 
-Demostracion de la asignacion de direccion IP de distintos Pools de IP a los colaboradores que se conectan mediante OpenVPN utilizando perfiles VPN distintos.
+Demostración de la asignación de dirección IP de distintos Pools de IP a los colaboradores que se conectan mediante OpenVPN utilizando perfiles VPN distintos.
 
 ![OpenVPN client status, 2 perfiles en una misma imagen representando 2 PCs distintos](images/status.jpg)
 
-Demostracion de como aparece una nueva ruta estatica en el laptop del colaborador conectado al perfil TI de openVPN, y esta sera accesible a traves de la VPN establecida como se puede ver a continuacion
+Demostración de como aparece una nueva ruta estatica en el laptop del colaborador conectado al perfil TI de openVPN, y esta sera accesible a traves de la VPN establecida como se puede ver a continuación
 
 ![Ruta estatica a traves de la vpn levantada](images/ovpn_ruta.jpg)
 
-Verificacion de que ambas fases del tunel IPsec quedaron configuradas en la seccion VPN/IPsec del PFsense Cloud
+Verificación de que ambas fases del tunel IPsec quedaron configuradas en la sección VPN/IPsec del PFsense Cloud
 
 ![Tunel IPsec fase 1 y fase 2 status en PFsense Cloud:](images/status3.jpg)
 
-Verificacion de que ambas fases del tunel IPsec quedaron configuradas en la seccion VPN/IPsec del PFsense Central
+Verificación de que ambas fases del tunel IPsec quedaron configuradas en la sección VPN/IPsec del PFsense Central
 
 ![Tunel IPsec fase 1 y fase 2 status en PFsense Central](images/status2.jpg)
 
-Validacion del acceso web al portal de Wordpress
+Validación del acceso web al portal de Wordpress
 
 http://[IP del servidor]/wp-login.php
 
 ![Portal web Wordpress](images/keycloak2.jpg)
 
-Validacion del acceso web al portal de Keycloak
+Validación del acceso web al portal de Keycloak
 
 http://[IP del servidor]:8080/admin/fosil
 
 ![Portal web Keycloak](images/keycloak.jpg)
 
-Validacion del acceso web al portal de FreeIPA
+Validación del acceso web al portal de FreeIPA
 
 http://fosil.ipa.test
 
@@ -1477,9 +1482,9 @@ http://fosil.ipa.test
 
 ## 12. Posibles mejoras de la infraestructura sugerida
 
-*Aqui se detallan posibles mejoras del despliegue que fueron apareciendo durante la creacion del mismo, y que de alguna manera no hubo tiempo para ponerlos en produccion.*
+*Aqui se detallan posibles mejoras del despliegue que fueron apareciendo durante la creación del mismo, y que de alguna manera no hubo tiempo para ponerlos en producción.*
 
-### Caso de usuo 3 "Detección de subida de archivos de imagenes en sitio web"
+### Caso de uso 3 "Detección de subida de archivos de imágenes en sitio web"
 
 El sistema actual cumple su función como primer nivel de detección ante cargas de archivos no autorizadas apoyándose en FIM y una regla de Wazuh personalizada. Si bien el caso de uso actual permite detectar archivos subidos con extensiones no permitidas mediante el monitoreo de /var/www/html/uploads/, presenta algunas limitaciones inherentes a realizar el control únicamente por extensión, así como limitantes del enfoque de FIM.
 
@@ -1489,39 +1494,39 @@ A continuación se describen posibles mejoras para robustecer la infraestructura
 - Aislar el directorio de uploads mediante sandboxing o jail: Montar uploads/ en un chroot, contenedor, o directorio fuera del DocumentRoot.
 - Registrar y monitorear las solicitudes HTTP de upload: correlacionar eventos FIM + apache access logs
 - Usar hashing para detectar archivos repetidos o conocidos-maliciosos
-- Implementar Active Response para cuarentena o eliminación automática: por ejemplo, integracion con herramienta VirusTotal
+- Implementar Active Response para cuarentena o eliminación automática: por ejemplo, integración con herramienta VirusTotal
 - Ampliar el caso de uso para detectar evasiones
 
 Estas mejoras permiten evolucionar este caso de uso hacia una solución más sólida, proactiva y adecuada para escenarios de seguridad modernos.
 
 ---
 
-## 13. Referencias bibliograficas
+## 13. Referencias bibliográficas
 
-- Documentacion del sitio oficial de Debian (https://www.debian.org/doc/)
-- Documentacion del sitio oficial de Rocky (https://docs.rockylinux.org/)
-- Documentacion del sitio oficial de OpenVPN (https://openvpn.net/community-docs/)
-- Documentacion del sitio oficial de PFsense (https://docs.netgate.com/pfsense/)
-- Documentacion del sitio oficial de Wazuh (https://documentation.wazuh.com/)
-- Documentacion del sitio oficial de Keycloak (https://www.keycloak.org/documentation)
-- Documentacion del sitio oficial de Wordpress (https://wordpress.org/documentation/)
+- Documentación del sitio oficial de Debian (https://www.debian.org/doc/)
+- Documentación del sitio oficial de Rocky (https://docs.rockylinux.org/)
+- Documentación del sitio oficial de OpenVPN (https://openvpn.net/community-docs/)
+- Documentación del sitio oficial de PFsense (https://docs.netgate.com/pfsense/)
+- Documentación del sitio oficial de Wazuh (https://documentation.wazuh.com/)
+- Documentación del sitio oficial de Keycloak (https://www.keycloak.org/documentation)
+- Documentación del sitio oficial de Wordpress (https://wordpress.org/documentation/)
 - Wazuh: sintaxis para generar reglas: (https://documentation.wazuh.com/current/user-manual/ruleset/ruleset-xml-syntax/rules.html)
 - Wazuh: controles SCA para Hardening: (https://documentation.wazuh.com/current/getting-started/use-cases/configuration-assessment.html)
-- Documentacion de Apache ModSecurity (https://www.feistyduck.com/library/modsecurity-handbook-free/online/)
-- Repositorio de CRS (Core Ruleset) de OWASP para configuracion de reglas de WAF (https://github.com/coreruleset/coreruleset)
+- Documentación de Apache ModSecurity (https://www.feistyduck.com/library/modsecurity-handbook-free/online/)
+- Repositorio de CRS (Core Ruleset) de OWASP para configuración de reglas de WAF (https://github.com/coreruleset/coreruleset)
 - OWASP TOP 10 2021 (https://owasp.org/Top10/es/)
-- Documentacion del sitio oficial de FreeIPA (https://freeipa.org/page/Quick_Start_Guide)
+- Documentación del sitio oficial de FreeIPA (https://freeipa.org/page/Quick_Start_Guide)
 - Material del curso Seguridad en Redes y Dato disponible en la web Aulas de la Facultad ORT (https://aulas.ort.edu.uy)
 - Caso de uso Viajero Imposible (https://medium.com/@soc_55904/imposible-traveler-detection-with-wazuh-0b66e45dd9c7)
 - Matriz de MITRE ATT&CK (https://attack.mitre.org/)
-- Generacion de reglas custom FIM en Wazuh (https://documentation.wazuh.com/current/user-manual/capabilities/file-integrity/creating-custom-fim-rules.html#mapping-fim-fields-to-wazuh-alerts)
+- Generación de reglas custom FIM en Wazuh (https://documentation.wazuh.com/current/user-manual/capabilities/file-integrity/creating-custom-fim-rules.html#mapping-fim-fields-to-wazuh-alerts)
 
 ### Uso de Inteligencia Artificial Generativa
 
 - Prompts puntuales con consultas de errores y troubleshooting de la maqueta en ChatGPT
-- --> Error de vinculacion entre PFsense y FeeIPA, error de authenticacion con los formatos de "authentication containers" y "bind credentials"
-- --> Tengo keycloak 26.4.5 instalado en un servidor y un wp que lo utiliza con openid. Me indicas los pasos para configurar Keycloak (Quarkus) para que sus logs de login OpenID sean visibles en la terminal, ya he hecho configuraciones y no veo que los cambios hayan surgido efecto, entiendo que cambios que he hecho en el archivo de configuracion estan interfiriendo con el systemd, como puedo editarlo a ese nivel para que tome los cambios de configuracion a nivel de logueo?
+- --> Error de vinculación entre PFsense y FeeIPA, error de authenticación con los formatos de "authentication containers" y "bind credentials"
+- --> Tengo keycloak 26.4.5 instalado en un servidor y un wp que lo utiliza con openid. Me indicas los pasos para configurar Keycloak (Quarkus) para que sus logs de login OpenID sean visibles en la terminal, ya he hecho configuraciones y no veo que los cambios hayan surgido efecto, entiendo que cambios que he hecho en el archivo de configuración estan interfiriendo con el systemd, como puedo editarlo a ese nivel para que tome los cambios de configuración a nivel de logueo?
 - -->
-- Prompts de configuracion en Google Gemini
+- Prompts de configuración en Google Gemini
 - --> Tenemos un servidor apache2, generame una pagina donde pueda subir archivos, con formulario html y php.
-- --> "modificar el script que tenemos hasta el momento para que se ajuste a los controles de cis benchmarks de debian realizados por el modulo sca de wazuh. A continuación te compartimos el script y el archivo de configuracion yml"
+- --> "modificar el script que tenemos hasta el momento para que se ajuste a los controles de cis benchmarks de debian realizados por el modulo sca de wazuh. A continuación te compartimos el script y el archivo de configuración yml"
