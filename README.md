@@ -38,10 +38,9 @@
 
 - [9. Diagramas de la infraestructura sugerida](#9-diagramas-de-la-infraestructura-sugerida)
 - [10. Software necesario para la maqueta virtual](#10-software-necesario-para-la-maqueta-virtual)
-- [11. Troubleshooting](#11-troubleshooting)
-- [12. Capturas de funcionamiento de la maqueta virtual](#12-capturas-de-funcionamiento-de-la-maqueta-virtual)
-- [13. Posibles mejoras de la infraestructura sugerida](#13-posibles-mejoras-de-la-infraestructura-sugerida)
-- [14. Referencias bibliográficas](#14-referencias-bibliograficas)
+- [11. Capturas de funcionamiento de la maqueta virtual](#11-capturas-de-funcionamiento-de-la-maqueta-virtual)
+- [12. Posibles mejoras de la infraestructura sugerida](#12-posibles-mejoras-de-la-infraestructura-sugerida)
+- [13. Referencias bibliográficas](#13-referencias-bibliograficas)
 
 ## 1. Descripción general
 
@@ -1426,13 +1425,7 @@ chmod +x hardening.sh
 
 ---
 
-## 11. Troubleshooting
-
-*Se detallan posibles errores y soluciones que el equipo fue encontrando durante el desarrollo de la solucion*
-
----
-
-## 12. Capturas de funcionamiento de la maqueta virtual
+## 11. Capturas de funcionamiento de la maqueta virtual
 
 *En esta seccion se muestran capturas que evidencian el funcionamiento en un entorno virtual*
 
@@ -1482,7 +1475,7 @@ http://fosil.ipa.test
 
 ---
 
-## 13. Posibles mejoras de la infraestructura sugerida
+## 12. Posibles mejoras de la infraestructura sugerida
 
 *Aqui se detallan posibles mejoras del despliegue que fueron apareciendo durante la creacion del mismo, y que de alguna manera no hubo tiempo para ponerlos en produccion.*
 
@@ -1503,7 +1496,7 @@ Estas mejoras permiten evolucionar este caso de uso hacia una solución más só
 
 ---
 
-## 14. Referencias bibliograficas
+## 13. Referencias bibliograficas
 
 - Documentacion del sitio oficial de Debian (https://www.debian.org/doc/)
 - Documentacion del sitio oficial de Rocky (https://docs.rockylinux.org/)
