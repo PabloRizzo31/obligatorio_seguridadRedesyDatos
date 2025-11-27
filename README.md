@@ -1298,7 +1298,35 @@ sudo systemctl restart wazuh-agent
 
 ### 7.C Instalacion de FreeIPA 
 
-***Aca falta poner instalacion de FreeIPA que la tengo en un txt***
+Editar el archivo de hosts del servidor linux con distribucion Rocky donde instalaremos el servidor FreeIPA y guardar los cambios.
+
+```sh
+sudo nano /etc/hosts
+192.168.56.109 fosil.ipa.test ipa
+```
+
+Configurar zona horaria y reglas de firewall locales
+
+```sh
+sudo timedatectl set-timezone America/Montevideo
+sudo firewall-cmd --add-service={freeipa-ldap,freeipa-ldaps,dns,ntp,http,https,kerberos} --permanent
+sudo firewall-cmd --reload
+```
+
+Instalar FreeIPA server y DNS server
+
+```sh
+sudo dnf install freeipa-server freeipa-server-dns freeipa-client -y
+sudo ipa-server-install --setup-dns
+```
+
+Inicializar el usuario admin
+
+```sh
+kinit admin
+```
+
+En este punto la instalacion del servidor FreeIPA concluyo y se podran configurar los distintos usuarios con sus respectivos 2FA para que accedan por OpenVPN al firewall PFsense de borde.
 
 ---
 
@@ -1453,6 +1481,12 @@ Validacion del acceso web al portal de Keycloak
 http://[IP del servidor]:8080/admin/fosil
 
 ![Portal web Keycloak](images/keycloak.jpg)
+
+Validacion del acceso web al portal de FreeIPA
+
+http://fosil.ipa.test
+
+![Portal web FreeIPA](images/freeipa_portal.jpg)
 
 ---
 
