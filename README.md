@@ -259,7 +259,7 @@ De forma analoga se configuran las reglas entrantes y saliente en el firewall PF
 
 ![Reglas salientes en el PFsense Cloud](images/fw4.jpg)
 
-En este punto quedan finalizadas las configuraciones de ambos tipos de VPN, dejando las capturas que evidencian el correcto funcionamiento en la sección **#12 Capturas de funcionamiento de la maqueta virtual**.
+En este punto quedan finalizadas las configuraciones de ambos tipos de VPN, dejando las capturas que evidencian el correcto funcionamiento en la sección **#11 Capturas de funcionamiento de la maqueta virtual**.
 
 ---
 
