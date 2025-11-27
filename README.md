@@ -52,9 +52,9 @@
 Este repositorio contempla todos los requerimientos, configuraciones básicas y limitaciones a tener presente para
 la implementación de una infraestructura de red segura para una empresa local que ha decidido migrar parte de su
 infraestructura on-premise hacia la cloud. El foco del proyecto sera siempre la seguridad de la red y el correcto
-uso y gestion de las identidades de usuarios de la misma, siendo hoy en dia el principal vector de un ataque cibernetico.
+uso y gestión de las identidades de usuarios de la misma, siendo hoy en dia el principal vector de un ataque cibernético.
 
-Nosotros asumimos que los temas que no son requeridos por el cliente en este proyecto, estan saneados y correctamente configurados,
+Nosotros asumimos que los temas que no son requeridos por el cliente en este proyecto, están saneados y correctamente configurados,
 dado que si alguna otra capa o control de seguridad ajeno a este proyecto, falla, la infraestructura de red sugerida
 se vera vulnerada con consecuencias directas sobre la continuidad del negocio de la empresa Fosil S.A..
 
@@ -149,23 +149,23 @@ Su equipo es el responsable de la implementación de los controles de seguridad 
 
 ## 3. Análisis y propuesta de la solución
 
-El enfoque de este proyecto es demostrar el abordaje integral de los distintos servicios criticos de una red como la de la empresa Fosil S.A., teniendo como premisa el fortalecimiento de la seguridad de la misma. A los efectos practicos de demostrar el funcionamiento de todos estos servicios, y cumpliendo con los requerimientos de letra, la maqueta presentada seran 5 VMs que agruparan varios servicios, pero que claramente en un ambiente de producción no podrian compartir hardware ni direccionamiento IP. Aquellas VMs que solo demostraran una función especifica que no sea el endurecimiento del sistema operativo, tendran un sistema operativo Linux Rocky 9.6, en cambio la VM a la cual se le aplicara la politica de hardening tendra un sistema operativo Linux Debian 12.
+El enfoque de este proyecto es demostrar el abordaje integral de los distintos servicios críticos de una red como la de la empresa Fosil S.A., teniendo como premisa el fortalecimiento de la seguridad de la misma. A los efectos prácticos de demostrar el funcionamiento de todos estos servicios, y cumpliendo con los requerimientos de letra, la maqueta presentada serán 5 VMs que agruparan varios servicios, pero que claramente en un ambiente de producción no podrían compartir hardware ni direccionamiento IP. Aquellas VMs que solo demostraran una función especifica que no sea el endurecimiento del sistema operativo, tendrán un sistema operativo Linux Rocky 9.6, en cambio la VM a la cual se le aplicara la política de hardening tendrá un sistema operativo Linux Debian 12.
 
-En las distintas etapas de configuración, se brindaran detalles tecnicos de instalación que apuntan a un usuario con avanzados conocimientos de seguridad y redes, preservando logicamente aquellos datos sensibles como credenciales, certificados, keys, etc, etc.
+En las distintas etapas de configuración, se brindaran detalles técnicos de instalación que apuntan a un usuario con avanzados conocimientos de seguridad y redes, preservando lógicamente aquellos datos sensibles como credenciales, certificados, keys, etc, etc.
 
-En este proyecto que claramente no es de producción, la dificultad mayor se nos presento al momento de integrar todos los servicios entre si para poder presentar una solución de ciberseguridad completa y concisa a nivel corporativo. Es por ello que algunas demostraciones a nivel de la maqueta tienen ciertas excepciones y limitaciones, sobre todo a nivel de direccionamiento IP publico. Para aquellas demostraciones que no se pudo profundizar en la prueba de funcionamiento, remarcamos en la sección **"13. Posibles mejoras de la infraestructura sugerida"**, los cambios a implementar sobre la prueba en cuestion, que por cuestiones de tiempo, limitantes tecnicas y alcance del proyecto, no fue posible investigar con mayor profundidad.
+En este proyecto que claramente no es de producción, la dificultad mayor se nos presento al momento de integrar todos los servicios entre si para poder presentar una solución de ciberseguridad completa y concisa a nivel corporativo. Es por ello que algunas demostraciones a nivel de la maqueta tienen ciertas excepciones y limitaciones, sobre todo a nivel de direccionamiento IP publico. Para aquellas demostraciones que no se pudo profundizar en la prueba de funcionamiento, remarcamos en la sección **"12. Posibles mejoras de la infraestructura sugerida"**, los cambios a implementar sobre la prueba en cuestion, que por cuestiones de tiempo, limitantes técnicas y alcance del proyecto, no fue posible investigar con mayor profundidad.
 
 El lector con conocimientos avanzados de seguridad y redes puede investigarlos por su cuenta partiendo de las bases establecidas por nosotros en este proyecto.
 
-**Como resumen tecnico la solución propuesta provee:**
+**Como resumen técnico la solución propuesta provee:**
 
-- Un servidor ubicado en el borde entre las zonas DMZ e Internet que cumplira funciones de Firewall (PFsense con OpenVPN e IPsec)
-- Un servidor en la zona DMZ que cumplira funciones de WAF (Apache ModSecurity)
-- Un servidor en la zona DMZ que cumplira funciones de  API Gateway (Kong API Gateway)
-- Un servidor en la zona SERVIDORES que cumplira funciones de web server (Apache + Wordpress)
-- Un servidor en la zona SERVIDORES que cumplira funciones de SIEM (Wazuh)
-- Un servidor en la zona SERVIDORES que cumplira funciones de autenticación (FreeIPA + Keycloak)
-- La solución del Firewall se montará en un servidor con sistema operativo FreeBSD, en los demas servidores se usará la distribución Debian 12.
+- Un servidor ubicado en el borde entre las zonas DMZ e Internet que cumplirá funciones de Firewall (PFsense con OpenVPN e IPsec)
+- Un servidor en la zona DMZ que cumplirá funciones de WAF (Apache ModSecurity)
+- Un servidor en la zona DMZ que cumplirá funciones de  API Gateway (Kong API Gateway)
+- Un servidor en la zona SERVIDORES que cumplirá funciones de web server (Apache + Wordpress)
+- Un servidor en la zona SERVIDORES que cumplirá funciones de SIEM (Wazuh)
+- Un servidor en la zona SERVIDORES que cumplirá funciones de autenticación (FreeIPA + Keycloak)
+- La solución del Firewall se montará en un servidor con sistema operativo FreeBSD, en los demás servidores se usará la distribución Debian 12.
 
 ---
 
@@ -185,7 +185,7 @@ En la topologia de red sugerida existiran 2 tipos de conexiones VPN, una de ella
 
 ### Configuración del servidor OpenVPN en el firewall PFsense central
 
-A continuación se observa como quedan configurados los 2 perfiles de acceso tipo Client-access para los usuarios basicos y para los administradores de TI. Mas abajo detallamos paso a paso como crear cada perfil y que parametros varian en cada perfil.
+A continuación se observa como quedan configurados los 2 perfiles de acceso tipo Client-access para los usuarios basicos y para los administradores de TI. Mas abajo detallamos paso a paso como crear cada perfil y que parametros varian en cada perfil. 
 
 ![PFsense OpenVPN server summary](images/vpn0.jpg)
 
@@ -1060,7 +1060,7 @@ Se verifica tambien un intento de LOGIN fallido del usuario "pepito":
 
 ---
 
-## 7. Gestion de Identidad y Accesos (IAM)
+## 7. Gestión de Identidad y Accesos (IAM)
 
 *Guia detallada de configuración del servidor de gestion centralizada de usuarios Keycloak*
 
@@ -1482,7 +1482,7 @@ http://fosil.ipa.test
 
 ## 12. Posibles mejoras de la infraestructura sugerida
 
-*Aqui se detallan posibles mejoras del despliegue que fueron apareciendo durante la creación del mismo, y que de alguna manera no hubo tiempo para ponerlos en producción.*
+*Aquí se detallan posibles mejoras del despliegue que fueron apareciendo durante la creación del mismo, y que de alguna manera no hubo tiempo para ponerlos en producción.*
 
 ### Caso de uso 3 "Detección de subida de archivos de imágenes en sitio web"
 
