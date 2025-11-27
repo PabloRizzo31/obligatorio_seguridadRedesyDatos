@@ -26,8 +26,8 @@
   - [Caso 3: Subida de archivos no permitidos](#caso-3-detección-de-subida-de-archivos-de-imagenes-en-sitio-web)
   - [Alertas del resto de los servicios](#alertas-del-resto-de-los-servicios-requeridos)
 - [7. Gestión de Identidad y Accesos (IAM)](#7-gestion-de-identidad-y-accesos-iam)
-  - [7.A Instalacion del Keycloak 26.4.5](#7a-instalacion-del-keycloak-2645)
-  - [7.B Instalacion de Wordpress y la DB MariaDB](#7b-instalacion-de-wordpress-y-la-db-mariadb)
+  - [7.A Instalacion y configuracion del Keycloak 26.4.5](#7a-instalacion-y-configuracion-del-keycloak-2645)
+  - [7.B Instalacion y configuracion de Wordpress MariaDB](#7b-instalacion-y-configuracion-de-wordpress-mariadb)
   - [7.C Instalacion de FreeIPA](#7c-instalacion-de-freeipa)
 - [8. Plantilla de Servidor endurecida](#8-plantilla-de-servidor-endurecida)
   - [8b. Pruebas en SIEM](#8b-pruebas-funcionamiento-hardening-en-siem)
@@ -162,7 +162,7 @@ El lector con conocimientos avanzados de seguridad y redes puede investigarlos p
 
 ## 4. Redes Privadas Virtuales (VPN)
 
-*Guia detallada de configuracion de un firewall PFsense con el servicio de OpenVPN*
+*Guia detallada de configuracion de un firewall PFsense con el servicio de OpenVPN y protocolo IPsec instalados*
 
 Para la implementacion de un acceso seguro a la empresa, por parte de los colaboradores que acceden a traves de internet, hemos optado por un firewall PFsense (version 2.8) el cual ya tiene incluido de fabrica el paquete OpenVPN y el modulo OpenVPN-client-export que nos permitira exportar facilmente las politicas VPN desde el firewall PFsense para instalarla en los clientes VPN de los laptops de los colaboradores remotos. El paquete OpenVPN nos permitira configurar una VPN Client-Access para dichos colaboradores y como segundo factor de autenticacion hemos optado por un certificado que se instalara en el dispositivo remoto de cada usuario que la vaya a utilizar y un codigo OTP que se generara automaticamente en los celulares de los colaboradores mediante el uso de una app del tipo Google Authenticator.
 
@@ -180,11 +180,11 @@ A continuacion se observa como quedan configurados los 2 perfiles de acceso tipo
 
 ![PFsense OpenVPN server summary](images/vpn0.jpg)
 
-A continuacion se puede ver mas en detalle como los clientes VPN se autenticaran contra el servidor FreeIPA y no la local database. Tambien seleccionamos la interface (wan) por donde llegaran los intentos de conexion VPN y el puerto que escuchara el servidor Open VPN decidimos cambiarlo a 41194 en el caso del perfil de administradores de TI y 51194 para el perfil de los usuarios basicos, para no dejarlo en el valor por defecto de OpenVPN que es el puerto 1194.
+A continuacion se puede ver mas en detalle como los clientes VPN se autenticaran contra el servidor FreeIPA y no la local database. Tambien seleccionamos la interface (wan) por donde llegaran los intentos de conexion VPN y el puerto que escuchara el servidor Open VPN decidimos cambiarlo a 41194 UDP en el caso del perfil de administradores de TI y 51194 UDP para el perfil de los usuarios basicos, para no dejarlo en el valor por defecto de OpenVPN que es el puerto 1194 UDP. Si la empresa lo requiere, el puerto de escucha de la OpenVPN puede ser cambiado a TCP en lugar de UDP por defecto.
 
 ![Configuracion de la autenticacion, interface y puerto de escucha del servidor OpenVPN](images/vpn1.jpg)
 
-Se habilita la casilla TLS para el uso del certificado (autofirmado por el propio PFsense) al cual le llamamos fosil. Esto es requisito indispensable de seguridad para el acceso seguro de nuestros colaboradores indistintamente del perfil de VPN que tenga cada uno.
+Se habilita la casilla TLS para el uso del certificado (autofirmado por el propio firewall PFsense) al cual le llamamos fosil. Esto es requisito indispensable de seguridad para el acceso seguro de nuestros colaboradores indistintamente del perfil de VPN que tenga cada uno.
 
 ![Configuracion del certificado del servidor OpenVPN](images/vpn2.jpg)
 
@@ -200,7 +200,7 @@ Una vez creado el token OTP, debemos habilitarlo en las opciones de inicio de se
 
 ![Configuracion del tipo de autenticacion de un usuario](images/2FA.jpg)
 
-Una vez finalizada la etapa de generacion de generacion de los perfiles OpenVPN y la autenticacion con 2FA, debemos aplicarle las reglas de acceso granular a los distintos perfiles VPN para que solo puedan acceder a los recursos especificos que correspondan. Esta configuracion de reglas entrantes se realiza en el firewall PFsense central donde tenemos definidos los perfiles de OpenVPN
+Una vez finalizada la etapa de generacion de los perfiles OpenVPN y la autenticacion con 2FA, debemos aplicarle las reglas de acceso granular a los distintos perfiles VPN para que solo puedan acceder a los recursos especificos que correspondan. Esta configuracion de reglas entrantes se realiza en el firewall PFsense central donde tenemos definidos los perfiles de OpenVPN
 
 ![Reglas de firewall para acceso granular a la red](images/vpn4.jpg)
 
@@ -250,7 +250,7 @@ De forma analoga se configuran las reglas entrantes y saliente en el firewall PF
 
 ![Reglas salientes en el PFsense Cloud](images/fw4.jpg)
 
-En este punto quedan finalizadas las configuraciones de ambos tipos de VPN, dejando las capturas que evidencian el correcto funcionamiento en la seccion #12 Capturas de funcionamiento de la maqueta virtual.
+En este punto quedan finalizadas las configuraciones de ambos tipos de VPN, dejando las capturas que evidencian el correcto funcionamiento en la seccion **#12 Capturas de funcionamiento de la maqueta virtual**.
 
 ---
 
@@ -379,7 +379,7 @@ Se ejecuta un curl al sitio y se observa en los logs la regla aplicada:
 
 Se agregan rutas sensibles para la adminsitración del sistema. La regla bloquea intentos de request desde ips externas a ubicaciones sensibles como "/admin" ó "/controlpanel".
 
-Es necesario configurar un sitio "admin" para relaizar esta prueba.
+Es necesario configurar un sitio "admin" para realizar esta prueba.
 
 ```bash
 # Crear directorio y archivo index
@@ -437,7 +437,6 @@ sudo nano /etc/apache2/sites-available/api.example.com.conf
 sudo a2ensite api.example.com.conf
 sudo apachectl configtest
 sudo systemctl reload apache2
-
 ```
 
 Instalar y configurar API Gateway
@@ -647,7 +646,7 @@ Este comportamiento suele indicar:
 - Uso fraudulento de credenciales
 - Secuestro de sesión o robo de cuenta
 - Uso compartido de cuentas
-- Actividad maliciosa desde IPs anómalas o proxys/VPNS simultáneos
+- Actividad maliciosa desde IPs anómalas o Proxys/VPNs simultáneos
 
 Cuando se detecta una situación de este tipo, el sistema genera una alerta clasificada como Impossible Traveller, con datos enriquecidos de ambas conexiones (tiempos, IPs, países, distancias y ubicación geográfica). Estas alertas permiten a los analistas de seguridad identificar comportamientos anómalos de usuarios y responder rápidamente a potenciales incidentes de seguridad.
 
@@ -987,79 +986,80 @@ Eventos de autenticacion fallida:
 
 #### Solución Keycloak
 
-Si bien el Wazuh-manager cuenta con algunos decoders basicos para interpretar mensajes con formato syslog, fue necesario generar un nuevo decoder al igual que se hizo con los logs del firewall PFsense en el apartado anterior.
+##### Decodificación de Logs de Keycloak
 
-### Decodificación de Logs de Keycloak
+Si bien Wazuh ya cuenta con algunos decoders basicos para interpretar mensajes con formato syslog, fue necesario generar un nuevo decoder al igual que se hizo con los logs del firewall PFsense en el apartado anterior.
 
-La regla y decoder para interpretar los inicios de sesion en los logs del Keyclock se pueden encontrar en los siguientes archivos:
-
-- Decoder: [decoder_keycloak.xml](siem/decoders/keycloak_custom.xml)
-- Regla: [rule_keycloak.xml](siem/reglas/Keycloak_rule.xml)
+La decoder para interpretar los inicios de sesion en los logs del Keyclock se pueden encontrar en los siguiente archivo:[decoder_keycloak.xml](siem/decoders/keycloak_custom.xml)
 
 ![Wazuh-manager keycloak decoder](images/decoder_keycloak.jpg)
 
+##### Reglas para eventos de Keycloak
+
+De la misma forma que los decoders, se debe generar un archivo de reglas custom bajo */var/ossec/etc/rules*
+
+La regla para interpretar los inicios de sesion en los logs del Keyclock se pueden encontrar en los siguiente archivo:[rule_keycloak.xml](siem/reglas/Keycloak_rule.xml)
+
 ![Wazuh-manager keycloak Rule](images/rule_keycloak.jpg)
 
-### Recepcion de eventos de Keycloak
+##### Recepcion de eventos de Keycloak
 
 Una vez finalizada la configuracion, se puede apreciar en el detalle de los eventos para el agente Keycloak, como se generan los eventos de autenticacion de Keycloak y los mismos son correctamente parseados por el decoder definido.
 
 ![Wazuh-manager keycloak events](images/wazuh_connect.jpg)
 
-Eventos de autenticacion exitosa utilizando OpenID Connect
+Eventos de autenticacion exitosa utilizando OpenID Connect:
 
 ![Resumen de eventos keycloak en wazuh manager](images/keycloak_summary.jpg)
 
-En el log de eventos en la web del servidor Keycloak, se aprecia que la autenticacion del usuario "pepito", que efectivamente fue utilizando el protocolo OpenID-Connect como se pide en los requisitos de este proyecto.
+En el log de eventos en la web del servidor Keycloak, se aprecia que la autenticacion exitosa del usuario "pepito", que efectivamente fue utilizando el protocolo OpenID-Connect como se pide en los requisitos de este proyecto:
 
 ![Evento del usuario pepito autenticandose con el protocolo OpenIDC](images/keycloak13.jpg)
 
-De igual modo, se pueden visualizar los eventos de login a traves de OpenID Connect desde la propia consola del servidor Keycloak
+De igual modo, se pueden visualizar los eventos de LOGIN exitoso a traves de OpenID Connect desde la propia consola del servidor Keycloak:
 
 ![Eventos OpenID Connect por consola](images/log_keycloak_consola.jpg)
 
-Se verifica en el Wazuh-manager como el Wazuh-agent del servidor Keycloak, esta enviando el archivo de keycloak.log el cual tiene los eventos de inicio de sesion en wordpress utilizando el protocolo OpenID Connect.
+Se verifica en el Manager como el Wazuh-agent del servidor Keycloak, esta enviando el archivo de keycloak.log el cual tiene los eventos de inicio de sesion exitosos en wordpress utilizando el protocolo OpenID Connect:
 
 ![Wazuh-manager Statistics](images/stattistics_keycloak.jpg)
+
+Se verifica tambien un intento de LOGIN fallido del usuario "pepito":
+
+![Login error event](images/login_error_keycloak.jpg)
 
 ---
 
 ## 7. Gestion de Identidad y Accesos (IAM)
 
-*Guia detallada de configuracion del servidor de gestion de usuarios Keycloak*
+*Guia detallada de configuracion del servidor de gestion centralizada de usuarios Keycloak*
 
-Para demostrar la correcta gestion de usuarios, hemos optado por configurar un servidor Keycloak junto con un servidor web, el cual tendra alojado el servicio de Wordpress, y loguearemos usuarios del servidor Keycloak en dicho portal de Wordpress. Estas autenticaciones de usuarios seran mediante el protocolo OpenIDC y seran enviadas al SIEM al igual que los demas servidores de la infraestructura.
+Para demostrar la correcta gestion centralizada de usuarios, hemos optado por configurar un servidor Keycloak junto con un servidor web, el cual tendra alojado el servicio de Wordpress, y loguearemos usuarios del servidor Keycloak en dicho portal de Wordpress. Estas autenticaciones de usuarios seran mediante el protocolo OpenIDC y seran enviadas al SIEM al igual que los demas servidores de la infraestructura. Para lograr que que el servidor Keycloak autentique los usuarios mediante el protocolo OpenID Connect, detallaremos mas adelante la instalacion de un plugin en el propio portal web del Wordpress. 
 
-### 7.A Instalacion del Keycloak 26.4.5
+### 7.A Instalacion y configuracion del Keycloak 26.4.5
 
-La instalacion del servicio de Keycloak se llevo a cabo en una distribucion Rocky de Linux para facilitar su implementacion y demostracion practica de los conceptos de gestion centralizada de usuarios, pero llevado a un ambiente de produccion, esta instalacion de keycloak deberia instalarse sobre una distribucion Debian para cumplir con el estandar de hardening de los demas servidores de la red del cliente.
-
-Instalacion de Java 21
+La instalacion del servicio de Keycloak se llevo a cabo en una distribucion Rocky 9 de Linux para facilitar su implementacion y demostracion practica de los conceptos de gestion centralizada de usuarios, pero llevado a un ambiente de produccion, esta instalacion de keycloak deberia instalarse sobre una distribucion Debian para cumplir con el estandar de hardening de los demas servidores de la red del cliente.
 
 ```sh
+#Instalacion de Java 21
+
 sudo dnf install -y java-21-openjdk java-21-openjdk-devel
-```
 
-Instalacion de Keycloak
+#Instalacion de Keycloak
 
-```sh
 sudo mkdir /opt/keycloak
 cd /opt/keycloak
 sudo dnf install -y wget unzip
 sudo wget https://github.com/keycloak/keycloak/releases/download/26.4.5/keycloak-26.4.5.zip
 sudo unzip keycloak-26.4.5.zip
 cd /opt/keycloak/keycloak-26.4.5
-```
 
-Configurar el servicio de Keycloak editando el contenido de su archivo de configuracion
+#Configurar el servicio de Keycloak editando el contenido de su archivo de configuracion
 
-```sh
 sudo nano /etc/systemd/system/keycloak.service
-```
 
-Agregar los parametros de configuracion al archivo keycloak.service y guardar los cambios
+#Agregar los parametros de configuracion al archivo keycloak.service y guardar los cambios
 
-```ini
 [Unit]
 Description=Keycloak Server
 After=network.target
@@ -1078,44 +1078,36 @@ LimitNOFILE=102642
 
 [Install]
 WantedBy=multi-user.target
-```
 
-Configuracion del firewall del servidor Keycloak para que acepte conexiones por el puerto 8080
+# Configuracion del firewall del servidor Keycloak para que acepte conexiones por el puerto 8080
 
-```sh
 sudo firewall-cmd --add-port=8080/tcp --permanent
 sudo firewall-cmd --reload
 ```
 
-### 7.B Instalacion de Wordpress y la DB MariaDB
+### 7.B Instalacion y configuracion de Wordpress MariaDB
 
 ```sh
 sudo dnf install httpd mariadb-server php php-mysqlnd php-fpm php-json php-xml php-gd php-mbstring -y
 sudo systemctl enable --now httpd mariadb
 sudo mysql_secure_installation
 sudo mysql -u root -p
-```
 
-Inicializacion de la DB para Wordpress
+#Inicializacion de la DB para Wordpress
 
-```sql
 CREATE DATABASE wordpress;
 CREATE USER 'wpuser'@'localhost' IDENTIFIED BY '*******';
 GRANT ALL PRIVILEGES ON wordpress.* TO 'wpuser'@'localhost';
 FLUSH PRIVILEGES;
 EXIT;
-```
 
-Instalacion e inicializacion del servidor web Apache
+#Instalacion e inicializacion del servidor web Apache
 
-```sh
 sudo dnf install httpd php php-mysqlnd php-json php-xml php-gd php-mbstring php-curl php-zip -y
 sudo systemctl enable --now httpd
-```
 
-Instalacion y configuracion del Wordpress
+#Instalacion y configuracion del Wordpress
 
-```sh
 cd /tmp
 curl -O https://wordpress.org/latest.tar.gz
 tar -xzvf latest.tar.gz
@@ -1128,11 +1120,9 @@ define( 'DB_NAME', 'wordpress' );
 define( 'DB_USER', 'wpuser' );
 define( 'DB_PASSWORD', 'password' );
 define( 'DB_HOST', 'localhost' );
-```
 
-Configuracion del firewall y SELinux del servidor para que acepte conexiones por el puerto 80 y 443 de Wordpress
+#Configuracion del firewall y SELinux del servidor para que acepte conexiones por el puerto 80 y 443 de Wordpress
 
-```sh
 sudo firewall-cmd --permanent --add-service=http
 sudo firewall-cmd --permanent --add-service=https
 sudo firewall-cmd --reload
@@ -1181,15 +1171,12 @@ Nos logueamos en el portal de Wordpress con el usuario "pepito" definido en Keyc
 
 ### Configuracion de los logs de Keycloak para enviarlos al SIEM via agente Wazuh
 
-Editar el archivo de configuracion de keycloak
-
 ```sh
+#Editar el archivo de configuracion de keycloak
 sudo nano /opt/keycloak/keycloak-26.4.5/conf/keycloak.conf
-```
 
-Agregar la siguiente configuracion y guardar los cambios.
+#Agregar la siguiente configuracion y guardar los cambios.
 
-```sh
 log=console,file
 log-level=info
 log-file=/var/log/keycloak/keycloak.log
@@ -1198,24 +1185,18 @@ events-enabled=true
 event-expiration=0
 admin-events-enabled=true
 admin-events-details-enabled=true
-```
 
-Editar el servicio de Keycloak en systemctl y guardar los cambios
+#Editar el servicio de Keycloak en systemctl y guardar los cambios
 
-```sh
 systemctl edit keycloak
-```
 
-Agregar las siguientes lineas y guardar:
+#Agregar las siguientes lineas y guardar:
 
-```sh
 [Service]
 Environment="KC_LOG_LEVEL=info,org.keycloak.events:debug"
-```
 
-Finalmente se debe reiniciar el servicio de keycloak
+# Finalmente se debe reiniciar el servicio de keycloak
 
-```sh
 sudo systemctl daemon-reload
 sudo systemctl restart keycloak
 ```
@@ -1240,9 +1221,8 @@ sudo WAZUH_MANAGER="192.168.56.113" dnf install wazuh-agent -y
 
 ### Configuracion del Wazuh-agent en el servidor Keycloak
 
-Editar el archivo de configuracion /var/ossec/etc/ossec.conf y guardar los cambios
-
 ```sh
+#Editar el archivo de configuracion /var/ossec/etc/ossec.conf y guardar los cambios
 <client>
   <server>
     <address>192.168.56.113</address>
@@ -1260,69 +1240,55 @@ Editar el archivo de configuracion /var/ossec/etc/ossec.conf y guardar los cambi
   <log_format>full_command</log_format>
   <location>/var/log/keycloak/keycloak.log</location>
  </localfile>
-```
 
-Reiniciar el servicio del agente de Wazuh
+#Reiniciar el servicio del agente de Wazuh
 
-```sh
 sudo systemctl daemon-reload
 sudo systemctl enable --now wazuh-agent
 ```
 
 ### Creacion del Wazuh-agent del Keycloak en el Wazuh-manager
 
-Ejecutar el siguiente comando para agrear un nuevo agente remoto, en este caso el agente del servidor Keycloak, con su nombre y dir IP.
-
 ```sh
+#Ejecutar el siguiente comando para agrear un nuevo agente remoto, en este caso el agente del servidor Keycloak, con su nombre y dir IP.
+
 sudo /var/ossec/bin/manage_agents
-```
 
-Exportar la key para el agente recien agregado, e importarla en el agente instalado en el Keycloak server. La key tiene un formato similar al siguiente:
+#Exportar la key para el agente recien agregado, e importarla en el agente instalado en el Keycloak server. La key tiene un formato similar al siguiente:
 
-```sh
 Agent key information for '001' is: 
 MDAzIEtleWNsb2FrI**********************************************************************************************************k=
-```
 
-En el servidor keycloak importar la key exportada anteriormente desde el Wazuh-manager y guardar los cambios:
+#En el servidor keycloak importar la key exportada anteriormente desde el Wazuh-manager y guardar los cambios:
 
-```sh
 sudo /var/ossec/bin/manage_agents
-```
 
-Reiniciar el Wazuh-agent en el keycloak server
+#Reiniciar el Wazuh-agent en el keycloak server
 
-```sh
 sudo systemctl restart wazuh-agent
 ```
 
 ### 7.C Instalacion de FreeIPA 
 
-Editar el archivo de hosts del servidor linux con distribucion Rocky donde instalaremos el servidor FreeIPA y guardar los cambios.
-
 ```sh
+#Editar el archivo de hosts del servidor linux con distribucion Rocky donde instalaremos el servidor FreeIPA y guardar los cambios.
+
 sudo nano /etc/hosts
 192.168.56.109 fosil.ipa.test ipa
-```
 
-Configurar zona horaria y reglas de firewall locales
+#Configurar zona horaria y reglas de firewall locales
 
-```sh
 sudo timedatectl set-timezone America/Montevideo
 sudo firewall-cmd --add-service={freeipa-ldap,freeipa-ldaps,dns,ntp,http,https,kerberos} --permanent
 sudo firewall-cmd --reload
-```
 
-Instalar FreeIPA server y DNS server
+#Instalar FreeIPA server y DNS server
 
-```sh
 sudo dnf install freeipa-server freeipa-server-dns freeipa-client -y
 sudo ipa-server-install --setup-dns
-```
 
-Inicializar el usuario admin
+#Inicializar el usuario admin
 
-```sh
 kinit admin
 ```
 
